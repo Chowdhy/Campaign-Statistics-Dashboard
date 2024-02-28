@@ -42,7 +42,7 @@ public class App extends Application {
 
         ImpressionParser parser = new ImpressionParser();
         try {
-            parser.parse("D:\\FiercePC\\Downloads\\2_week_campaign_1 (1)\\2_week_campaign_2\\impression_log.csv");
+            parser.parse("C:\\Users\\mahdi\\Downloads\\2_week_campaign_1\\2_week_campaign_2\\impression_log.csv");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
