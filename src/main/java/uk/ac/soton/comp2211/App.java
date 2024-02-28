@@ -5,12 +5,21 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import uk.ac.soton.comp2211.parsing.ImpressionParser;
+
+import java.io.File;
+
+
 
 
 /**
  * JavaFX App
  */
 public class App extends Application {
+
+    private static final Logger logger = LogManager.getLogger(App.class);
 
     @Override
     public void start(Stage stage) {
@@ -24,6 +33,20 @@ public class App extends Application {
     }
 
     public static void main(String[] args) {
+
+        File myObj = new File("data" + File.separator + "campaign.db");
+
+        if (myObj.delete()) {
+            logger.info("Successfully deleted campaign.db");
+        }
+
+        ImpressionParser parser = new ImpressionParser();
+        try {
+            parser.parse("D:\\FiercePC\\Downloads\\2_week_campaign_1 (1)\\2_week_campaign_2\\impression_log.csv");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         launch();
     }
 
