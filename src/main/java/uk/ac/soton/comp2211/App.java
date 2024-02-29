@@ -13,7 +13,7 @@ import uk.ac.soton.comp2211.data.parsing.ImpressionParser;
 import uk.ac.soton.comp2211.data.parsing.ServerLogParser;
 
 /**
- * JavaFX App
+ * JavaFX App Test
  */
 public class App extends Application {
 
