@@ -7,14 +7,10 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uk.ac.soton.comp2211.parsing.ClickLogParser;
-import uk.ac.soton.comp2211.parsing.ImpressionParser;
-import uk.ac.soton.comp2211.parsing.ServerLogParser;
-
-import java.io.File;
-
-
-
+import uk.ac.soton.comp2211.data.parsing.ClickLogParser;
+import uk.ac.soton.comp2211.data.parsing.CsvParser;
+import uk.ac.soton.comp2211.data.parsing.ImpressionParser;
+import uk.ac.soton.comp2211.data.parsing.ServerLogParser;
 
 /**
  * JavaFX App
@@ -34,26 +30,29 @@ public class App extends Application {
         stage.show();
     }
 
-    public static void main(String[] args) {
+    private static void setupCampaignDatabase(String impressionLogPath, String clickLogPath, String serverLogPath) {
+        String databaseName = "campaign";
 
-        File myObj = new File("data" + File.separator + "campaign.db");
+        CsvParser impressionParser = new ImpressionParser(databaseName);
+        CsvParser clickLogParser = new ClickLogParser(databaseName);
+        CsvParser serverLogParser = new ServerLogParser(databaseName);
 
-        if (myObj.delete()) {
-            logger.info("Successfully deleted campaign.db");
-        }
-
-        ImpressionParser impressionParser = new ImpressionParser();
-        ServerLogParser serverLogParser = new ServerLogParser();
-        ClickLogParser clickLogParser = new ClickLogParser();
         try {
-            impressionParser.parse("D:\\FiercePC\\Downloads\\2_week_campaign_1 (1)\\2_week_campaign_2\\impression_log.csv");
-            serverLogParser.parse("D:\\FiercePC\\Downloads\\2_week_campaign_1 (1)\\2_week_campaign_2\\server_log.csv");
-            clickLogParser.parse("D:\\FiercePC\\Downloads\\2_week_campaign_1 (1)\\2_week_campaign_2\\click_log.csv");
+            impressionParser.parse(impressionLogPath);
+            clickLogParser.parse(clickLogPath);
+            serverLogParser.parse(serverLogPath);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void main(String[] args) {
+        var impressionPath = "data/sample_data/2_week_campaign/impression_log.csv";
+        var clickPath = "data/sample_data/2_week_campaign/click_log.csv";
+        var serverPath = "data/sample_data/2_week_campaign/server_log.csv";
+
+        setupCampaignDatabase(impressionPath, clickPath, serverPath);
 
         launch();
     }
-
 }

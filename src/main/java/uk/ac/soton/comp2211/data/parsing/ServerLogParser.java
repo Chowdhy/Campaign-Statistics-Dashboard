@@ -1,4 +1,4 @@
-package uk.ac.soton.comp2211.parsing;
+package uk.ac.soton.comp2211.data.parsing;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,19 +21,19 @@ public class ServerLogParser extends CsvParser {
 
     private static final String insertSql = "INSERT INTO server_log(entry_date, ID, exit_date, pages_viewed, conversion) VALUES(?,?,?,?,?)";
 
-    public ServerLogParser() {
-        super(createTableSql, insertSql);
+    public ServerLogParser(String dbName) {
+        super(dbName, "DROP TABLE IF EXISTS 'server_log'", createTableSql, insertSql);
     }
 
     void insert(PreparedStatement prp, String[] line) {
         if (line.length != 5) return;
 
         try {
-            prp.setString(1, line[0]);
-            prp.setLong(2, Long.parseLong(line[1]));
-            prp.setString(3, line[2]);
-            prp.setInt(4, Integer.parseInt(line[3]));
-            prp.setString(5, line[4]);
+            prp.setString(1, line[0].trim());
+            prp.setLong(2, Long.parseLong(line[1].trim()));
+            prp.setString(3, line[2].trim());
+            prp.setInt(4, Integer.parseInt(line[3].trim()));
+            prp.setString(5, line[4].trim());
             prp.addBatch();
         } catch (SQLException e) {
           logger.error(e.getMessage());

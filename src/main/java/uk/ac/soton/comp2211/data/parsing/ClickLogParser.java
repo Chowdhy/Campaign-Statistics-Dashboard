@@ -1,4 +1,4 @@
-package uk.ac.soton.comp2211.parsing;
+package uk.ac.soton.comp2211.data.parsing;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,20 +19,20 @@ public class ClickLogParser extends CsvParser {
 
     private static final String insertSql = "INSERT INTO click_log(date, ID, click_cost) VALUES(?,?,?)";
 
-    public ClickLogParser() {
-        super(createTableSql, insertSql);
+    public ClickLogParser(String dbName) {
+        super(dbName, "DROP TABLE IF EXISTS 'click_log'", createTableSql, insertSql);
     }
 
     void insert(PreparedStatement prp, String[] line) {
         if (line.length != 3) return;
 
         try {
-            prp.setString(1, line[0]);
-            prp.setLong(2, Long.parseLong(line[1]));
-            prp.setFloat(3, Float.parseFloat(line[2]));
+            prp.setString(1, line[0].trim());
+            prp.setLong(2, Long.parseLong(line[1].trim()));
+            prp.setFloat(3, Float.parseFloat(line[2].trim()));
             prp.addBatch();
         } catch (SQLException e) {
-          logger.error(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 }

@@ -1,34 +1,36 @@
-package uk.ac.soton.comp2211.parsing;
+package uk.ac.soton.comp2211.data.parsing;
 
+import com.opencsv.CSVParser;
 import com.opencsv.CSVReader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.ac.soton.comp2211.data.Database;
 
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.*;
 
-abstract class CsvParser {
-    protected static final Logger logger = LogManager.getLogger(ImpressionParser.class);
+public abstract class CsvParser {
+    protected static final Logger logger = LogManager.getLogger(CSVParser.class);
 
     private final String createTableSql;
 
     private final String insertSql;
+    private final String databaseName;
+    private String preamble = null;
 
-    private Connection connect() {
-        String url = "jdbc:sqlite:data/campaign.db";
-        Connection conn = null;
+    public CsvParser(String dbName, String createTableSql, String insertSql) {
+        this.databaseName = dbName;
+        this.createTableSql = createTableSql;
+        this.insertSql = insertSql;
 
-        try {
-            conn = DriverManager.getConnection(url);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-        }
-        return conn;
+        createTable();
     }
 
-    public CsvParser(String createTableSql, String insertSql) {
+    public CsvParser(String dbName, String preamble, String createTableSql, String insertSql) {
+        this.databaseName = dbName;
+        this.preamble = preamble;
         this.createTableSql = createTableSql;
         this.insertSql = insertSql;
 
@@ -40,10 +42,13 @@ abstract class CsvParser {
         Statement stat = null;
 
         try {
-            conn = this.connect();
+            conn = Database.getConnection(databaseName);
             if (conn == null) return;
 
             stat = conn.createStatement();
+
+            if (preamble != null) stat.execute(preamble);
+
             stat.execute(createTableSql);
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -64,7 +69,7 @@ abstract class CsvParser {
         PreparedStatement prp = null;
 
         try (Reader reader = Files.newBufferedReader(inputPath)) {
-            conn = this.connect();
+            conn = Database.getConnection(databaseName);
             if (conn == null) return;
             conn.setAutoCommit(false);
             prp = conn.prepareStatement(insertSql);
@@ -76,8 +81,6 @@ abstract class CsvParser {
             while (((line = csvReader.readNext()) != null)) {
                 this.insert(prp, line);
             }
-
-            int[] updateCounts = prp.executeBatch();
 
             conn.commit();
         } catch (Exception e) {
