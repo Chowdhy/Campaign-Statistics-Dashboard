@@ -7,7 +7,9 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.ac.soton.comp2211.parsing.ClickLogParser;
 import uk.ac.soton.comp2211.parsing.ImpressionParser;
+import uk.ac.soton.comp2211.parsing.ServerLogParser;
 
 import java.io.File;
 
@@ -40,9 +42,13 @@ public class App extends Application {
             logger.info("Successfully deleted campaign.db");
         }
 
-        ImpressionParser parser = new ImpressionParser();
+        ImpressionParser impressionParser = new ImpressionParser();
+        ServerLogParser serverLogParser = new ServerLogParser();
+        ClickLogParser clickLogParser = new ClickLogParser();
         try {
-            parser.parse("C:\\Users\\mahdi\\Downloads\\2_week_campaign_1\\2_week_campaign_2\\impression_log.csv");
+            impressionParser.parse("D:\\FiercePC\\Downloads\\2_week_campaign_1 (1)\\2_week_campaign_2\\impression_log.csv");
+            serverLogParser.parse("D:\\FiercePC\\Downloads\\2_week_campaign_1 (1)\\2_week_campaign_2\\server_log.csv");
+            clickLogParser.parse("D:\\FiercePC\\Downloads\\2_week_campaign_1 (1)\\2_week_campaign_2\\click_log.csv");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
