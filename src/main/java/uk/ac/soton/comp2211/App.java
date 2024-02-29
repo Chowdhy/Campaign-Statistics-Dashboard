@@ -7,6 +7,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Separator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
@@ -44,9 +45,10 @@ public class App extends Application {
         SplitPane leftSplitPane = new SplitPane();
 
         splitPane.setDividerPosition(0, 0.7);
-        leftSplitPane.setDividerPosition(0,0.65);
+        leftSplitPane.setDividerPosition(0,0.68);
 
         VBox metricsVBox = new VBox();
+        metricsVBox.setSpacing(12);
         Label impressionsText = new Label(" Num of impressions: x");
         Label uniquesText = new Label(" Num of uniques: x");
         Label clicksText = new Label(" Num of clicks: x");
@@ -83,11 +85,17 @@ public class App extends Application {
 
 
         HBox filterHBox = new HBox();
-        filterHBox.setSpacing(30);
+        filterHBox.setSpacing(20);
+        VBox bounceFilter = new VBox();
         VBox genderFilters = new VBox();
         VBox incomeFilters = new VBox();
         VBox contextFilters = new VBox();
         VBox ageGroupFilters = new VBox();
+
+        Label bounceLabel = new Label("Bounce");
+        RadioButton timeBounceButton = new RadioButton("Time");
+        RadioButton singlePageBounceButton = new RadioButton("Pages");
+        bounceFilter.getChildren().addAll(bounceLabel,timeBounceButton,singlePageBounceButton);
 
         Label genderLabel = new Label("Gender");
         CheckBox maleButton = new CheckBox("Male");
@@ -119,7 +127,7 @@ public class App extends Application {
 
 
 
-        filterHBox.getChildren().addAll(genderFilters,incomeFilters,ageGroupFilters,contextFilters);
+        filterHBox.getChildren().addAll(bounceFilter,genderFilters,incomeFilters,ageGroupFilters,contextFilters);
 
         LineChart exampleChart = new LineChart(new NumberAxis(), new NumberAxis());
 
