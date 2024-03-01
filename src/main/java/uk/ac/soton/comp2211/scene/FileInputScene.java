@@ -4,6 +4,7 @@ import java.io.File;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
@@ -91,6 +92,12 @@ public class FileInputScene extends BaseScene {
            impressionField.setText(file.getAbsolutePath());
         });
 
+        impressionField.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                clickField.requestFocus();
+            }
+        });
+
         clickExplorer.setOnAction(event -> {
             event.consume();
             FileChooser chooser = new FileChooser();
@@ -103,6 +110,12 @@ public class FileInputScene extends BaseScene {
             clickField.setText(file.getAbsolutePath());
         });
 
+        clickField.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                serverField.requestFocus();
+            }
+        });
+
         serverExplorer.setOnAction(event -> {
             event.consume();
             FileChooser chooser = new FileChooser();
@@ -113,6 +126,12 @@ public class FileInputScene extends BaseScene {
             if (file == null) return;
 
             serverField.setText(file.getAbsolutePath());
+        });
+
+        serverField.setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode().equals(KeyCode.ENTER)) {
+                uploadButton.requestFocus();
+            }
         });
 
         uploadButton.setOnAction(event -> {
