@@ -6,8 +6,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
-import java.io.IOException;
-
 /**
  * JavaFX App Test1
  */
