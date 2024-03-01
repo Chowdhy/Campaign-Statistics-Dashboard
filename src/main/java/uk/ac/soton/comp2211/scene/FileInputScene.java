@@ -1,5 +1,6 @@
 package uk.ac.soton.comp2211.scene;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Priority;
@@ -34,6 +35,7 @@ public class FileInputScene extends BaseScene {
         var centreBox = new VBox();
         containerPane.getChildren().add(centreBox);
         root.getChildren().add(containerPane);
+        centreBox.setAlignment(Pos.TOP_CENTER);
 
         var impressionLabel = new Label("Impression Log Path");
         var clickLabel = new Label("Click Log Path");
@@ -61,6 +63,8 @@ public class FileInputScene extends BaseScene {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+
+            window.loadDashboard();
         });
     }
 

@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.scene.BaseScene;
+import uk.ac.soton.comp2211.scene.DashboardScene;
 import uk.ac.soton.comp2211.scene.FileInputScene;
 
 public class MainWindow {
@@ -58,6 +59,9 @@ public class MainWindow {
 
     public void loadFileInput() {
         loadScene(new FileInputScene(this));
+    }
+    public void loadDashboard() {
+        loadScene(new DashboardScene(this));
     }
 
     public void cleanup() {
