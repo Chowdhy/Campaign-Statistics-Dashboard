@@ -169,6 +169,7 @@ public class App extends Application {
 
         setupCampaignDatabase(impressionPath, clickPath, serverPath);
         CampaignDataRetriever.numberOfImpressions(Database.getConnection("campaign"));
+        CampaignDataRetriever.numberOfClicks(Database.getConnection("campaign"));
         launch();
     }
 }
