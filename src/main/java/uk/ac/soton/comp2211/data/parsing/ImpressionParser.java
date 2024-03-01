@@ -27,7 +27,9 @@ public class ImpressionParser extends CsvParser {
     }
 
     void insert(PreparedStatement prp, String[] line) {
-        if (line.length != 7) return;
+        if (line.length != 7) {
+            throw new RuntimeException("Malformed impression log file: " + path);
+        }
 
         try {
             prp.setString(1, line[0].trim());

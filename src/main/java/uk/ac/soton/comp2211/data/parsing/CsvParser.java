@@ -17,6 +17,7 @@ public abstract class CsvParser {
     private final String insertSql;
     private final String databaseName;
     private String preamble = null;
+    protected String path;
 
     public CsvParser(String dbName, String createTableSql, String insertSql) {
         this.databaseName = dbName;
@@ -60,10 +61,11 @@ public abstract class CsvParser {
         }
     }
 
-    public void parse(String inputFilePath) {
+    public void parse(String inputFilePath) throws Exception {
         Connection conn = null;
         PreparedStatement prp = null;
 
+        path = inputFilePath;
         Path inputPath = Path.of(inputFilePath);
         Reader reader = null;
         CSVReader csvReader = null;
@@ -86,8 +88,6 @@ public abstract class CsvParser {
             prp.executeBatch();
 
             conn.commit();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
         } finally {
             try {
                 if (prp != null) prp.close();
