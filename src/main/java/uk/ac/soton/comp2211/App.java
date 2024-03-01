@@ -1,6 +1,8 @@
 package uk.ac.soton.comp2211;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
@@ -11,6 +13,8 @@ import uk.ac.soton.comp2211.data.parsing.ClickLogParser;
 import uk.ac.soton.comp2211.data.parsing.CsvParser;
 import uk.ac.soton.comp2211.data.parsing.ImpressionParser;
 import uk.ac.soton.comp2211.data.parsing.ServerLogParser;
+
+import java.io.IOException;
 
 /**
  * JavaFX App Test1
@@ -24,35 +28,25 @@ public class App extends Application {
         var javaVersion = SystemInfo.javaVersion();
         var javafxVersion = SystemInfo.javafxVersion();
 
+        /*
         var label = new Label("Hello, JavaFX " + javafxVersion + ", running on Java " + javaVersion + ".");
-        var scene = new Scene(new StackPane(label), 640, 480);
-        stage.setScene(scene);
-        stage.show();
-    }
+        var scene = new Scene(new StackPane(label), 640, 480);*/
 
-    private static void setupCampaignDatabase(String impressionLogPath, String clickLogPath, String serverLogPath) {
-        String databaseName = "campaign";
-
-        CsvParser impressionParser = new ImpressionParser(databaseName);
-        CsvParser clickLogParser = new ClickLogParser(databaseName);
-        CsvParser serverLogParser = new ServerLogParser(databaseName);
-
+        Parent root = null;
         try {
-            impressionParser.parse(impressionLogPath);
-            clickLogParser.parse(clickLogPath);
-            serverLogParser.parse(serverLogPath);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            root = FXMLLoader.load(getClass().getResource("/uk/ac/soton/comp2211/FileUploadView.fxml"));
+            var scene = new Scene(root, 640, 400);
+
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
         }
+
+
     }
 
     public static void main(String[] args) {
-        var impressionPath = "data/sample_data/2_week_campaign/impression_log.csv";
-        var clickPath = "data/sample_data/2_week_campaign/click_log.csv";
-        var serverPath = "data/sample_data/2_week_campaign/server_log.csv";
-
-        setupCampaignDatabase(impressionPath, clickPath, serverPath);
-
         launch();
     }
 }
