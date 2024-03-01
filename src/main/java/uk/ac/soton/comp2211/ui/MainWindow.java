@@ -75,4 +75,8 @@ public class MainWindow {
     public int getHeight() {
         return height;
     }
+
+    public Stage getStage() {
+        return stage;
+    }
 }
