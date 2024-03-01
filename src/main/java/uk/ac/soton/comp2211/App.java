@@ -1,18 +1,9 @@
 package uk.ac.soton.comp2211;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uk.ac.soton.comp2211.data.parsing.ClickLogParser;
-import uk.ac.soton.comp2211.data.parsing.CsvParser;
-import uk.ac.soton.comp2211.data.parsing.ImpressionParser;
-import uk.ac.soton.comp2211.data.parsing.ServerLogParser;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
 import java.io.IOException;
