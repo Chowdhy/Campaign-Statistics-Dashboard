@@ -13,6 +13,7 @@ import uk.ac.soton.comp2211.data.parsing.ClickLogParser;
 import uk.ac.soton.comp2211.data.parsing.CsvParser;
 import uk.ac.soton.comp2211.data.parsing.ImpressionParser;
 import uk.ac.soton.comp2211.data.parsing.ServerLogParser;
+import uk.ac.soton.comp2211.ui.MainWindow;
 
 import java.io.IOException;
 
@@ -22,9 +23,11 @@ import java.io.IOException;
 public class App extends Application {
 
     private static final Logger logger = LogManager.getLogger(App.class);
+    private static App instance;
 
     @Override
     public void start(Stage stage) {
+        instance = this;
         var javaVersion = SystemInfo.javaVersion();
         var javafxVersion = SystemInfo.javafxVersion();
 
@@ -32,18 +35,19 @@ public class App extends Application {
         var label = new Label("Hello, JavaFX " + javafxVersion + ", running on Java " + javaVersion + ".");
         var scene = new Scene(new StackPane(label), 640, 480);*/
 
-        Parent root = null;
-        try {
-            root = FXMLLoader.load(getClass().getResource("/uk/ac/soton/comp2211/FileUploadView.fxml"));
-            var scene = new Scene(root, 640, 400);
+        var window = new MainWindow(stage, 640, 400);
 
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
+        stage.show();
 
+    }
 
+    public void shutdown() {
+        logger.info("Closing instance");
+        System.exit(0);
+    }
+
+    public static App getInstance() {
+        return instance;
     }
 
     public static void main(String[] args) {
