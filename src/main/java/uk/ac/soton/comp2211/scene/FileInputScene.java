@@ -67,9 +67,9 @@ public class FileInputScene extends BaseScene {
         HBox.setHgrow(clickField, Priority.ALWAYS);
         HBox.setHgrow(serverField, Priority.ALWAYS);
 
-        var impressionExplorer = new Button("Find");
-        var clickExplorer = new Button("Find");
-        var serverExplorer = new Button("Find");
+        var impressionExplorer = new Button("Browse");
+        var clickExplorer = new Button("Browse");
+        var serverExplorer = new Button("Browse");
 
         impressionBox.getChildren().addAll(impressionField, impressionExplorer);
         clickBox.getChildren().addAll(clickField, clickExplorer);
@@ -126,11 +126,11 @@ public class FileInputScene extends BaseScene {
                 impressionParser.parse(impressionField.getText());
                 clickLogParser.parse(clickField.getText());
                 serverLogParser.parse(serverField.getText());
+
+                window.loadDashboard();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-
-            window.loadDashboard();
         });
     }
 
