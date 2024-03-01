@@ -7,10 +7,13 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import uk.ac.soton.comp2211.data.Database;
+import uk.ac.soton.comp2211.data.calculations.CampaignDataRetriever;
 import uk.ac.soton.comp2211.data.parsing.ClickLogParser;
 import uk.ac.soton.comp2211.data.parsing.CsvParser;
 import uk.ac.soton.comp2211.data.parsing.ImpressionParser;
 import uk.ac.soton.comp2211.data.parsing.ServerLogParser;
+
 
 /**
  * JavaFX App Test1
@@ -51,8 +54,9 @@ public class App extends Application {
         var clickPath = "data/sample_data/2_week_campaign/click_log.csv";
         var serverPath = "data/sample_data/2_week_campaign/server_log.csv";
 
-        setupCampaignDatabase(impressionPath, clickPath, serverPath);
 
+        setupCampaignDatabase(impressionPath, clickPath, serverPath);
+        CampaignDataRetriever.numberOfImpressions(Database.getConnection("campaign"));
         launch();
     }
 }
