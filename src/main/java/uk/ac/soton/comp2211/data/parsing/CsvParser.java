@@ -83,6 +83,8 @@ public abstract class CsvParser {
                 this.insert(prp, line);
             }
 
+            prp.executeBatch();
+
             conn.commit();
         } catch (Exception e) {
             logger.error(e.getMessage());
