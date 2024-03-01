@@ -12,10 +12,8 @@ import java.nio.file.Path;
 import java.sql.*;
 
 public abstract class CsvParser {
-    protected static final Logger logger = LogManager.getLogger(CSVParser.class);
-
+    private static final Logger logger = LogManager.getLogger(CSVParser.class);
     private final String createTableSql;
-
     private final String insertSql;
     private final String databaseName;
     private String preamble = null;
@@ -63,24 +61,29 @@ public abstract class CsvParser {
     }
 
     public void parse(String inputFilePath) {
-        Path inputPath = Path.of(inputFilePath);
-
         Connection conn = null;
         PreparedStatement prp = null;
 
-        try (Reader reader = Files.newBufferedReader(inputPath)) {
+        Path inputPath = Path.of(inputFilePath);
+        Reader reader = null;
+        CSVReader csvReader = null;
+
+        try {
             conn = Database.getConnection(databaseName);
             if (conn == null) return;
             conn.setAutoCommit(false);
             prp = conn.prepareStatement(insertSql);
 
-            CSVReader csvReader = new CSVReader(reader);
+            reader = Files.newBufferedReader(inputPath);
+            csvReader = new CSVReader(reader);
             String[] line;
             csvReader.readNextSilently();
 
             while (((line = csvReader.readNext()) != null)) {
                 this.insert(prp, line);
             }
+
+            prp.executeBatch();
 
             conn.commit();
         } catch (Exception e) {
@@ -89,7 +92,9 @@ public abstract class CsvParser {
             try {
                 if (prp != null) prp.close();
                 if (conn != null) conn.close();
-            } catch (SQLException e) {
+                if (csvReader != null) csvReader.close();
+                if (reader != null) reader.close();
+            } catch (Exception e) {
                 logger.error(e.getMessage());
             }
         }
