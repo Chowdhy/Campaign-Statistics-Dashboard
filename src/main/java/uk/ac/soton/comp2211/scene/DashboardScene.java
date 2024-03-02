@@ -1,13 +1,19 @@
 package uk.ac.soton.comp2211.scene;
 
 import javafx.geometry.Orientation;
+import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Pair;
+import uk.ac.soton.comp2211.data.graph.GraphData;
 import uk.ac.soton.comp2211.ui.MainWindow;
+
+import java.util.ArrayList;
 
 public class DashboardScene extends BaseScene {
     public DashboardScene(MainWindow window) {
@@ -112,11 +118,25 @@ public class DashboardScene extends BaseScene {
 
         filterHBox.getChildren().addAll(bounceFilter,genderFilters,incomeFilters,ageGroupFilters,contextFilters);
 
-        LineChart exampleChart = new LineChart(new NumberAxis(), new NumberAxis());
+        GraphData graphData = new GraphData();
+        Pair<ArrayList<String>, ArrayList<Integer>> pairData = graphData.selectAll();
+        ArrayList<String> dates = pairData.getKey();
+        ArrayList<Integer> impressions = pairData.getValue();
+
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        LineChart<String,Number> lineChart = new LineChart<>(xAxis,yAxis);
+
+        XYChart.Series series = new XYChart.Series();
+        series.setName("impressions");
+        for (int i = 0; i < dates.size(); i++) {
+            series.getData().add(new XYChart.Data(dates.get(i), impressions.get(i)));
+        }
+        lineChart.getData().add(series);
 
 
         leftSplitPane.setOrientation(Orientation.VERTICAL);
-        leftSplitPane.getItems().add(exampleChart);
+        leftSplitPane.getItems().add(lineChart);
         leftSplitPane.getItems().add(filterHBox);
     }
 
