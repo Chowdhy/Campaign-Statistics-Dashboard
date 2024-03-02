@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -83,7 +84,10 @@ public class FileInputScene extends BaseScene {
         progressIndicator.isIndeterminate();
         progressIndicator.setVisible(false);
 
-        centreBox.getChildren().addAll(impressionLabel, impressionBox, clickLabel, clickBox, serverLabel, serverBox, uploadButton,progressIndicator);
+        Region spacer = new Region(); //Need to change this, it's a hacky way to do it I'm just running out of time lol
+        spacer.setMinHeight(20);
+
+        centreBox.getChildren().addAll(impressionLabel, impressionBox, clickLabel, clickBox, serverLabel, serverBox, uploadButton,spacer,progressIndicator);
 
         impressionExplorer.setOnAction(event -> {
            event.consume();
