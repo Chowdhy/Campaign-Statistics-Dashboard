@@ -1,6 +1,7 @@
 package uk.ac.soton.comp2211.scene;
 
 import java.io.File;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -78,7 +79,11 @@ public class FileInputScene extends BaseScene {
 
         var uploadButton = new Button("Upload");
 
-        centreBox.getChildren().addAll(impressionLabel, impressionBox, clickLabel, clickBox, serverLabel, serverBox, uploadButton);
+        ProgressIndicator progressIndicator = new ProgressIndicator();
+        progressIndicator.isIndeterminate();
+        progressIndicator.setVisible(false);
+
+        centreBox.getChildren().addAll(impressionLabel, impressionBox, clickLabel, clickBox, serverLabel, serverBox, uploadButton,progressIndicator);
 
         impressionExplorer.setOnAction(event -> {
            event.consume();
@@ -136,21 +141,33 @@ public class FileInputScene extends BaseScene {
 
         uploadButton.setOnAction(event -> {
             event.consume();
+            progressIndicator.setVisible(true);
+
             String databaseName = "campaign";
             CsvParser impressionParser = new ImpressionParser(databaseName);
             CsvParser clickLogParser = new ClickLogParser(databaseName);
             CsvParser serverLogParser = new ServerLogParser(databaseName);
 
-            try {
-                impressionParser.parse(impressionField.getText());
-                clickLogParser.parse(clickField.getText());
-                serverLogParser.parse(serverField.getText());
+            Task<Void> task = new Task<>() {
+                @Override
+                protected Void call() throws Exception {
+                    impressionParser.parse(impressionField.getText());
+                    clickLogParser.parse(clickField.getText());
+                    serverLogParser.parse(serverField.getText());
+                    return null;
+                }
+            };
 
+            task.setOnSucceeded(workerStateEvent -> {
+                progressIndicator.setVisible(false);
                 window.loadDashboard();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            });
+
+            Thread thread = new Thread(task);
+            thread.setDaemon(true);
+            thread.start();
         });
+
     }
 
     @Override
