@@ -1,6 +1,8 @@
 package uk.ac.soton.comp2211.scene;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -27,7 +29,17 @@ public class DashboardScene extends BaseScene {
 
     @Override
     public void build() {
-        root = new StackPane();
+        root = new VBox();
+
+        Menu userManagementMenu = new Menu("User Management");
+        Menu chartSettingsMenu = new Menu("Chart settings");
+        Menu fileSettingsMenu = new Menu("File Settings");
+        Menu exportMenu = new Menu("Export");
+        MenuBar menuBar = new MenuBar(userManagementMenu,chartSettingsMenu,fileSettingsMenu,exportMenu);
+
+
+
+        root.getChildren().add(menuBar);
 
         SplitPane splitPane = new SplitPane();
         root.getChildren().add(splitPane);
@@ -37,7 +49,7 @@ public class DashboardScene extends BaseScene {
         leftSplitPane.setDividerPosition(0,0.68);
 
         VBox metricsVBox = new VBox();
-        metricsVBox.setSpacing(12);
+        metricsVBox.setSpacing(11);
         Label impressionsText = new Label(" Num of impressions: x");
         Label uniquesText = new Label(" Num of uniques: x");
         Label clicksText = new Label(" Num of clicks: x");
@@ -128,15 +140,29 @@ public class DashboardScene extends BaseScene {
         LineChart<String,Number> lineChart = new LineChart<>(xAxis,yAxis);
 
         XYChart.Series series = new XYChart.Series();
-        series.setName("impressions");
+        series.setName("Impressions");
         for (int i = 0; i < dates.size(); i++) {
             series.getData().add(new XYChart.Data(dates.get(i), impressions.get(i)));
         }
         lineChart.getData().add(series);
 
+        VBox chartVbox = new VBox();
+        chartVbox.setPadding(new Insets(5, 0, 0, 0));
+
+
+        HBox dateSelectionBar = new HBox();
+        DatePicker startDatePicker = new DatePicker();
+        DatePicker endDatePicker = new DatePicker();
+        dateSelectionBar.getChildren().addAll(startDatePicker,endDatePicker);
+        dateSelectionBar.setAlignment(Pos.CENTER);
+        dateSelectionBar.setSpacing(10);
+
+        chartVbox.getChildren().add(dateSelectionBar);
+        chartVbox.getChildren().add(lineChart);
+
 
         leftSplitPane.setOrientation(Orientation.VERTICAL);
-        leftSplitPane.getItems().add(lineChart);
+        leftSplitPane.getItems().add(chartVbox);
         leftSplitPane.getItems().add(filterHBox);
     }
 
