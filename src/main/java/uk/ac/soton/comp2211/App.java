@@ -23,7 +23,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.data.Database;
 import uk.ac.soton.comp2211.data.calculations.CalculateMetrics;
-import uk.ac.soton.comp2211.data.calculations.CampaignDataRetriever;
 import uk.ac.soton.comp2211.data.parsing.ClickLogParser;
 import uk.ac.soton.comp2211.data.parsing.CsvParser;
 import uk.ac.soton.comp2211.data.parsing.ImpressionParser;
@@ -172,8 +171,8 @@ public class App extends Application {
 
         setupCampaignDatabase(impressionPath, clickPath, serverPath);
         Connection db = Database.getConnection("campaign");
-        CampaignDataRetriever b = new CampaignDataRetriever(db);
-
+        CalculateMetrics b = new CalculateMetrics(db);
+        System.out.println(b.getCPM());
 
 
 
