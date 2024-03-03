@@ -131,13 +131,14 @@ public class DashboardScene extends BaseScene {
         filterHBox.getChildren().addAll(bounceFilter,genderFilters,incomeFilters,ageGroupFilters,contextFilters);
 
         GraphData graphData = new GraphData();
-        Pair<ArrayList<String>, ArrayList<Integer>> pairData = graphData.selectAll();
+        Pair<ArrayList<String>, ArrayList<Integer>> pairData = graphData.getData("01", "01", "99", "99");
         ArrayList<String> dates = pairData.getKey();
         ArrayList<Integer> impressions = pairData.getValue();
 
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
         LineChart<String,Number> lineChart = new LineChart<>(xAxis,yAxis);
+        lineChart.setAnimated(false);
 
         XYChart.Series series = new XYChart.Series();
         series.setName("Impressions");
@@ -151,9 +152,29 @@ public class DashboardScene extends BaseScene {
 
 
         HBox dateSelectionBar = new HBox();
-        DatePicker startDatePicker = new DatePicker();
-        DatePicker endDatePicker = new DatePicker();
-        dateSelectionBar.getChildren().addAll(startDatePicker,endDatePicker);
+        TextField startDate = new TextField();
+        startDate.setPromptText(dates.getFirst());
+        TextField endDate = new TextField();
+        endDate.setPromptText(dates.getLast());
+        Button submit = new Button("Submit");
+        submit.setOnAction(e -> {
+            if (dates.contains(startDate.getText()) && dates.contains(endDate.getText())) {
+                GraphData newGraphData = new GraphData();
+                Pair<ArrayList<String>, ArrayList<Integer>> newData = newGraphData.filterDate(startDate.getText(), endDate.getText());
+                ArrayList<String> newDates = newData.getKey();
+                ArrayList<Integer> newImpressions = newData.getValue();
+
+                XYChart.Series newSeries = new XYChart.Series();
+                newSeries.setName("Impressions");
+                for (int i = 0; i < newDates.size(); i++) {
+                    newSeries.getData().add(new XYChart.Data(newDates.get(i), newImpressions.get(i)));
+                }
+
+                lineChart.getData().clear();
+                lineChart.getData().add(newSeries);
+            }
+        });
+        dateSelectionBar.getChildren().addAll(startDate,endDate, submit);
         dateSelectionBar.setAlignment(Pos.CENTER);
         dateSelectionBar.setSpacing(10);
 
