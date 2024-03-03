@@ -1,5 +1,8 @@
 package uk.ac.soton.comp2211.data.graph;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
@@ -8,11 +11,26 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Objects;
 
 public class GraphData {
 
-    ArrayList<String> dates = new ArrayList<>();
-    ArrayList<Integer> impressions = new ArrayList<>();
+    BooleanProperty male = new SimpleBooleanProperty(true);
+    BooleanProperty female = new SimpleBooleanProperty(true);
+    BooleanProperty low = new SimpleBooleanProperty(true);
+    BooleanProperty medium = new SimpleBooleanProperty(true);
+    BooleanProperty high = new SimpleBooleanProperty(true);
+    BooleanProperty under25 = new SimpleBooleanProperty(true);
+    BooleanProperty twenties = new SimpleBooleanProperty(true);
+    BooleanProperty thirties = new SimpleBooleanProperty(true);
+    BooleanProperty forties = new SimpleBooleanProperty(true);
+    BooleanProperty above54 = new SimpleBooleanProperty(true);
+    BooleanProperty socialMedia = new SimpleBooleanProperty(true);
+    BooleanProperty shopping = new SimpleBooleanProperty(true);
+    BooleanProperty news = new SimpleBooleanProperty(true);
+    BooleanProperty travel = new SimpleBooleanProperty(true);
+    BooleanProperty blog = new SimpleBooleanProperty(true);
+    BooleanProperty hobbies = new SimpleBooleanProperty(true);
 
     private Connection connect() {
         // SQLite connection string
@@ -27,7 +45,10 @@ public class GraphData {
     }
 
     public Pair<ArrayList<String>, ArrayList<Integer>> getData(String startMonth, String startDay, String endMonth, String endDay){
-        String sql = "SELECT date FROM impression_log";
+        String sql = "SELECT date, gender, income, age, context FROM impression_log";
+        ArrayList<String> dates = new ArrayList<>();
+        ArrayList<Integer> impressions = new ArrayList<>();
+
         int month = Integer.parseInt(startMonth);
         int day = Integer.parseInt(startDay);
         int count = 0;
@@ -38,6 +59,71 @@ public class GraphData {
 
             // loop through the result set
             while (rs.next()) {
+
+                if (!male.get() && Objects.equals(rs.getString("gender"), "Male")) {
+                    continue;
+                }
+
+                if (!female.get() && Objects.equals(rs.getString("gender"), "Female")) {
+                    continue;
+                }
+
+                if (!low.get() && Objects.equals(rs.getString("income"), "Low")) {
+                    continue;
+                }
+
+                if (!medium.get() && Objects.equals(rs.getString("income"), "Medium")) {
+                    continue;
+                }
+
+                if (!high.get() && Objects.equals(rs.getString("income"), "High")) {
+                    continue;
+                }
+
+                if (!under25.get() && Objects.equals(rs.getString("age"), "<25")) {
+                    continue;
+                }
+
+                if (!twenties.get() && Objects.equals(rs.getString("age"), "25-34")) {
+                    continue;
+                }
+
+                if (!thirties.get() && Objects.equals(rs.getString("age"), "35-44")) {
+                    continue;
+                }
+
+                if (!forties.get() && Objects.equals(rs.getString("age"), "45-54")) {
+                    continue;
+                }
+
+                if (!above54.get() && Objects.equals(rs.getString("age"), ">54")) {
+                    continue;
+                }
+
+                if (!socialMedia.get() && Objects.equals(rs.getString("context"), "Social Media")) {
+                    continue;
+                }
+
+                if (!shopping.get() && Objects.equals(rs.getString("context"), "Shopping")) {
+                    continue;
+                }
+
+                if (!travel.get() && Objects.equals(rs.getString("context"), "Travel")) {
+                    continue;
+                }
+
+                if (!news.get() && Objects.equals(rs.getString("context"), "News")) {
+                    continue;
+                }
+
+                if (!blog.get() && Objects.equals(rs.getString("context"), "Blog")) {
+                    continue;
+                }
+
+                if (!hobbies.get() && Objects.equals(rs.getString("context"), "Hobbies")) {
+                    continue;
+                }
+
                 String formattedDay = (day < 10 ? "0" : "") + day;
                 if (rs.getString("date").contains("2015-0" + month + "-" + formattedDay)) {
                     count += 1;
@@ -94,5 +180,69 @@ public class GraphData {
         }
 
         return getData(startMonth, startDay, finalEndMonth, finalEndDay);
+    }
+
+    public BooleanProperty maleProperty(){
+        return male;
+    }
+
+    public BooleanProperty femaleProperty(){
+        return female;
+    }
+
+    public BooleanProperty lowProperty(){
+        return low;
+    }
+
+    public BooleanProperty mediumProperty(){
+        return medium;
+    }
+
+    public BooleanProperty highProperty(){
+        return high;
+    }
+
+    public BooleanProperty under25Property(){
+        return under25;
+    }
+
+    public BooleanProperty twentiesProperty(){
+        return twenties;
+    }
+
+    public BooleanProperty thirtiesProperty(){
+        return thirties;
+    }
+
+    public BooleanProperty fortiesProperty(){
+        return forties;
+    }
+
+    public BooleanProperty above54Property(){
+        return above54;
+    }
+
+    public BooleanProperty socialMediaProperty(){
+        return socialMedia;
+    }
+
+    public BooleanProperty shoppingProperty(){
+        return shopping;
+    }
+
+    public BooleanProperty newsProperty(){
+        return news;
+    }
+
+    public BooleanProperty blogProperty(){
+        return blog;
+    }
+
+    public BooleanProperty travelProperty(){
+        return travel;
+    }
+
+    public BooleanProperty hobbiesProperty(){
+        return hobbies;
     }
 }
