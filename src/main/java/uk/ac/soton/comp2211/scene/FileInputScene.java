@@ -167,6 +167,11 @@ public class FileInputScene extends BaseScene {
                 window.loadDashboard();
             });
 
+            task.setOnFailed(workerStateEvent -> {
+                progressIndicator.setVisible(false);
+                throw new RuntimeException(task.getException());
+            });
+
             Thread thread = new Thread(task);
             thread.setDaemon(true);
             thread.start();
