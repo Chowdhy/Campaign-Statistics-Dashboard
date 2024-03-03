@@ -1,36 +1,35 @@
 package uk.ac.soton.comp2211.data.calculations;
 import java.sql.*;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 
-import uk.ac.soton.comp2211.data.Database;
-public class CampaignDataRetriever {
+public class CalculateMetrics {
 public Connection connection;
 
 public Statement statement;
 
-private int numberOfImpressions;
+private Integer numberOfImpressions;
 
-private int numberOfClicks;
+private Integer numberOfClicks;
 
-private int numberOfUniques;
+private Integer numberOfUniques;
 
-private int numberOfBouncesVisit;
+private Integer numberOfBouncesVisit;
 
-private int numberOfBouncesTime;
+private Integer numberOfBouncesTime;
 
-private int totalConversions;
+private Integer totalConversions;
 
-private float totalCost;
+private Float totalCost;
 
-private int numberOfPages;
+private Integer numberOfPages;
 
-private int timeDifference;
+private Integer timeDifference;
 
+public Float CTR;
+public Float CPA;
+public Float CPC;
+public Float CPM;
 
-    public CampaignDataRetriever(Connection c, int pageBounce, int timeDiff)  {
+    public CalculateMetrics(Connection c, int pageBounce, int timeDiff)  {
         try {
             this.connection = c;
             this.statement = c.createStatement();
@@ -39,16 +38,22 @@ private int timeDifference;
             numberOfImpressions();
             numberOfClicks();
             numberOfUniques();
-            visitBounce(numberOfBouncesVisit);
-            timeBounce(numberOfBouncesTime);
+            visitBounce(numberOfPages);
+            timeBounce(timeDifference);
             numberOfConversions();
             totalCost();
+            calculateCTR();
+            calculateCPA();
+            calculateCPC();
+            calculateCPM();
+            statement.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
     }
 
-    public CampaignDataRetriever(Connection c)  {
+
+    public CalculateMetrics(Connection c)  {
         try {
             this.connection = c;
             this.statement = c.createStatement();
@@ -57,10 +62,15 @@ private int timeDifference;
             numberOfImpressions();
             numberOfClicks();
             numberOfUniques();
-            visitBounce(numberOfBouncesVisit);
-            timeBounce(numberOfBouncesTime);
+            visitBounce(numberOfPages);
+            timeBounce(timeDifference);
             numberOfConversions();
             totalCost();
+            calculateCTR();
+            calculateCPA();
+            calculateCPC();
+            calculateCPM();
+            statement.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
@@ -72,7 +82,6 @@ private int timeDifference;
             ResultSet resultSet = statement.executeQuery("SELECT COUNT (*) AS imp_total FROM impression_log;");
             this.numberOfImpressions = resultSet.getInt("imp_total") + 1;
             resultSet.close();
-            statement.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
@@ -84,7 +93,6 @@ private int timeDifference;
             this.numberOfClicks = resultSet.getInt("click_total") + 1;
 
             resultSet.close();
-            statement.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
@@ -99,7 +107,6 @@ private int timeDifference;
             this.numberOfUniques = resultSet.getInt("unique_count");
 
             resultSet.close();
-            statement.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
@@ -115,7 +122,6 @@ private int timeDifference;
             this.numberOfBouncesVisit = resultSet.getInt("page_bounce");
 
             resultSet.close();
-            statement.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
@@ -131,7 +137,6 @@ private int timeDifference;
 
 
             resultSet.close();
-            statement.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
@@ -143,7 +148,6 @@ private int timeDifference;
             ResultSet resultSet = statement.executeQuery("SELECT COUNT (*) AS conversion_count FROM server_log WHERE conversion = 'Yes';");
             this.totalConversions = resultSet.getInt("conversion_count");
             resultSet.close();
-            statement.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
@@ -155,7 +159,48 @@ private int timeDifference;
             this.totalCost = resultSet.getFloat("total_cost");
 
             resultSet.close();
-            statement.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+    }
+
+    public void calculateCTR() {
+        CTR = (float)getNumberOfClicks() / getNumberOfImpressions();
+    }
+
+    public void calculateCPA() {
+        try {
+            ResultSet resultSet = statement.executeQuery("""
+                    SELECT SUM(t1.click_cost) AS click_cost FROM click_log t1\s
+                    JOIN (
+                        SELECT * FROM server_log WHERE conversion == 'Yes'
+                    ) t2
+                    ON t1.date == t2.entry_date AND t1.ID == t2.ID""");
+            float click_cost = resultSet.getFloat("click_cost");
+            CPA = click_cost / (float) getNumberOfImpressions();
+            resultSet.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+    }
+
+    public void calculateCPC() {
+        try {
+            ResultSet resultSet = statement.executeQuery(" SELECT SUM(click_cost) AS click_cost_total FROM click_log;");
+            float click_cost_total = resultSet.getFloat("click_cost_total");
+            CPC = click_cost_total / (float) getNumberOfClicks();
+            resultSet.close();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+    }
+
+    public void calculateCPM() {
+        try {
+            ResultSet resultSet = statement.executeQuery("SELECT SUM(impression_cost) AS impression_cost_total FROM impression_log;");
+            float impression_cost_total = resultSet.getFloat("impression_cost_total");
+            CPM = impression_cost_total / (float) getNumberOfImpressions() * 1000;
+            resultSet.close();
         } catch (Exception e) {
             System.err.println(e.getClass().getName() + ": " + e.getMessage());
         }
@@ -186,6 +231,22 @@ private int timeDifference;
 
     public float getTotalCost(){
         return this.totalCost;
+    }
+
+    public Float getCPA(){
+        return this.CPA;
+    }
+
+    public Float getCPC(){
+        return this.CPC;
+    }
+
+    public Float getCTR(){
+        return this.CTR;
+    }
+
+    public Float getCPM(){
+        return this.CPM;
     }
 
 
