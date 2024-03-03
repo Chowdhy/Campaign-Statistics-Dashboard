@@ -7,15 +7,70 @@ import java.time.format.DateTimeParseException;
 
 import uk.ac.soton.comp2211.data.Database;
 public class CampaignDataRetriever {
+public Connection connection;
 
-    public static void numberOfImpressions(Connection c) {
+public Statement statement;
+
+private int numberOfImpressions;
+
+private int numberOfClicks;
+
+private int numberOfUniques;
+
+private int numberOfBouncesVisit;
+
+private int numberOfBouncesTime;
+
+private int totalConversions;
+
+private float totalCost;
+
+private int numberOfPages;
+
+private int timeDifference;
+
+
+    public CampaignDataRetriever(Connection c, int pageBounce, int timeDiff)  {
+        try {
+            this.connection = c;
+            this.statement = c.createStatement();
+            this.numberOfPages = pageBounce;
+            this.timeDifference = timeDiff;
+            numberOfImpressions();
+            numberOfClicks();
+            numberOfUniques();
+            visitBounce(numberOfBouncesVisit);
+            timeBounce(numberOfBouncesTime);
+            numberOfConversions();
+            totalCost();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+    }
+
+    public CampaignDataRetriever(Connection c)  {
+        try {
+            this.connection = c;
+            this.statement = c.createStatement();
+            this.numberOfPages = 1;
+            this.timeDifference = 1;
+            numberOfImpressions();
+            numberOfClicks();
+            numberOfUniques();
+            visitBounce(numberOfBouncesVisit);
+            timeBounce(numberOfBouncesTime);
+            numberOfConversions();
+            totalCost();
+        } catch (Exception e) {
+            System.err.println(e.getClass().getName() + ": " + e.getMessage());
+        }
+    }
+
+    public void numberOfImpressions() {
 
         try {
-            Statement statement = c.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT COUNT (*) AS imp_total FROM impression_log;");
-            int imp_total = resultSet.getInt("imp_total") + 1;
-            System.out.println("Number of Impressions: " + imp_total);
-
+            this.numberOfImpressions = resultSet.getInt("imp_total") + 1;
             resultSet.close();
             statement.close();
         } catch (Exception e) {
@@ -23,14 +78,10 @@ public class CampaignDataRetriever {
         }
     }
 
-    public static void numberOfClicks(Connection c) {
+    public void numberOfClicks() {
         try {
-            Statement statement = c.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT COUNT (*) AS click_total FROM click_log;");
-            int click_total = resultSet.getInt("click_total") + 1;
-
-            // Output the row count
-            System.out.println("Number of clicks: " + click_total);
+            this.numberOfClicks = resultSet.getInt("click_total") + 1;
 
             resultSet.close();
             statement.close();
@@ -39,14 +90,13 @@ public class CampaignDataRetriever {
         }
     }
 
-    public static void numberOfUniques(Connection c) {
+
+
+
+    public void numberOfUniques() {
         try {
-            Statement statement = c.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT COUNT (DISTINCT ID) AS unique_count FROM click_log;");
-            int unique_total = resultSet.getInt("unique_count");
-
-            // Output the row count
-            System.out.println("Number of uniques: " + unique_total);
+            this.numberOfUniques = resultSet.getInt("unique_count");
 
             resultSet.close();
             statement.close();
@@ -55,16 +105,14 @@ public class CampaignDataRetriever {
         }
     }
 
-    public static void visitBounce(Connection c, int minVisits)  {
+
+
+    public void visitBounce(int minVisits)  {
 
         String query = "SELECT COUNT(pages_viewed) AS page_bounce FROM server_log WHERE pages_viewed <= " + minVisits;
         try {
-            Statement statement = c.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
-            int page_bounce = resultSet.getInt("page_bounce");
-
-            // Output the row count
-            System.out.println("Number of bounces: " + page_bounce);
+            this.numberOfBouncesVisit = resultSet.getInt("page_bounce");
 
             resultSet.close();
             statement.close();
@@ -74,16 +122,13 @@ public class CampaignDataRetriever {
 
     }
 
-    public static void timeBounce(Connection c, int time_diff)  {
+    public void timeBounce(int time_diff)  {
 
         String query = "SELECT COUNT(*) AS time_bounce FROM server_log WHERE (strftime('%s', exit_date) - strftime('%s', entry_date)) / 60 <= " + time_diff;
         try {
-            Statement statement = c.createStatement();
             ResultSet resultSet = statement.executeQuery(query);
-            int time_bounce = resultSet.getInt("time_bounce");
+            this.numberOfBouncesTime = resultSet.getInt("time_bounce");
 
-            // Output the row count
-            System.out.println("Number of bounces: " + time_bounce);
 
             resultSet.close();
             statement.close();
@@ -93,15 +138,10 @@ public class CampaignDataRetriever {
 
     }
 
-    public static void numberOfConversions(Connection c) {
+    public  void numberOfConversions() {
         try {
-            Statement statement = c.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT COUNT (*) AS conversion_count FROM server_log WHERE conversion = 'Yes';");
-            int conversion_total = resultSet.getInt("conversion_count");
-
-            // Output the row count
-            System.out.println("Number of conversions: " + conversion_total);
-
+            this.totalConversions = resultSet.getInt("conversion_count");
             resultSet.close();
             statement.close();
         } catch (Exception e) {
@@ -109,14 +149,10 @@ public class CampaignDataRetriever {
         }
     }
 
-    public static void totalCost(Connection c) {
+    public void totalCost() {
         try {
-            Statement statement = c.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT SUM(click_cost) AS total_cost FROM click_log");
-            float total_cost = resultSet.getFloat("total_cost");
-
-            // Output the row count
-            System.out.println("total cost: " + total_cost);
+            this.totalCost = resultSet.getFloat("total_cost");
 
             resultSet.close();
             statement.close();
@@ -125,6 +161,32 @@ public class CampaignDataRetriever {
         }
     }
 
+    public int getNumberOfImpressions(){
+        return this.numberOfImpressions;
+    }
+
+    public int getNumberOfClicks(){
+        return this.numberOfClicks;
+    }
+
+    public int getNumberOfUniques(){
+        return this.numberOfUniques;
+    }
+
+    public int getNumberOfBouncesVisit(){
+        return numberOfBouncesVisit;
+    }
+
+    public int getNumberOfBouncesTime(){
+        return this.numberOfBouncesTime;
+    }
+    public int getNumberOfConversions(){
+        return this.totalConversions;
+    }
+
+    public float getTotalCost(){
+        return this.totalCost;
+    }
 
 
 }

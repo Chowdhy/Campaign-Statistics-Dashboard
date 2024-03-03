@@ -22,12 +22,14 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.data.Database;
+import uk.ac.soton.comp2211.data.calculations.CalculateMetrics;
 import uk.ac.soton.comp2211.data.calculations.CampaignDataRetriever;
 import uk.ac.soton.comp2211.data.parsing.ClickLogParser;
 import uk.ac.soton.comp2211.data.parsing.CsvParser;
 import uk.ac.soton.comp2211.data.parsing.ImpressionParser;
 import uk.ac.soton.comp2211.data.parsing.ServerLogParser;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 
@@ -168,14 +170,12 @@ public class App extends Application {
         var clickPath = "data/sample_data/2_week_campaign/click_log.csv";
         var serverPath = "data/sample_data/2_week_campaign/server_log.csv";
 
-
         setupCampaignDatabase(impressionPath, clickPath, serverPath);
-        CampaignDataRetriever.numberOfImpressions(Database.getConnection("campaign"));
-        CampaignDataRetriever.numberOfClicks(Database.getConnection("campaign"));
-        CampaignDataRetriever.numberOfUniques(Database.getConnection("campaign"));
-        CampaignDataRetriever.timeBounce(Database.getConnection("campaign"), 2);
-        CampaignDataRetriever.numberOfConversions(Database.getConnection("campaign"));
-        CampaignDataRetriever.totalCost(Database.getConnection("campaign"));
+        Connection db = Database.getConnection("campaign");
+        CampaignDataRetriever b = new CampaignDataRetriever(db);
+
+
+
 
         launch();
     }
