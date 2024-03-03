@@ -28,6 +28,8 @@ import uk.ac.soton.comp2211.data.parsing.CsvParser;
 import uk.ac.soton.comp2211.data.parsing.ImpressionParser;
 import uk.ac.soton.comp2211.data.parsing.ServerLogParser;
 
+import java.sql.SQLException;
+
 
 /**
  * JavaFX App Test1
@@ -161,7 +163,7 @@ public class App extends Application {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args)  {
         var impressionPath = "data/sample_data/2_week_campaign/impression_log.csv";
         var clickPath = "data/sample_data/2_week_campaign/click_log.csv";
         var serverPath = "data/sample_data/2_week_campaign/server_log.csv";
@@ -170,6 +172,11 @@ public class App extends Application {
         setupCampaignDatabase(impressionPath, clickPath, serverPath);
         CampaignDataRetriever.numberOfImpressions(Database.getConnection("campaign"));
         CampaignDataRetriever.numberOfClicks(Database.getConnection("campaign"));
+        CampaignDataRetriever.numberOfUniques(Database.getConnection("campaign"));
+        CampaignDataRetriever.timeBounce(Database.getConnection("campaign"), 2);
+        CampaignDataRetriever.numberOfConversions(Database.getConnection("campaign"));
+        CampaignDataRetriever.totalCost(Database.getConnection("campaign"));
+
         launch();
     }
 }
