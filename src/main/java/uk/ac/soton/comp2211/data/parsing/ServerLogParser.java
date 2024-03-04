@@ -16,7 +16,8 @@ public class ServerLogParser extends CsvParser {
                      exit_date TEXT NOT NULL,\s
                      pages_viewed INTEGER,\s
                      conversion TEXT CHECK (conversion IN ('Yes', 'No')),\s
-                     PRIMARY KEY (entry_date, ID)
+                     log_ID INTEGER,\s
+                     PRIMARY KEY (log_ID)
                 );""";
 
     private static final String insertSql = "INSERT INTO server_log(entry_date, ID, exit_date, pages_viewed, conversion) VALUES(?,?,?,?,?)";

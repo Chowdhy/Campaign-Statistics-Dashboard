@@ -17,7 +17,8 @@ public class ImpressionParser extends CsvParser {
                      income TEXT CHECK (income IN ('Low', 'Medium', 'High')),\s
                      context TEXT CHECK (context IN ('Shopping', 'News', 'Blog', 'Social Media', 'Hobbies', 'Travel')),\s
                      impression_cost FLOAT,\s
-                     PRIMARY KEY (date, ID)
+                     log_ID INTEGER,\s
+                     PRIMARY KEY (log_ID)
                 );""";
 
     private static final String insertSql = "INSERT INTO impression_log(date, ID, gender, age, income, context, impression_cost) VALUES(?,?,?,?,?,?,?)";

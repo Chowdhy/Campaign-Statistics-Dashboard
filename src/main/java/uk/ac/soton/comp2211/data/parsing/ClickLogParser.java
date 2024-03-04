@@ -14,7 +14,8 @@ public class ClickLogParser extends CsvParser {
                      date TEXT NOT NULL,\s
                      ID INTEGER NOT NULL,\s
                      click_cost FLOAT,\s
-                     PRIMARY KEY (date, ID)
+                     log_ID INTEGER,\s
+                     PRIMARY KEY (log_ID)
                 );""";
 
     private static final String insertSql = "INSERT INTO click_log(date, ID, click_cost) VALUES(?,?,?)";
