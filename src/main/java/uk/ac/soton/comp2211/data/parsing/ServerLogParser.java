@@ -26,7 +26,9 @@ public class ServerLogParser extends CsvParser {
     }
 
     void insert(PreparedStatement prp, String[] line) {
-        if (line.length != 5) return;
+        if (line.length != 5) {
+            throw new RuntimeException("Malformed server log file: " + path);
+        }
 
         try {
             prp.setString(1, line[0].trim());
