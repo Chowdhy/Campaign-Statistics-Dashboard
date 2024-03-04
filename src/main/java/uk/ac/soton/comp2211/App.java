@@ -170,12 +170,6 @@ public class App extends Application {
         var serverPath = "data/sample_data/2_week_campaign/server_log.csv";
 
         setupCampaignDatabase(impressionPath, clickPath, serverPath);
-        Connection db = Database.getConnection("campaign");
-        CalculateMetrics b = new CalculateMetrics(db);
-        System.out.println(b.getCPM());
-
-
-
         launch();
     }
 }
