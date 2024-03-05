@@ -1,8 +1,6 @@
 package uk.ac.soton.comp2211.data.graph;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ObservableBooleanValue;
+import javafx.beans.property.*;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
@@ -31,6 +29,21 @@ public class GraphData {
     BooleanProperty travel = new SimpleBooleanProperty(true);
     BooleanProperty blog = new SimpleBooleanProperty(true);
     BooleanProperty hobbies = new SimpleBooleanProperty(true);
+    BooleanProperty time = new SimpleBooleanProperty(true);
+    BooleanProperty page = new SimpleBooleanProperty(false);
+
+    IntegerProperty impressionsNum = new SimpleIntegerProperty(0);
+    IntegerProperty uniqueNum = new SimpleIntegerProperty(0);
+    IntegerProperty clicksNum = new SimpleIntegerProperty(0);
+    IntegerProperty conversionsNum = new SimpleIntegerProperty(0);
+    IntegerProperty bounceNum = new SimpleIntegerProperty(0);
+    DoubleProperty ctrNum = new SimpleDoubleProperty(0);
+    DoubleProperty cpcNum = new SimpleDoubleProperty(0);
+    DoubleProperty cpmNum = new SimpleDoubleProperty(0);
+    DoubleProperty totalNum = new SimpleDoubleProperty(0);
+    DoubleProperty cpaNum = new SimpleDoubleProperty(0);
+    DoubleProperty bounceRateNum = new SimpleDoubleProperty(0);
+    StringProperty graph = new SimpleStringProperty("Impressions");
 
     private Connection connect() {
         // SQLite connection string
@@ -44,8 +57,7 @@ public class GraphData {
         return conn;
     }
 
-    public Pair<ArrayList<String>, ArrayList<Integer>> getData(String startMonth, String startDay, String endMonth, String endDay){
-        String sql = "SELECT date, gender, income, age, context FROM impression_log";
+    public Pair<ArrayList<String>, ArrayList<Integer>> getData(String startMonth, String startDay, String endMonth, String endDay, String sql){
         ArrayList<String> dates = new ArrayList<>();
         ArrayList<Integer> impressions = new ArrayList<>();
 
@@ -154,7 +166,120 @@ public class GraphData {
         return new Pair<>(dates, impressions);
     }
 
-    public Pair<ArrayList<String>, ArrayList<Integer>> filterDate(String startDate, String endDate) {
+    public ArrayList<Double> costData(String startMonth, String startDay, String endMonth, String endDay, String sql){
+        ArrayList<Double> costList = new ArrayList<>();
+
+        int month = Integer.parseInt(startMonth);
+        int day = Integer.parseInt(startDay);
+        double cost = 0;
+
+        try (Connection conn = this.connect();
+             Statement stmt  = conn.createStatement();
+             ResultSet rs    = stmt.executeQuery(sql)){
+
+            // loop through the result set
+            while (rs.next()) {
+
+                if (!male.get() && Objects.equals(rs.getString("gender"), "Male")) {
+                    continue;
+                }
+
+                if (!female.get() && Objects.equals(rs.getString("gender"), "Female")) {
+                    continue;
+                }
+
+                if (!low.get() && Objects.equals(rs.getString("income"), "Low")) {
+                    continue;
+                }
+
+                if (!medium.get() && Objects.equals(rs.getString("income"), "Medium")) {
+                    continue;
+                }
+
+                if (!high.get() && Objects.equals(rs.getString("income"), "High")) {
+                    continue;
+                }
+
+                if (!under25.get() && Objects.equals(rs.getString("age"), "<25")) {
+                    continue;
+                }
+
+                if (!twenties.get() && Objects.equals(rs.getString("age"), "25-34")) {
+                    continue;
+                }
+
+                if (!thirties.get() && Objects.equals(rs.getString("age"), "35-44")) {
+                    continue;
+                }
+
+                if (!forties.get() && Objects.equals(rs.getString("age"), "45-54")) {
+                    continue;
+                }
+
+                if (!above54.get() && Objects.equals(rs.getString("age"), ">54")) {
+                    continue;
+                }
+
+                if (!socialMedia.get() && Objects.equals(rs.getString("context"), "Social Media")) {
+                    continue;
+                }
+
+                if (!shopping.get() && Objects.equals(rs.getString("context"), "Shopping")) {
+                    continue;
+                }
+
+                if (!travel.get() && Objects.equals(rs.getString("context"), "Travel")) {
+                    continue;
+                }
+
+                if (!news.get() && Objects.equals(rs.getString("context"), "News")) {
+                    continue;
+                }
+
+                if (!blog.get() && Objects.equals(rs.getString("context"), "Blog")) {
+                    continue;
+                }
+
+                if (!hobbies.get() && Objects.equals(rs.getString("context"), "Hobbies")) {
+                    continue;
+                }
+
+                String formattedDay = (day < 10 ? "0" : "") + day;
+                if (rs.getString("date").contains("2015-0" + month + "-" + formattedDay)) {
+                    if (sql.contains("click_cost")) {
+                        cost += Double.parseDouble(rs.getString("click_cost"));
+                    } else {
+                        cost += Double.parseDouble(rs.getString("impression_cost"));
+                    }
+                } else {
+                    if (cost > 0) {
+                        costList.add(cost);
+                        if (sql.contains("click_cost")) {
+                            cost = Double.parseDouble(rs.getString("click_cost"));
+                        } else {
+                            cost = Double.parseDouble(rs.getString("impression_cost"));
+                        }
+                        if (day != 31) {
+                            day += 1;
+                        } else {
+                            month = 2;
+                            day = 1;
+                        }
+                    }
+                    if (rs.getString("date").contains("2015-" + endMonth + "-" + endDay)) {
+                        return costList;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        costList.add(cost);
+        return costList;
+    }
+
+    public Pair<ArrayList<String>, ArrayList<Integer>> filterDate(String startDate, String endDate, String sql) {
         String[] startSplit = startDate.split("-");
         String[] endSplit = endDate.split("-");
 
@@ -179,7 +304,35 @@ public class GraphData {
             finalEndMonth = "02";
         }
 
-        return getData(startMonth, startDay, finalEndMonth, finalEndDay);
+        return getData(startMonth, startDay, finalEndMonth, finalEndDay, sql);
+    }
+
+    public ArrayList<Double> costFilterDate(String startDate, String endDate, String sql) {
+        String[] startSplit = startDate.split("-");
+        String[] endSplit = endDate.split("-");
+
+        String startMonth = startSplit[1];
+        String startDay = startSplit[2];
+        String endMonth = endSplit[1];
+        String endDay = endSplit[2];
+
+        int newEndDay = Integer.parseInt(endDay);
+        String finalEndDay;
+        String finalEndMonth;
+        if (newEndDay < 9) {
+            newEndDay = newEndDay + 1;
+            finalEndDay = "0" + newEndDay;
+            finalEndMonth = endMonth;
+        } else if (newEndDay < 31) {
+            newEndDay = newEndDay + 1;
+            finalEndDay = "" + newEndDay;
+            finalEndMonth = endMonth;
+        } else {
+            finalEndDay = "01";
+            finalEndMonth = "02";
+        }
+
+        return costData(startMonth, startDay, finalEndMonth, finalEndDay, sql);
     }
 
     public BooleanProperty maleProperty(){
@@ -244,5 +397,61 @@ public class GraphData {
 
     public BooleanProperty hobbiesProperty(){
         return hobbies;
+    }
+
+    public BooleanProperty timeProperty(){
+        return time;
+    }
+
+    public BooleanProperty pageProperty(){
+        return page;
+    }
+
+    public IntegerProperty impressionsNumProperty(){
+        return impressionsNum;
+    }
+
+    public IntegerProperty uniqueNumProperty(){
+        return uniqueNum;
+    }
+
+    public IntegerProperty clicksNumProperty(){
+        return clicksNum;
+    }
+
+    public IntegerProperty conversionsNumProperty(){
+        return conversionsNum;
+    }
+
+    public IntegerProperty bounceNumProperty(){
+        return bounceNum;
+    }
+
+    public DoubleProperty ctrNumProperty(){
+        return ctrNum;
+    }
+
+    public DoubleProperty cpcNumProperty(){
+        return cpcNum;
+    }
+
+    public DoubleProperty cpmNumProperty(){
+        return cpmNum;
+    }
+
+    public DoubleProperty totalNumProperty(){
+        return totalNum;
+    }
+
+    public DoubleProperty cpaNumProperty(){
+        return cpaNum;
+    }
+
+    public DoubleProperty bounceRateNumProperty(){
+        return bounceRateNum;
+    }
+
+    public StringProperty graphNumProperty() {
+        return graph;
     }
 }
