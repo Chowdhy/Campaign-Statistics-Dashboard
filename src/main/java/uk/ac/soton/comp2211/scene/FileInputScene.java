@@ -1,6 +1,10 @@
 package uk.ac.soton.comp2211.scene;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -25,7 +29,11 @@ public class FileInputScene extends BaseScene {
 
     @Override
     public void initialise() {
-
+        try {
+            Files.createDirectories(Paths.get("data"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -92,7 +100,7 @@ public class FileInputScene extends BaseScene {
         impressionExplorer.setOnAction(event -> {
            event.consume();
            FileChooser chooser = new FileChooser();
-           chooser.setInitialDirectory(new File("data/sample_data"));
+           chooser.setInitialDirectory(new File("data"));
 
            File file = chooser.showOpenDialog(window.getStage());
 
@@ -110,7 +118,7 @@ public class FileInputScene extends BaseScene {
         clickExplorer.setOnAction(event -> {
             event.consume();
             FileChooser chooser = new FileChooser();
-            chooser.setInitialDirectory(new File("data/sample_data"));
+            chooser.setInitialDirectory(new File("data"));
 
             File file = chooser.showOpenDialog(window.getStage());
 
@@ -128,7 +136,7 @@ public class FileInputScene extends BaseScene {
         serverExplorer.setOnAction(event -> {
             event.consume();
             FileChooser chooser = new FileChooser();
-            chooser.setInitialDirectory(new File("data/sample_data"));
+            chooser.setInitialDirectory(new File("data"));
 
             File file = chooser.showOpenDialog(window.getStage());
 
