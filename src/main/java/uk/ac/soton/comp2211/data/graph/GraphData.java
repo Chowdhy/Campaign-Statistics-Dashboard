@@ -2,6 +2,7 @@ package uk.ac.soton.comp2211.data.graph;
 
 import javafx.beans.property.*;
 import javafx.util.Pair;
+import uk.ac.soton.comp2211.data.Database;
 
 import java.util.ArrayList;
 import java.sql.DriverManager;
@@ -9,6 +10,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 public class GraphData {
@@ -46,18 +49,124 @@ public class GraphData {
     StringProperty graph = new SimpleStringProperty("Impressions");
 
     private Connection connect() {
-        // SQLite connection string
-        String url = "jdbc:sqlite:data/campaign.db";
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(url);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return conn;
+        return Database.getConnection("campaign");
     }
 
-    public Pair<ArrayList<String>, ArrayList<Integer>> getData(String startMonth, String startDay, String endMonth, String endDay, String sql){
+    private String sqlConcat(String delimiter, ArrayList<String> clauses) {
+        String joinedClauses = String.join(" " + delimiter + " ", clauses);
+
+        return "(" + joinedClauses + ")";
+    }
+
+    public ResultSet queryDatabase(String sql, String[] additionalWheres, String postWhere) {
+        var whereClauses = new ArrayList<String>();
+
+        if (!(male.get() && female.get())) {
+            var genderWheres = new ArrayList<String>();
+
+            if (male.get()) {
+                genderWheres.add("impression_log.gender = 'Male'");
+            }
+            if (female.get()) {
+                genderWheres.add("impression_log.gender = 'Female'");
+            }
+
+            whereClauses.add(sqlConcat("OR", genderWheres));
+        }
+
+        if (!(low.get() && medium.get() && high.get())) {
+            var incomeWheres = new ArrayList<String>();
+
+            if (low.get()) {
+                incomeWheres.add("impression_log.income = 'Low'");
+            }
+            if (medium.get()) {
+                incomeWheres.add("impression_log.income = 'Medium'");
+            }
+            if (high.get()) {
+                incomeWheres.add("impression_log.income = 'High'");
+            }
+
+            whereClauses.add(sqlConcat("OR", incomeWheres));
+        }
+
+        if (!(under25.get() && twenties.get() && thirties.get() && forties.get() && above54.get())) {
+            var ageWheres = new ArrayList<String>();
+
+            if (under25.get()) {
+                ageWheres.add("impression_log.age = '<25'");
+            }
+            if (twenties.get()) {
+                ageWheres.add("impression_log.age = '25-34'");
+            }
+            if (thirties.get()) {
+                ageWheres.add("impression_log.age = '35-44'");
+            }
+            if (forties.get()) {
+                ageWheres.add("impression_log.age = '45-54'");
+            }
+            if (above54.get()) {
+                ageWheres.add("impression_log.age = '>54'");
+            }
+
+            whereClauses.add(sqlConcat("OR", ageWheres));
+        }
+
+        if (!(socialMedia.get() && shopping.get() && travel.get() && news.get() && blog.get() && hobbies.get())) {
+            var contextWheres = new ArrayList<String>();
+
+            if (socialMedia.get()) {
+                contextWheres.add("impression_log.context = 'Social Media'");
+            }
+            if (shopping.get()) {
+                contextWheres.add("impression_log.context = 'Shopping'");
+            }
+            if (travel.get()) {
+                contextWheres.add("impression_log.context = 'Travel'");
+            }
+            if (news.get()) {
+                contextWheres.add("impression_log.context = 'News'");
+            }
+            if (blog.get()) {
+                contextWheres.add("impression_log.context = 'Blog'");
+            }
+            if (hobbies.get()) {
+                contextWheres.add("impression_log.context = 'Hobbies'");
+            }
+
+            whereClauses.add(sqlConcat("OR", contextWheres));
+        }
+
+        whereClauses.addAll(List.of(additionalWheres));
+
+        String finalSql = sql;
+
+        if (!whereClauses.isEmpty()) {
+            String whereClause = sqlConcat("AND", whereClauses);
+            finalSql = finalSql.concat(" WHERE " + whereClause);
+        }
+
+        finalSql = finalSql.concat(" " + postWhere);
+
+        System.out.println(finalSql);
+
+        Connection conn = null;
+        Statement stat = null;
+        ResultSet rs;
+
+        try {
+            conn = this.connect();
+            stat = conn.createStatement();
+            rs = stat.executeQuery(finalSql);
+            System.out.println("GOT HERE");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return rs;
+    }
+
+    public Pair<ArrayList<String>, ArrayList<Integer>> getData(String startMonth, String startDay, String endMonth, String endDay, String sql, String[] additionalWheres, String postWhere){
         ArrayList<String> dates = new ArrayList<>();
         ArrayList<Integer> impressions = new ArrayList<>();
 
@@ -65,77 +174,9 @@ public class GraphData {
         int day = Integer.parseInt(startDay);
         int count = 0;
 
-        try (Connection conn = this.connect();
-             Statement stmt  = conn.createStatement();
-             ResultSet rs    = stmt.executeQuery(sql)){
-
+        try (ResultSet rs    = queryDatabase(sql, additionalWheres, postWhere)){
             // loop through the result set
             while (rs.next()) {
-
-                if (!male.get() && Objects.equals(rs.getString("gender"), "Male")) {
-                    continue;
-                }
-
-                if (!female.get() && Objects.equals(rs.getString("gender"), "Female")) {
-                    continue;
-                }
-
-                if (!low.get() && Objects.equals(rs.getString("income"), "Low")) {
-                    continue;
-                }
-
-                if (!medium.get() && Objects.equals(rs.getString("income"), "Medium")) {
-                    continue;
-                }
-
-                if (!high.get() && Objects.equals(rs.getString("income"), "High")) {
-                    continue;
-                }
-
-                if (!under25.get() && Objects.equals(rs.getString("age"), "<25")) {
-                    continue;
-                }
-
-                if (!twenties.get() && Objects.equals(rs.getString("age"), "25-34")) {
-                    continue;
-                }
-
-                if (!thirties.get() && Objects.equals(rs.getString("age"), "35-44")) {
-                    continue;
-                }
-
-                if (!forties.get() && Objects.equals(rs.getString("age"), "45-54")) {
-                    continue;
-                }
-
-                if (!above54.get() && Objects.equals(rs.getString("age"), ">54")) {
-                    continue;
-                }
-
-                if (!socialMedia.get() && Objects.equals(rs.getString("context"), "Social Media")) {
-                    continue;
-                }
-
-                if (!shopping.get() && Objects.equals(rs.getString("context"), "Shopping")) {
-                    continue;
-                }
-
-                if (!travel.get() && Objects.equals(rs.getString("context"), "Travel")) {
-                    continue;
-                }
-
-                if (!news.get() && Objects.equals(rs.getString("context"), "News")) {
-                    continue;
-                }
-
-                if (!blog.get() && Objects.equals(rs.getString("context"), "Blog")) {
-                    continue;
-                }
-
-                if (!hobbies.get() && Objects.equals(rs.getString("context"), "Hobbies")) {
-                    continue;
-                }
-
                 String formattedDay = (day < 10 ? "0" : "") + day;
                 if (rs.getString("date").contains("2015-0" + month + "-" + formattedDay)) {
                     count += 1;
@@ -166,84 +207,17 @@ public class GraphData {
         return new Pair<>(dates, impressions);
     }
 
-    public ArrayList<Double> costData(String startMonth, String startDay, String endMonth, String endDay, String sql){
+    public ArrayList<Double> costData(String startMonth, String startDay, String endMonth, String endDay, String sql, String[] additionalWheres, String postWhere){
         ArrayList<Double> costList = new ArrayList<>();
 
         int month = Integer.parseInt(startMonth);
         int day = Integer.parseInt(startDay);
         double cost = 0;
 
-        try (Connection conn = this.connect();
-             Statement stmt  = conn.createStatement();
-             ResultSet rs    = stmt.executeQuery(sql)){
+        try (ResultSet rs    = queryDatabase(sql, additionalWheres, postWhere)){
 
             // loop through the result set
             while (rs.next()) {
-
-                if (!male.get() && Objects.equals(rs.getString("gender"), "Male")) {
-                    continue;
-                }
-
-                if (!female.get() && Objects.equals(rs.getString("gender"), "Female")) {
-                    continue;
-                }
-
-                if (!low.get() && Objects.equals(rs.getString("income"), "Low")) {
-                    continue;
-                }
-
-                if (!medium.get() && Objects.equals(rs.getString("income"), "Medium")) {
-                    continue;
-                }
-
-                if (!high.get() && Objects.equals(rs.getString("income"), "High")) {
-                    continue;
-                }
-
-                if (!under25.get() && Objects.equals(rs.getString("age"), "<25")) {
-                    continue;
-                }
-
-                if (!twenties.get() && Objects.equals(rs.getString("age"), "25-34")) {
-                    continue;
-                }
-
-                if (!thirties.get() && Objects.equals(rs.getString("age"), "35-44")) {
-                    continue;
-                }
-
-                if (!forties.get() && Objects.equals(rs.getString("age"), "45-54")) {
-                    continue;
-                }
-
-                if (!above54.get() && Objects.equals(rs.getString("age"), ">54")) {
-                    continue;
-                }
-
-                if (!socialMedia.get() && Objects.equals(rs.getString("context"), "Social Media")) {
-                    continue;
-                }
-
-                if (!shopping.get() && Objects.equals(rs.getString("context"), "Shopping")) {
-                    continue;
-                }
-
-                if (!travel.get() && Objects.equals(rs.getString("context"), "Travel")) {
-                    continue;
-                }
-
-                if (!news.get() && Objects.equals(rs.getString("context"), "News")) {
-                    continue;
-                }
-
-                if (!blog.get() && Objects.equals(rs.getString("context"), "Blog")) {
-                    continue;
-                }
-
-                if (!hobbies.get() && Objects.equals(rs.getString("context"), "Hobbies")) {
-                    continue;
-                }
-
                 String formattedDay = (day < 10 ? "0" : "") + day;
                 if (rs.getString("date").contains("2015-0" + month + "-" + formattedDay)) {
                     if (sql.contains("click_cost")) {
@@ -279,7 +253,7 @@ public class GraphData {
         return costList;
     }
 
-    public Pair<ArrayList<String>, ArrayList<Integer>> filterDate(String startDate, String endDate, String sql) {
+    public Pair<ArrayList<String>, ArrayList<Integer>> filterDate(String startDate, String endDate, String sql, String[] additionalWheres, String postWhere) {
         String[] startSplit = startDate.split("-");
         String[] endSplit = endDate.split("-");
 
@@ -304,10 +278,10 @@ public class GraphData {
             finalEndMonth = "02";
         }
 
-        return getData(startMonth, startDay, finalEndMonth, finalEndDay, sql);
+        return getData(startMonth, startDay, finalEndMonth, finalEndDay, sql, additionalWheres, postWhere);
     }
 
-    public ArrayList<Double> costFilterDate(String startDate, String endDate, String sql) {
+    public ArrayList<Double> costFilterDate(String startDate, String endDate, String sql, String[] additionalWheres, String postWhere) {
         String[] startSplit = startDate.split("-");
         String[] endSplit = endDate.split("-");
 
@@ -332,7 +306,7 @@ public class GraphData {
             finalEndMonth = "02";
         }
 
-        return costData(startMonth, startDay, finalEndMonth, finalEndDay, sql);
+        return costData(startMonth, startDay, finalEndMonth, finalEndDay, sql, additionalWheres, postWhere);
     }
 
     public BooleanProperty maleProperty(){

@@ -305,27 +305,27 @@ public class DashboardScene extends BaseScene {
 
     public ArrayList<String> makeGraph(LineChart lineChart, String startDate, String endDate) {
         graphData.impressionsNumProperty().set(0);
-        String impressionSQL = "SELECT id, date, gender, income, age, context FROM impression_log";
-        Pair<ArrayList<String>, ArrayList<Integer>> impressionData = graphData.filterDate(startDate, endDate, impressionSQL);
+        String impressionSQL = "SELECT impression_log.id, impression_log.date FROM impression_log";
+        Pair<ArrayList<String>, ArrayList<Integer>> impressionData = graphData.filterDate(startDate, endDate, impressionSQL, new String[]{}, "");
         ArrayList<String> dates = impressionData.getKey();
         ArrayList<Integer> impressions = impressionData.getValue();
         graphData.impressionsNumProperty().set(impressions.stream().mapToInt(a -> a).sum());
 
         graphData.uniqueNumProperty().set(0);
-        String uniqueSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id GROUP BY impression_log.id ORDER BY impression_log.date";
-        Pair<ArrayList<String>, ArrayList<Integer>> uniqueData = graphData.filterDate(startDate, endDate, uniqueSQL);
+        String uniqueSQL = "SELECT impression_log.id, impression_log.date FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id";
+        Pair<ArrayList<String>, ArrayList<Integer>> uniqueData = graphData.filterDate(startDate, endDate, uniqueSQL, new String[]{}, "GROUP BY impression_log.id ORDER BY impression_log.date");
         ArrayList<Integer> unique = uniqueData.getValue();
         graphData.uniqueNumProperty().set(unique.stream().mapToInt(a -> a).sum());
 
         graphData.clicksNumProperty().set(0);
-        String clickSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id";
-        Pair<ArrayList<String>, ArrayList<Integer>> clickData = graphData.filterDate(startDate, endDate, clickSQL);
+        String clickSQL = "SELECT impression_log.id, impression_log.date FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id";
+        Pair<ArrayList<String>, ArrayList<Integer>> clickData = graphData.filterDate(startDate, endDate, clickSQL, new String[]{}, "");
         ArrayList<Integer> clicks = clickData.getValue();
         graphData.clicksNumProperty().set(clicks.stream().mapToInt(a -> a).sum());
 
         graphData.conversionsNumProperty().set(0);
-        String conversionSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context FROM server_log INNER JOIN impression_log ON impression_log.id = server_log.id WHERE server_log.conversion = 'Yes' ORDER BY impression_log.date";
-        Pair<ArrayList<String>, ArrayList<Integer>> conversionData = graphData.filterDate(startDate, endDate, conversionSQL);
+        String conversionSQL = "SELECT impression_log.id, impression_log.date FROM server_log INNER JOIN impression_log ON impression_log.id = server_log.id";
+        Pair<ArrayList<String>, ArrayList<Integer>> conversionData = graphData.filterDate(startDate, endDate, conversionSQL, new String[]{"server_log.conversion = 'Yes'"}, "ORDER BY impression_log.date");
         ArrayList<Integer> conversions = conversionData.getValue();
         graphData.conversionsNumProperty().set(conversions.stream().mapToInt(a -> a).sum());
 
@@ -337,8 +337,8 @@ public class DashboardScene extends BaseScene {
         graphData.ctrNumProperty().set(Double.parseDouble(String.format("%.5g%n", ctr.stream().mapToDouble(a -> a).sum() / dates.size())));
 
         graphData.cpcNumProperty().set(0);
-        String cpcSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context, click_log.click_cost FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id";
-        ArrayList<Double> cpcTest = graphData.costFilterDate(startDate, endDate, cpcSQL);
+        String cpcSQL = "SELECT impression_log.id, impression_log.date, click_log.click_cost FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id";
+        ArrayList<Double> cpcTest = graphData.costFilterDate(startDate, endDate, cpcSQL, new String[]{}, "");
         ArrayList<Double> cpc = new ArrayList<>();
         for (int i = 0; i < cpcTest.size(); i++) {
             cpc.add(Double.parseDouble(String.format("%.5g%n", cpcTest.get(i) / clicks.get(i))));
@@ -346,8 +346,8 @@ public class DashboardScene extends BaseScene {
         graphData.cpcNumProperty().set(Double.parseDouble(String.format("%.5g%n", cpc.stream().mapToDouble(a -> a).sum() / dates.size())));
 
         graphData.cpmNumProperty().set(0);
-        String cpmSQL = "SELECT id, date, gender, income, age, context, impression_cost FROM impression_log";
-        ArrayList<Double> cpmTest = graphData.costFilterDate(startDate, endDate, cpmSQL);
+        String cpmSQL = "SELECT impression_log.id, impression_log.date, impression_log.impression_cost FROM impression_log";
+        ArrayList<Double> cpmTest = graphData.costFilterDate(startDate, endDate, cpmSQL, new String[]{}, "");
         ArrayList<Double> cpm = new ArrayList<>();
         for (int i = 0; i < cpmTest.size(); i++) {
             cpm.add(Double.parseDouble(String.format("%.5g%n", (cpmTest.get(i) / impressions.get(i))*1000)));
@@ -366,11 +366,11 @@ public class DashboardScene extends BaseScene {
         graphData.cpaNumProperty().set(Double.parseDouble(String.format("%.5g%n", cpa.stream().mapToDouble(a -> a).sum() / dates.size())));
 
         graphData.bounceNumProperty().set(0);
-        String timeSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context FROM server_log INNER JOIN impression_log ON impression_log.id = server_log.id WHERE time(server_log.exit_date) > time(server_log.entry_date, '+1 minutes') ORDER BY impression_log.date";
-        Pair<ArrayList<String>, ArrayList<Integer>> timeData = graphData.filterDate(startDate, endDate, timeSQL);
+        String timeSQL = "SELECT impression_log.id, impression_log.date FROM server_log INNER JOIN impression_log ON impression_log.id = server_log.id";
+        Pair<ArrayList<String>, ArrayList<Integer>> timeData = graphData.filterDate(startDate, endDate, timeSQL, new String[]{"time(server_log.exit_date) > time(server_log.entry_date, '+1 minutes')"}, "ORDER BY impression_log.date");
         ArrayList<Integer> time = timeData.getValue();
-        String pageSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context FROM server_log INNER JOIN impression_log ON impression_log.id = server_log.id WHERE server_log.pages_viewed > 1 ORDER BY impression_log.date";
-        Pair<ArrayList<String>, ArrayList<Integer>> pageData = graphData.filterDate(startDate, endDate, pageSQL);
+        String pageSQL = "SELECT impression_log.id, impression_log.date FROM server_log INNER JOIN impression_log ON impression_log.id = server_log.id";
+        Pair<ArrayList<String>, ArrayList<Integer>> pageData = graphData.filterDate(startDate, endDate, pageSQL, new String[]{"server_log.pages_viewed > 1"}, "ORDER BY impression_log.date");
         ArrayList<Integer> page = pageData.getValue();
         if (graphData.timeProperty().getValue()) {
             graphData.bounceNumProperty().set(time.stream().mapToInt(a -> a).sum());
