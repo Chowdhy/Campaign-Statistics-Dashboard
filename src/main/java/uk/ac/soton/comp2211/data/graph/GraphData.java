@@ -1,15 +1,17 @@
 package uk.ac.soton.comp2211.data.graph;
 
 import javafx.beans.property.*;
-import javafx.util.Pair;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 
+import java.text.DecimalFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Objects;
 
 public class GraphData {
 
@@ -45,6 +47,17 @@ public class GraphData {
     DoubleProperty bounceRateNum = new SimpleDoubleProperty(0);
     StringProperty graph = new SimpleStringProperty("Impressions");
 
+    ArrayList<Integer> impressions;
+    ArrayList<Integer> uniques;
+    ArrayList<Integer> clicks;
+    ArrayList<Integer> pages;
+    ArrayList<Integer> times;
+    ArrayList<Integer> conversions;
+    ArrayList<Double> clickCost;
+    ArrayList<Double> impressionCost;
+    ArrayList<Double> totals = new ArrayList<>();
+
+
     private Connection connect() {
         // SQLite connection string
         String url = "jdbc:sqlite:data/campaign.db";
@@ -57,282 +70,182 @@ public class GraphData {
         return conn;
     }
 
-    public Pair<ArrayList<String>, ArrayList<Integer>> getData(String startMonth, String startDay, String endMonth, String endDay, String sql){
+    public ArrayList<String> getDates(String startDate, String endDate){
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
         ArrayList<String> dates = new ArrayList<>();
-        ArrayList<Integer> impressions = new ArrayList<>();
+        while (!start.isAfter(end)) {
+            dates.add(start.toString());
+            start = start.plusDays(1);
+        }
+        return dates;
+    }
 
-        int month = Integer.parseInt(startMonth);
-        int day = Integer.parseInt(startDay);
-        int count = 0;
+    public String filterSQL(String startDate, String endDate){
+        String startFilter = "DATETIME('" + startDate + " 00:00:01') < date ";
+        String endFilter = "AND DATETIME('" + endDate + " 23:59:59') > date";
+        String sql = "WHERE " + startFilter + endFilter;
 
-        try (Connection conn = this.connect();
-             Statement stmt  = conn.createStatement();
-             ResultSet rs    = stmt.executeQuery(sql)){
+        if (!male.get()) { sql += " AND gender != 'Male'"; }
+        if (!female.get()) { sql += " AND gender != 'Female'"; }
+        if (!low.get()) { sql += " AND income != 'Low'"; }
+        if (!medium.get()) { sql += " AND income != 'Medium'"; }
+        if (!high.get()) { sql += " AND income != 'High'"; }
+        if (!under25.get()) { sql += " AND age != '<25'"; }
+        if (!twenties.get()) { sql += " AND age != '25-34'"; }
+        if (!thirties.get()) { sql += " AND age != '35-44'"; }
+        if (!forties.get()) { sql += " AND age != '45-54'"; }
+        if (!above54.get()) { sql += " AND age != '>54'"; }
+        if (!socialMedia.get()) { sql += " AND context != 'Social Media'"; }
+        if (!shopping.get()) { sql += " AND context != 'Shopping'"; }
+        if (!blog.get()) { sql += " AND context != 'Blog'"; }
+        if (!news.get()) { sql += " AND context != 'News'"; }
+        if (!hobbies.get()) { sql += " AND context != 'Hobbies'"; }
+        if (!travel.get()) { sql += " AND context != 'Travel'"; }
 
-            // loop through the result set
+        return sql;
+    }
+
+    public ArrayList<Integer> getIntMetric(Statement stmt, String sql) throws SQLException {
+        ResultSet rs = stmt.executeQuery(sql);
+        ArrayList<Integer> result = new ArrayList<>();
+        if (sql.contains("COUNT(*)")) {
             while (rs.next()) {
+                result.add(Integer.parseInt(rs.getString("COUNT(*)")));
+            }
+            return result;
+        } else {
+            while (rs.next()) {
+                result.add(Integer.parseInt(rs.getString("COUNT(DISTINCT click_log.id)")));
+            }
+            return result;
+        }
+    }
 
-                if (!male.get() && Objects.equals(rs.getString("gender"), "Male")) {
-                    continue;
-                }
+    public ArrayList<Double> getDoubleMetric(Statement stmt, String sql) throws SQLException {
+        ResultSet rs = stmt.executeQuery(sql);
+        ArrayList<Double> result = new ArrayList<>();
+        if (sql.contains("SUM(click_cost)")) {
+            while (rs.next()) {
+                result.add(Double.parseDouble(rs.getString("SUM(click_cost)")));
+            }
+            return result;
+        } else {
+            while (rs.next()) {
+                result.add(Double.parseDouble(rs.getString("SUM(impression_cost)")));
+            }
+            return result;
+        }
+    }
 
-                if (!female.get() && Objects.equals(rs.getString("gender"), "Female")) {
-                    continue;
-                }
+    public void calculateMetrics(LineChart linechart, String startDate, String endDate) throws SQLException {
+        String impressionSQL = "SELECT COUNT(*) FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY DATE(date)";
+        String uniqueSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT COUNT(DISTINCT click_log.id) FROM click_log INNER JOIN impressions ON click_log.id = impressions.id GROUP BY DATE(click_log.date)";
+        String clickSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT COUNT(*) FROM click_log INNER JOIN impressions ON click_log.id = impressions.id GROUP BY DATE(click_log.date)";
+        String pageSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT COUNT(*) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE server_log.pages_viewed = 1 GROUP BY DATE(server_log.entry_date)";
+        String timeSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT COUNT(*) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE time(server_log.exit_date) < time(server_log.entry_date, '+1 minutes') GROUP BY DATE(server_log.entry_date)";
+        String conversionSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT COUNT(*) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE server_log.conversion = 'Yes' GROUP BY DATE(server_log.entry_date)";
+        String clickCostSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT SUM(click_cost) FROM click_log INNER JOIN impressions ON click_log.id = impressions.id GROUP BY DATE(click_log.date)";
+        String impressionCostSQL = "SELECT SUM(impression_cost) FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY DATE(date)";
 
-                if (!low.get() && Objects.equals(rs.getString("income"), "Low")) {
-                    continue;
-                }
+        Connection conn = this.connect();
+        Statement stmt = conn.createStatement();
 
-                if (!medium.get() && Objects.equals(rs.getString("income"), "Medium")) {
-                    continue;
-                }
+        DecimalFormat df = new DecimalFormat("#.000000");
+        ArrayList<String> dates = getDates(startDate, endDate);
 
-                if (!high.get() && Objects.equals(rs.getString("income"), "High")) {
-                    continue;
-                }
+        impressions = getIntMetric(stmt, impressionSQL);
+        uniques = getIntMetric(stmt, uniqueSQL);
+        clicks = getIntMetric(stmt, clickSQL);
+        pages = getIntMetric(stmt, pageSQL);
+        times = getIntMetric(stmt, timeSQL);
+        conversions = getIntMetric(stmt, conversionSQL);
+        clickCost = getDoubleMetric(stmt, clickCostSQL);
+        impressionCost = getDoubleMetric(stmt, impressionCostSQL);
+        for (int i = 0; i < dates.size(); i++) {
+            totals.add(clickCost.get(i) + impressionCost.get(i));
+        }
 
-                if (!under25.get() && Objects.equals(rs.getString("age"), "<25")) {
-                    continue;
-                }
+        impressionsNum.set(impressions.stream().mapToInt(a -> a).sum());
+        uniqueNum.set(uniques.stream().mapToInt(a -> a).sum());
+        clicksNum.set(clicks.stream().mapToInt(a -> a).sum());
+        if (page.get()) {
+            bounceNum.set(pages.stream().mapToInt(a -> a).sum());
+        } else {
+            bounceNum.set(times.stream().mapToInt(a -> a).sum());
+        }
+        conversionsNum.set(getIntMetric(stmt, conversionSQL).stream().mapToInt(a -> a).sum());
+        double clickCostNum = clickCost.stream().mapToDouble(a -> a).sum();
+        double impressionCostNum = impressionCost.stream().mapToDouble(a -> a).sum();
+        totalNum.set(Double.parseDouble(df.format(clickCostNum + impressionCostNum)));
+        ctrNum.set(Double.parseDouble(df.format((double) clicksNum.get() / impressionsNum.get())));
+        cpaNum.set(Double.parseDouble(df.format(totalNum.get() / conversionsNum.get())));
+        cpcNum.set(Double.parseDouble(df.format(totalNum.get() / clicksNum.get())));
+        cpmNum.set(Double.parseDouble(df.format(totalNum.get() / (impressionsNum.get() / 1000))));
+        bounceRateNum.set(Double.parseDouble(df.format((double) bounceNum.get() / clicksNum.get())));
 
-                if (!twenties.get() && Objects.equals(rs.getString("age"), "25-34")) {
-                    continue;
-                }
+        changeChart(linechart, dates);
+    }
 
-                if (!thirties.get() && Objects.equals(rs.getString("age"), "35-44")) {
-                    continue;
-                }
+    public void changeChart(LineChart lineChart, ArrayList<String> dates){
+        ArrayList<Integer> integerData = null;
+        ArrayList<Double> doubleData = new ArrayList<>();
 
-                if (!forties.get() && Objects.equals(rs.getString("age"), "45-54")) {
-                    continue;
-                }
-
-                if (!above54.get() && Objects.equals(rs.getString("age"), ">54")) {
-                    continue;
-                }
-
-                if (!socialMedia.get() && Objects.equals(rs.getString("context"), "Social Media")) {
-                    continue;
-                }
-
-                if (!shopping.get() && Objects.equals(rs.getString("context"), "Shopping")) {
-                    continue;
-                }
-
-                if (!travel.get() && Objects.equals(rs.getString("context"), "Travel")) {
-                    continue;
-                }
-
-                if (!news.get() && Objects.equals(rs.getString("context"), "News")) {
-                    continue;
-                }
-
-                if (!blog.get() && Objects.equals(rs.getString("context"), "Blog")) {
-                    continue;
-                }
-
-                if (!hobbies.get() && Objects.equals(rs.getString("context"), "Hobbies")) {
-                    continue;
-                }
-
-                String formattedDay = (day < 10 ? "0" : "") + day;
-                if (rs.getString("date").contains("2015-0" + month + "-" + formattedDay)) {
-                    count += 1;
+        if (graphNumProperty().get().equals("Impressions")) {
+            integerData = impressions;
+        } else if (graphNumProperty().get().equals("Clicks")) {
+            integerData = clicks;
+        } else if (graphNumProperty().get().equals("Uniques")) {
+            integerData = uniques;
+        } else if (graphNumProperty().get().equals("Bounces")) {
+            if (page.get()) {
+                integerData = pages;
+            } else {
+                integerData = times;
+            }
+        } else if (graphNumProperty().get().equals("Conversions")) {
+            integerData = conversions;
+        } else if (graphNumProperty().get().equals("Total cost")) {
+            for (int i = 0; i < dates.size(); i++) {
+                doubleData.add(totals.get(i));
+            }
+        } else if (graphNumProperty().get().equals("CTR")) {
+            for (int i = 0; i < dates.size(); i++) {
+                doubleData.add((double) clicks.get(i) / impressions.get(i));
+            }
+        } else if (graphNumProperty().get().equals("CPA")) {
+            for (int i = 0; i < dates.size(); i++) {
+                doubleData.add(totals.get(i) / conversions.get(i));
+            }
+        } else if (graphNumProperty().get().equals("CPC")) {
+            for (int i = 0; i < dates.size(); i++) {
+                doubleData.add(totals.get(i) / clicks.get(i));
+            }
+        } else if (graphNumProperty().get().equals("CPM")) {
+            for (int i = 0; i < dates.size(); i++) {
+                doubleData.add(totals.get(i) / (impressions.get(i) / 1000));
+            }
+        } else if (graphNumProperty().get().equals("Bounce rate")) {
+            for (int i = 0; i < dates.size(); i++) {
+                if (page.get()) {
+                    doubleData.add((double) pages.get(i) / clicks.get(i));
                 } else {
-                    if (count > 1) {
-                        dates.add("2015-0" + month + "-" + formattedDay);
-                        impressions.add(count);
-                        count = 1;
-                        if (day != 31) {
-                            day += 1;
-                        } else {
-                            month = 2;
-                            day = 1;
-                        }
-                    }
-                    if (rs.getString("date").contains("2015-" + endMonth + "-" + endDay)) {
-                        return new Pair<>(dates, impressions);
-                    }
+                    doubleData.add((double) times.get(i) / clicks.get(i));
                 }
             }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
         }
 
-        dates.add("2015-0" + month + "-" + day);
-        impressions.add(count);
-
-        return new Pair<>(dates, impressions);
-    }
-
-    public ArrayList<Double> costData(String startMonth, String startDay, String endMonth, String endDay, String sql){
-        ArrayList<Double> costList = new ArrayList<>();
-
-        int month = Integer.parseInt(startMonth);
-        int day = Integer.parseInt(startDay);
-        double cost = 0;
-
-        try (Connection conn = this.connect();
-             Statement stmt  = conn.createStatement();
-             ResultSet rs    = stmt.executeQuery(sql)){
-
-            // loop through the result set
-            while (rs.next()) {
-
-                if (!male.get() && Objects.equals(rs.getString("gender"), "Male")) {
-                    continue;
-                }
-
-                if (!female.get() && Objects.equals(rs.getString("gender"), "Female")) {
-                    continue;
-                }
-
-                if (!low.get() && Objects.equals(rs.getString("income"), "Low")) {
-                    continue;
-                }
-
-                if (!medium.get() && Objects.equals(rs.getString("income"), "Medium")) {
-                    continue;
-                }
-
-                if (!high.get() && Objects.equals(rs.getString("income"), "High")) {
-                    continue;
-                }
-
-                if (!under25.get() && Objects.equals(rs.getString("age"), "<25")) {
-                    continue;
-                }
-
-                if (!twenties.get() && Objects.equals(rs.getString("age"), "25-34")) {
-                    continue;
-                }
-
-                if (!thirties.get() && Objects.equals(rs.getString("age"), "35-44")) {
-                    continue;
-                }
-
-                if (!forties.get() && Objects.equals(rs.getString("age"), "45-54")) {
-                    continue;
-                }
-
-                if (!above54.get() && Objects.equals(rs.getString("age"), ">54")) {
-                    continue;
-                }
-
-                if (!socialMedia.get() && Objects.equals(rs.getString("context"), "Social Media")) {
-                    continue;
-                }
-
-                if (!shopping.get() && Objects.equals(rs.getString("context"), "Shopping")) {
-                    continue;
-                }
-
-                if (!travel.get() && Objects.equals(rs.getString("context"), "Travel")) {
-                    continue;
-                }
-
-                if (!news.get() && Objects.equals(rs.getString("context"), "News")) {
-                    continue;
-                }
-
-                if (!blog.get() && Objects.equals(rs.getString("context"), "Blog")) {
-                    continue;
-                }
-
-                if (!hobbies.get() && Objects.equals(rs.getString("context"), "Hobbies")) {
-                    continue;
-                }
-
-                String formattedDay = (day < 10 ? "0" : "") + day;
-                if (rs.getString("date").contains("2015-0" + month + "-" + formattedDay)) {
-                    if (sql.contains("click_cost")) {
-                        cost += Double.parseDouble(rs.getString("click_cost"));
-                    } else {
-                        cost += Double.parseDouble(rs.getString("impression_cost"));
-                    }
-                } else {
-                    if (cost > 0) {
-                        costList.add(cost);
-                        if (sql.contains("click_cost")) {
-                            cost = Double.parseDouble(rs.getString("click_cost"));
-                        } else {
-                            cost = Double.parseDouble(rs.getString("impression_cost"));
-                        }
-                        if (day != 31) {
-                            day += 1;
-                        } else {
-                            month = 2;
-                            day = 1;
-                        }
-                    }
-                    if (rs.getString("date").contains("2015-" + endMonth + "-" + endDay)) {
-                        return costList;
-                    }
-                }
+        XYChart.Series series = new XYChart.Series();
+        if (doubleData.size() > 0) {
+            for (int i = 0; i < dates.size(); i++) {
+                series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], doubleData.get(i)));
             }
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-
-        costList.add(cost);
-        return costList;
-    }
-
-    public Pair<ArrayList<String>, ArrayList<Integer>> filterDate(String startDate, String endDate, String sql) {
-        String[] startSplit = startDate.split("-");
-        String[] endSplit = endDate.split("-");
-
-        String startMonth = startSplit[1];
-        String startDay = startSplit[2];
-        String endMonth = endSplit[1];
-        String endDay = endSplit[2];
-
-        int newEndDay = Integer.parseInt(endDay);
-        String finalEndDay;
-        String finalEndMonth;
-        if (newEndDay < 9) {
-            newEndDay = newEndDay + 1;
-            finalEndDay = "0" + newEndDay;
-            finalEndMonth = endMonth;
-        } else if (newEndDay < 31) {
-            newEndDay = newEndDay + 1;
-            finalEndDay = "" + newEndDay;
-            finalEndMonth = endMonth;
         } else {
-            finalEndDay = "01";
-            finalEndMonth = "02";
+            for (int i = 0; i < dates.size(); i++) {
+                series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], integerData.get(i)));
+            }
         }
-
-        return getData(startMonth, startDay, finalEndMonth, finalEndDay, sql);
-    }
-
-    public ArrayList<Double> costFilterDate(String startDate, String endDate, String sql) {
-        String[] startSplit = startDate.split("-");
-        String[] endSplit = endDate.split("-");
-
-        String startMonth = startSplit[1];
-        String startDay = startSplit[2];
-        String endMonth = endSplit[1];
-        String endDay = endSplit[2];
-
-        int newEndDay = Integer.parseInt(endDay);
-        String finalEndDay;
-        String finalEndMonth;
-        if (newEndDay < 9) {
-            newEndDay = newEndDay + 1;
-            finalEndDay = "0" + newEndDay;
-            finalEndMonth = endMonth;
-        } else if (newEndDay < 31) {
-            newEndDay = newEndDay + 1;
-            finalEndDay = "" + newEndDay;
-            finalEndMonth = endMonth;
-        } else {
-            finalEndDay = "01";
-            finalEndMonth = "02";
-        }
-
-        return costData(startMonth, startDay, finalEndMonth, finalEndDay, sql);
+        lineChart.getData().add(series);
     }
 
     public BooleanProperty maleProperty(){
