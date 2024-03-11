@@ -280,7 +280,7 @@ public class DashboardScene extends BaseScene {
         choiceBox.setOnAction(e -> {
             graphData.graphNumProperty().set(choiceBox.getValue());
             lineChart.getData().clear();
-            graphData.changeChart(lineChart, dates);
+            graphData.changeChart(lineChart);
         });
         choiceBoxContainer.getChildren().add(choiceBox);
         choiceBoxContainer.setAlignment(Pos.CENTER);

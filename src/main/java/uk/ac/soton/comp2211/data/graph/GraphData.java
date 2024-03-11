@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collections;
 
 public class GraphData {
 
@@ -55,8 +56,8 @@ public class GraphData {
     ArrayList<Integer> conversions;
     ArrayList<Double> clickCost;
     ArrayList<Double> impressionCost;
-    ArrayList<Double> totals = new ArrayList<>();
-
+    ArrayList<Double> totals;
+    ArrayList<String> dates;
 
     private Connection connect() {
         // SQLite connection string
@@ -109,50 +110,59 @@ public class GraphData {
     public ArrayList<Integer> getIntMetric(Statement stmt, String sql) throws SQLException {
         ResultSet rs = stmt.executeQuery(sql);
         ArrayList<Integer> result = new ArrayList<>();
-        if (sql.contains("COUNT(*)")) {
-            while (rs.next()) {
-                result.add(Integer.parseInt(rs.getString("COUNT(*)")));
+        String count = sql.contains("COUNT(*)") ? "COUNT(*)" : "COUNT(DISTINCT clicks.id)";
+        String date = sql.contains("DATE(date)") ? "DATE(date)" : "DATE(impressions.date)";
+        int i = 0;
+        while (rs.next()) {
+            while (!rs.getString(date).contains(dates.get(i))) {
+                result.add(0);
+                i += 1;
             }
-            return result;
-        } else {
-            while (rs.next()) {
-                result.add(Integer.parseInt(rs.getString("COUNT(DISTINCT click_log.id)")));
-            }
-            return result;
+            result.add(Integer.parseInt(rs.getString(count)));
+            i += 1;
         }
+        while (result.size() < dates.size()) {
+            result.add(0);
+        }
+        return result;
     }
 
     public ArrayList<Double> getDoubleMetric(Statement stmt, String sql) throws SQLException {
         ResultSet rs = stmt.executeQuery(sql);
         ArrayList<Double> result = new ArrayList<>();
-        if (sql.contains("SUM(click_cost)")) {
-            while (rs.next()) {
-                result.add(Double.parseDouble(rs.getString("SUM(click_cost)")));
+        String sum = sql.contains("SUM(click_cost)") ? "SUM(click_cost)" : "SUM(impression_cost)";
+        String date = sql.contains("DATE(date)") ? "DATE(date)" : "DATE(impressions.date)";
+        int i = 0;
+        while (rs.next()) {
+            while (!rs.getString(date).contains(dates.get(i))) {
+                result.add((double) 0);
+                i += 1;
             }
-            return result;
-        } else {
-            while (rs.next()) {
-                result.add(Double.parseDouble(rs.getString("SUM(impression_cost)")));
-            }
-            return result;
+            result.add(Double.parseDouble(rs.getString(sum)));
+            i += 1;
         }
+        while (result.size() < dates.size()) {
+            result.add((double) 0);
+        }
+        return result;
     }
 
     public void calculateMetrics(LineChart linechart, String startDate, String endDate) throws SQLException {
-        String impressionSQL = "SELECT COUNT(*) FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY DATE(date)";
-        String uniqueSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT COUNT(DISTINCT click_log.id) FROM click_log INNER JOIN impressions ON click_log.id = impressions.id GROUP BY DATE(click_log.date)";
-        String clickSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT COUNT(*) FROM click_log INNER JOIN impressions ON click_log.id = impressions.id GROUP BY DATE(click_log.date)";
-        String pageSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT COUNT(*) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE server_log.pages_viewed = 1 GROUP BY DATE(server_log.entry_date)";
-        String timeSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT COUNT(*) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE time(server_log.exit_date) < time(server_log.entry_date, '+1 minutes') GROUP BY DATE(server_log.entry_date)";
-        String conversionSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT COUNT(*) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE server_log.conversion = 'Yes' GROUP BY DATE(server_log.entry_date)";
-        String clickCostSQL = "WITH impressions AS (SELECT * FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY id) SELECT SUM(click_cost) FROM click_log INNER JOIN impressions ON click_log.id = impressions.id GROUP BY DATE(click_log.date)";
-        String impressionCostSQL = "SELECT SUM(impression_cost) FROM impression_log " + filterSQL(startDate, endDate) + " GROUP BY DATE(date)";
+        String sqlFilters = filterSQL(startDate, endDate);
+        String impressionSQL = "SELECT COUNT(*), DATE(date) FROM impression_log " + sqlFilters + " GROUP BY DATE(date)";
+        String uniqueSQL = "WITH clicks AS (SELECT DISTINCT id FROM click_log), impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM clicks INNER JOIN impressions ON clicks.id = impressions.id GROUP BY DATE(impressions.date)";
+        String clickSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM click_log INNER JOIN impressions ON click_log.id = impressions.id GROUP BY DATE(impressions.date)";
+        String pageSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE server_log.pages_viewed = 1 GROUP BY DATE(impressions.date)";
+        String timeSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE time(server_log.exit_date) < time(server_log.entry_date, '+1 minutes') GROUP BY DATE(impressions.date)";
+        String conversionSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE server_log.conversion = 'Yes' GROUP BY DATE(impressions.date)";
+        String clickCostSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT SUM(click_cost), DATE(impressions.date) FROM click_log INNER JOIN impressions ON click_log.id = impressions.id GROUP BY DATE(impressions.date)";
+        String impressionCostSQL = "SELECT SUM(impression_cost), DATE(date) FROM impression_log " + sqlFilters + " GROUP BY DATE(date)";
 
         Connection conn = this.connect();
         Statement stmt = conn.createStatement();
 
         DecimalFormat df = new DecimalFormat("#.000000");
-        ArrayList<String> dates = getDates(startDate, endDate);
+        dates = getDates(startDate, endDate);
 
         impressions = getIntMetric(stmt, impressionSQL);
         uniques = getIntMetric(stmt, uniqueSQL);
@@ -162,6 +172,7 @@ public class GraphData {
         conversions = getIntMetric(stmt, conversionSQL);
         clickCost = getDoubleMetric(stmt, clickCostSQL);
         impressionCost = getDoubleMetric(stmt, impressionCostSQL);
+        totals = new ArrayList<>();
         for (int i = 0; i < dates.size(); i++) {
             totals.add(clickCost.get(i) + impressionCost.get(i));
         }
@@ -180,14 +191,14 @@ public class GraphData {
         totalNum.set(Double.parseDouble(df.format(clickCostNum + impressionCostNum)));
         ctrNum.set(Double.parseDouble(df.format((double) clicksNum.get() / impressionsNum.get())));
         cpaNum.set(Double.parseDouble(df.format(totalNum.get() / conversionsNum.get())));
-        cpcNum.set(Double.parseDouble(df.format(totalNum.get() / clicksNum.get())));
-        cpmNum.set(Double.parseDouble(df.format(totalNum.get() / (impressionsNum.get() / 1000))));
+        cpcNum.set(Double.parseDouble(df.format(clickCostNum / clicksNum.get())));
+        cpmNum.set(Double.parseDouble(df.format(impressionCostNum / ((double) impressionsNum.get() / 1000))));
         bounceRateNum.set(Double.parseDouble(df.format((double) bounceNum.get() / clicksNum.get())));
 
-        changeChart(linechart, dates);
+        changeChart(linechart);
     }
 
-    public void changeChart(LineChart lineChart, ArrayList<String> dates){
+    public void changeChart(LineChart lineChart){
         ArrayList<Integer> integerData = null;
         ArrayList<Double> doubleData = new ArrayList<>();
 
@@ -215,15 +226,19 @@ public class GraphData {
             }
         } else if (graphNumProperty().get().equals("CPA")) {
             for (int i = 0; i < dates.size(); i++) {
-                doubleData.add(totals.get(i) / conversions.get(i));
+                if (conversions.get(i) == 0) {
+                    doubleData.add((double) 0);
+                } else {
+                    doubleData.add(totals.get(i) / conversions.get(i));
+                }
             }
         } else if (graphNumProperty().get().equals("CPC")) {
             for (int i = 0; i < dates.size(); i++) {
-                doubleData.add(totals.get(i) / clicks.get(i));
+                doubleData.add(clickCost.get(i) / clicks.get(i));
             }
         } else if (graphNumProperty().get().equals("CPM")) {
             for (int i = 0; i < dates.size(); i++) {
-                doubleData.add(totals.get(i) / (impressions.get(i) / 1000));
+                doubleData.add(impressionCost.get(i) / ((double) impressions.get(i) / 1000));
             }
         } else if (graphNumProperty().get().equals("Bounce rate")) {
             for (int i = 0; i < dates.size(); i++) {
