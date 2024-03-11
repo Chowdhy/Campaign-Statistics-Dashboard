@@ -12,12 +12,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import uk.ac.soton.comp2211.data.calculations.DataGetter;
 import uk.ac.soton.comp2211.data.graph.GraphData;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DashboardScene extends BaseScene {
+    DataGetter dataGetter = new DataGetter();
 
     GraphData graphData = new GraphData();
 
@@ -393,7 +397,18 @@ public class DashboardScene extends BaseScene {
             graphData.bounceRateNumProperty().set(Double.parseDouble(String.format("%.5g%n", pageRate.stream().mapToDouble(a -> a).sum() / dates.size())));
         }
 
+        Map<String, Integer> impressionDataTest = dataGetter.getImpressionsByDay();
+
         XYChart.Series series = new XYChart.Series();
+
+        for (Map.Entry<String, Integer> entry : impressionDataTest.entrySet()) {
+            String date = entry.getKey();
+            Integer totalImpressions = entry.getValue();
+
+            series.getData().add(new XYChart.Data(date, totalImpressions));
+        }
+
+        /*
         for (int i = 0; i < dates.size(); i++) {
             if (graphData.graphNumProperty().get().equals("Impressions")) {
                 series.getData().add(new XYChart.Data(dates.get(i), impressions.get(i)));
@@ -422,7 +437,7 @@ public class DashboardScene extends BaseScene {
             } else if (graphData.graphNumProperty().get().equals("Bounce rate")) {
                 series.getData().add(new XYChart.Data(dates.get(i), pageRate.get(i)));
             }
-        }
+        }*/
         lineChart.getData().add(series);
 
         return dates;
