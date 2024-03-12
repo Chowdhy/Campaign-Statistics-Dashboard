@@ -42,6 +42,7 @@ public class DataGetter {
     BooleanProperty travel = new SimpleBooleanProperty(true);
     BooleanProperty blog = new SimpleBooleanProperty(true);
     BooleanProperty hobbies = new SimpleBooleanProperty(true);
+    BooleanProperty bounceOnTime = new SimpleBooleanProperty(true);
 
     private String dataStartDate;
     private String dataEndDate;
@@ -75,7 +76,7 @@ public class DataGetter {
         return (filterDataTable + "." + field + " = '" + value + "'");
     }
 
-    private ResultSet queryDatabase(String selectSql, String whereSql, String postWhereSql) {
+    private String constructQuery(String selectSql, String whereSql, String postWhereSql) {
         String querySql = selectSql;
         String filterSql = concatFilters();
 
@@ -103,6 +104,10 @@ public class DataGetter {
             querySql = querySql + " " + postWhereSql;
         }
 
+        return querySql;
+    }
+
+    private ResultSet queryDatabase(String querySql) {
         Connection conn;
         Statement stat;
         ResultSet rs;
@@ -118,6 +123,12 @@ public class DataGetter {
         }
 
         return rs;
+    }
+
+    private ResultSet queryDatabase(String selectSql, String whereSql, String postWhereSql) {
+        String querySql = constructQuery(selectSql, whereSql, postWhereSql);
+
+        return queryDatabase(querySql);
     }
 
     private String concatFilters() {
@@ -229,12 +240,28 @@ public class DataGetter {
         return impressionData;
     }
 
+    public Integer getTotalImpressions() {
+        String selectSql = "SELECT COUNT(impression_log.log_id) AS total FROM impression_log";
+
+        try (ResultSet rs = queryDatabase(selectSql, null, null)) {
+            if (rs.next()) {
+                return rs.getInt("total");
+            } else {
+                throw new RuntimeException();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     // /Users/mahdi/IdeaProjects/ad-auction-dashboard/data/sample_data/2_week_campaign/impression_log.csv
     public Integer getUniques() {
-        String selectSql = "SELECT COUNT(impression_log.id) AS uniques FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id";
-        String postWhereSql = "GROUP BY impression_log.id ORDER BY impression_log.date";
+        String innerSelect = "SELECT impression_log.id FROM impression_log";
 
-        try (ResultSet rs = queryDatabase(selectSql, null, postWhereSql)) {
+        String innerQuery = constructQuery(innerSelect, null, null);
+        String querySql = "SELECT COUNT(*) AS uniques FROM (SELECT click_log.log_id FROM click_log WHERE click_log.id IN (" + innerQuery + ") GROUP BY click_log.id)";
+
+        try (ResultSet rs = queryDatabase(querySql)) {
             if (rs.next()) {
                 return rs.getInt("uniques");
             } else {
@@ -243,6 +270,78 @@ public class DataGetter {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Integer getConversions() {
+        String innerSelect = "SELECT impression_log.id FROM impression_log";
+        String innerQuery = constructQuery(innerSelect, null, null);
+        String selectSql = "SELECT COUNT(server_log.id) AS conversions FROM server_log WHERE (server_log.id IN (" + innerQuery + ")) AND server_log.conversion = 'Yes'";
+
+        try (ResultSet rs = queryDatabase(selectSql)) {
+            if (rs.next()) {
+                return rs.getInt("conversions");
+            } else {
+                throw new RuntimeException();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Float getTotalImpressionCost() {
+        String selectSql = "SELECT SUM(impression_log.impression_cost) AS total_cost from impression_log";
+
+        try (ResultSet rs = queryDatabase(selectSql, null, null)) {
+            if (rs.next()) {
+                return rs.getFloat("total_cost");
+            } else {
+                throw new RuntimeException();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Float getTotalClickCost() {
+        String innerSelect = "SELECT impression_log.id FROM impression_log";
+        String innerQuery = constructQuery(innerSelect, null, null);
+
+        String selectSql = "SELECT SUM(click_log.click_cost) AS total_cost FROM click_log WHERE click_log.id IN (" + innerQuery + ")";
+        try (ResultSet rs = queryDatabase(selectSql)) {
+            if (rs.next()) {
+                return rs.getFloat("total_cost");
+            } else {
+                throw new RuntimeException();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Float getTotalCost() {
+        return (getTotalImpressionCost() + getTotalClickCost());
+    }
+
+    public Integer getTotalClicks() {
+        String innerSelect = "SELECT impression_log.id FROM impression_log";
+        String innerQuery = constructQuery(innerSelect, null, null);
+
+        String selectSql = "SELECT COUNT(click_log.log_id) AS total FROM click_log WHERE click_log.id IN (" + innerQuery + ")";
+
+
+        try (ResultSet rs = queryDatabase(selectSql)) {
+            if (rs.next()) {
+                return rs.getInt("total");
+            } else {
+                throw new RuntimeException();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Integer getTotalBounces() {
+        return null;
     }
 
     public StringProperty startDateProperty() {

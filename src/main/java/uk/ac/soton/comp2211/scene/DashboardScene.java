@@ -217,63 +217,62 @@ public class DashboardScene extends BaseScene {
         LineChart<String,Number> lineChart = new LineChart<>(xAxis,yAxis);
         lineChart.setAnimated(false);
         lineChart.setLegendVisible(false);
-        ArrayList<String> dates = makeGraph(lineChart, "2015-01-01", "2015-02-28");
 
         VBox chartVbox = new VBox();
         chartVbox.setPadding(new Insets(5, 0, 0, 0));
 
 
         HBox dateSelectionBar = new HBox();
-        TextField startDate = new TextField(dates.getFirst());
-        startDate.setPromptText(dates.getFirst());
-        TextField endDate = new TextField(dates.getLast());
-        endDate.setPromptText(dates.getLast());
+        TextField startDate = new TextField(dataGetter.startDateProperty().get());
+        startDate.setPromptText(dataGetter.startDateProperty().get());
+        TextField endDate = new TextField(dataGetter.endDateProperty().get());
+        endDate.setPromptText(dataGetter.endDateProperty().get());
         Button submit = new Button("Submit");
-        submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        submit.setOnAction(e -> checkGraph(lineChart));
         dateSelectionBar.getChildren().addAll(startDate,endDate, submit);
         dateSelectionBar.setAlignment(Pos.CENTER);
         dateSelectionBar.setSpacing(10);
 
         maleButton.selectedProperty().bindBidirectional(graphData.maleProperty());
-        maleButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        maleButton.setOnAction(e -> checkGraph(lineChart));
         femaleButton.selectedProperty().bindBidirectional(graphData.femaleProperty());
-        femaleButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        femaleButton.setOnAction(e -> checkGraph(lineChart));
 
         lowButton.selectedProperty().bindBidirectional(graphData.lowProperty());
-        lowButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        lowButton.setOnAction(e -> checkGraph(lineChart));
         mediumButton.selectedProperty().bindBidirectional(graphData.mediumProperty());
-        mediumButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        mediumButton.setOnAction(e -> checkGraph(lineChart));
         highButton.selectedProperty().bindBidirectional(graphData.highProperty());
-        highButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        highButton.setOnAction(e -> checkGraph(lineChart));
 
         under25Button.selectedProperty().bindBidirectional(graphData.under25Property());
-        under25Button.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        under25Button.setOnAction(e -> checkGraph(lineChart));
         twentiesButton.selectedProperty().bindBidirectional(graphData.twentiesProperty());
-        twentiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        twentiesButton.setOnAction(e -> checkGraph(lineChart));
         thirtiesButton.selectedProperty().bindBidirectional(graphData.thirtiesProperty());
-        thirtiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        thirtiesButton.setOnAction(e -> checkGraph(lineChart));
         fortiesButton.selectedProperty().bindBidirectional(graphData.fortiesProperty());
-        fortiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        fortiesButton.setOnAction(e -> checkGraph(lineChart));
         above54Button.selectedProperty().bindBidirectional(graphData.above54Property());
-        above54Button.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        above54Button.setOnAction(e -> checkGraph(lineChart));
 
         socialMediaButton.selectedProperty().bindBidirectional(graphData.socialMediaProperty());
-        socialMediaButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        socialMediaButton.setOnAction(e -> checkGraph(lineChart));
         shoppingButton.selectedProperty().bindBidirectional(graphData.shoppingProperty());
-        shoppingButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        shoppingButton.setOnAction(e -> checkGraph(lineChart));
         newsButton.selectedProperty().bindBidirectional(graphData.newsProperty());
-        newsButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        newsButton.setOnAction(e -> checkGraph(lineChart));
         blogButton.selectedProperty().bindBidirectional(graphData.blogProperty());
-        blogButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        blogButton.setOnAction(e -> checkGraph(lineChart));
         travelButton.selectedProperty().bindBidirectional(graphData.travelProperty());
-        travelButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        travelButton.setOnAction(e -> checkGraph(lineChart));
         hobbiesButton.selectedProperty().bindBidirectional(graphData.hobbiesProperty());
-        hobbiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        hobbiesButton.setOnAction(e -> checkGraph(lineChart));
 
         timeBounceButton.selectedProperty().bindBidirectional(graphData.timeProperty());
-        timeBounceButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        timeBounceButton.setOnAction(e -> checkGraph(lineChart));
         singlePageBounceButton.selectedProperty().bindBidirectional(graphData.pageProperty());
-        singlePageBounceButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        singlePageBounceButton.setOnAction(e -> checkGraph(lineChart));
 
         HBox choiceBoxContainer = new HBox();
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
@@ -281,7 +280,7 @@ public class DashboardScene extends BaseScene {
         choiceBox.getSelectionModel().select(0);
         choiceBox.setOnAction(e -> {
             graphData.graphNumProperty().set(choiceBox.getValue());
-            checkGraph(lineChart, dates, startDate.getText(), endDate.getText());
+            checkGraph(lineChart);
         });
         choiceBoxContainer.getChildren().add(choiceBox);
         choiceBoxContainer.setAlignment(Pos.CENTER);
@@ -293,6 +292,8 @@ public class DashboardScene extends BaseScene {
         leftSplitPane.setOrientation(Orientation.VERTICAL);
         leftSplitPane.getItems().add(chartVbox);
         leftSplitPane.getItems().add(filterHBox);
+
+        makeGraph(lineChart);
     }
 
     @Override
@@ -300,75 +301,32 @@ public class DashboardScene extends BaseScene {
 
     }
 
-    public void checkGraph(LineChart lineChart, ArrayList<String> dates, String startDate, String endDate){
-        if (dates.contains(startDate) && dates.contains(endDate)) {
+    public void checkGraph(LineChart lineChart){
             lineChart.getData().clear();
-            makeGraph(lineChart, startDate, endDate);
-        }
+            makeGraph(lineChart);
     }
 
-    public ArrayList<String> makeGraph(LineChart lineChart, String startDate, String endDate) {
-        graphData.impressionsNumProperty().set(0);
-        String impressionSQL = "SELECT impression_log.id, impression_log.date FROM impression_log";
-        Pair<ArrayList<String>, ArrayList<Integer>> impressionData = graphData.filterDate(startDate, endDate, impressionSQL, new String[]{}, "");
-        ArrayList<String> dates = impressionData.getKey();
-        ArrayList<Integer> impressions = impressionData.getValue();
-        graphData.impressionsNumProperty().set(impressions.stream().mapToInt(a -> a).sum());
+    public void makeGraph(LineChart lineChart) {
+        var totalImpressions = dataGetter.getTotalImpressions();
+        var totalClicks = dataGetter.getTotalClicks();
+        var totalUniques = dataGetter.getUniques();
+        var conversions = dataGetter.getConversions();
+        var totalImpressionCost = dataGetter.getTotalImpressionCost();
+        var totalClickCost = dataGetter.getTotalClickCost();
 
-        graphData.uniqueNumProperty().set(0);
-        String uniqueSQL = "SELECT impression_log.id, impression_log.date FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id";
-        Pair<ArrayList<String>, ArrayList<Integer>> uniqueData = graphData.filterDate(startDate, endDate, uniqueSQL, new String[]{}, "GROUP BY impression_log.id ORDER BY impression_log.date");
-        ArrayList<Integer> unique = uniqueData.getValue();
-        graphData.uniqueNumProperty().set(unique.stream().mapToInt(a -> a).sum());
+        graphData.impressionsNumProperty().set(totalImpressions);
+        graphData.uniqueNumProperty().set(totalUniques);
+        graphData.clicksNumProperty().set(totalClicks);
+        graphData.conversionsNumProperty().set(conversions);
+        graphData.ctrNumProperty().set((float) (totalClicks / totalImpressions));
+        graphData.cpcNumProperty().set(totalClickCost / totalClicks);
 
-        graphData.clicksNumProperty().set(0);
-        String clickSQL = "SELECT impression_log.id, impression_log.date FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id";
-        Pair<ArrayList<String>, ArrayList<Integer>> clickData = graphData.filterDate(startDate, endDate, clickSQL, new String[]{}, "");
-        ArrayList<Integer> clicks = clickData.getValue();
-        graphData.clicksNumProperty().set(clicks.stream().mapToInt(a -> a).sum());
+        graphData.cpmNumProperty().set(totalImpressionCost / (totalImpressions * 1000));
 
-        graphData.conversionsNumProperty().set(0);
-        String conversionSQL = "SELECT impression_log.id, impression_log.date FROM server_log INNER JOIN impression_log ON impression_log.id = server_log.id";
-        Pair<ArrayList<String>, ArrayList<Integer>> conversionData = graphData.filterDate(startDate, endDate, conversionSQL, new String[]{"server_log.conversion = 'Yes'"}, "ORDER BY impression_log.date");
-        ArrayList<Integer> conversions = conversionData.getValue();
-        graphData.conversionsNumProperty().set(conversions.stream().mapToInt(a -> a).sum());
+        graphData.totalNumProperty().set(totalClickCost + totalImpressionCost);
 
-        graphData.ctrNumProperty().set(0);
-        ArrayList<Double> ctr = new ArrayList<>();
-        for (int i = 0; i < impressions.size(); i++) {
-            ctr.add(Double.parseDouble(String.format("%.2g%n", (double) clicks.get(i) / impressions.get(i))));
-        }
-        graphData.ctrNumProperty().set(Double.parseDouble(String.format("%.5g%n", ctr.stream().mapToDouble(a -> a).sum() / dates.size())));
-
-        graphData.cpcNumProperty().set(0);
-        String cpcSQL = "SELECT impression_log.id, impression_log.date, click_log.click_cost FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id";
-        ArrayList<Double> cpcTest = graphData.costFilterDate(startDate, endDate, cpcSQL, new String[]{}, "");
-        ArrayList<Double> cpc = new ArrayList<>();
-        for (int i = 0; i < cpcTest.size(); i++) {
-            cpc.add(Double.parseDouble(String.format("%.5g%n", cpcTest.get(i) / clicks.get(i))));
-        }
-        graphData.cpcNumProperty().set(Double.parseDouble(String.format("%.5g%n", cpc.stream().mapToDouble(a -> a).sum() / dates.size())));
-
-        graphData.cpmNumProperty().set(0);
-        String cpmSQL = "SELECT impression_log.id, impression_log.date, impression_log.impression_cost FROM impression_log";
-        ArrayList<Double> cpmTest = graphData.costFilterDate(startDate, endDate, cpmSQL, new String[]{}, "");
-        ArrayList<Double> cpm = new ArrayList<>();
-        for (int i = 0; i < cpmTest.size(); i++) {
-            cpm.add(Double.parseDouble(String.format("%.5g%n", (cpmTest.get(i) / impressions.get(i))*1000)));
-        }
-        graphData.cpmNumProperty().set(Double.parseDouble(String.format("%.5g%n", cpm.stream().mapToDouble(a -> a).sum() / dates.size())));
-
-        graphData.totalNumProperty().set(0);
-        ArrayList<Double> total = cpcTest;
-        graphData.totalNumProperty().set(Double.parseDouble(String.format("%.5g%n", total.stream().mapToDouble(a -> a).sum())));
-
-        graphData.cpaNumProperty().set(0);
-        ArrayList<Double> cpa = new ArrayList<>();
-        for (int i = 0; i < total.size(); i++) {
-            cpa.add(Double.parseDouble(String.format("%.5g%n", total.get(i) / conversions.get(i))));
-        }
-        graphData.cpaNumProperty().set(Double.parseDouble(String.format("%.5g%n", cpa.stream().mapToDouble(a -> a).sum() / dates.size())));
-
+        graphData.cpaNumProperty().set((totalClickCost + totalImpressionCost) / conversions);
+        /*
         graphData.bounceNumProperty().set(0);
         String timeSQL = "SELECT impression_log.id, impression_log.date FROM server_log INNER JOIN impression_log ON impression_log.id = server_log.id";
         Pair<ArrayList<String>, ArrayList<Integer>> timeData = graphData.filterDate(startDate, endDate, timeSQL, new String[]{"time(server_log.exit_date) > time(server_log.entry_date, '+1 minutes')"}, "ORDER BY impression_log.date");
@@ -396,16 +354,16 @@ public class DashboardScene extends BaseScene {
         } else {
             graphData.bounceRateNumProperty().set(Double.parseDouble(String.format("%.5g%n", pageRate.stream().mapToDouble(a -> a).sum() / dates.size())));
         }
-
+         */
         Map<String, Integer> impressionDataTest = dataGetter.getImpressionsByDay();
 
         XYChart.Series series = new XYChart.Series();
 
         for (Map.Entry<String, Integer> entry : impressionDataTest.entrySet()) {
             String date = entry.getKey();
-            Integer totalImpressions = entry.getValue();
+            Integer dailyImps = entry.getValue();
 
-            series.getData().add(new XYChart.Data(date, totalImpressions));
+            series.getData().add(new XYChart.Data(date, dailyImps));
         }
 
         /*
@@ -439,7 +397,5 @@ public class DashboardScene extends BaseScene {
             }
         }*/
         lineChart.getData().add(series);
-
-        return dates;
     }
 }
