@@ -26,7 +26,7 @@ public class ClickLogParser extends CsvParser {
 
     void insert(PreparedStatement prp, String[] line) {
         if (line.length != 3) {
-            throw new RuntimeException("Malformed click log file: " + path);
+            throw new RuntimeException("Malformed click log file: " + path.get());
         }
 
         try {

@@ -5,8 +5,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.sql.*;
 
-public class ImpressionParser extends CsvParser {
-    private static final Logger logger = LogManager.getLogger(ImpressionParser.class);
+public class ImpressionLogParser extends CsvParser {
+    private static final Logger logger = LogManager.getLogger(ImpressionLogParser.class);
 
     private static final String createTableSql = """
                 CREATE TABLE impression_log (
@@ -23,13 +23,13 @@ public class ImpressionParser extends CsvParser {
 
     private static final String insertSql = "INSERT INTO impression_log(date, ID, gender, age, income, context, impression_cost) VALUES(?,?,?,?,?,?,?)";
 
-    public ImpressionParser(String dbName) {
+    public ImpressionLogParser(String dbName) {
         super(dbName, "DROP TABLE IF EXISTS 'impression_log'", createTableSql, insertSql);
     }
 
     void insert(PreparedStatement prp, String[] line) {
         if (line.length != 7) {
-            throw new RuntimeException("Malformed impression log file: " + path);
+            throw new RuntimeException("Malformed impression log file: " + path.get());
         }
 
         try {

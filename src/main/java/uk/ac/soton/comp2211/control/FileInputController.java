@@ -1,40 +1,42 @@
 package uk.ac.soton.comp2211.control;
 
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.TextField;
-import uk.ac.soton.comp2211.data.parsing.ClickLogParser;
-import uk.ac.soton.comp2211.data.parsing.CsvParser;
-import uk.ac.soton.comp2211.data.parsing.ImpressionParser;
-import uk.ac.soton.comp2211.data.parsing.ServerLogParser;
+import javafx.beans.property.StringProperty;
+import javafx.concurrent.Task;
+import uk.ac.soton.comp2211.data.parsing.*;
 
 public class FileInputController {
-    @FXML
-    private TextField impressionLogPath;
-    @FXML
-    private TextField clickLogPath;
-    @FXML
-    private TextField serverLogPath;
+    String databaseName = "campaign";
+    CsvParser impressionLogParser;
+    CsvParser clickLogParser;
+    CsvParser serverLogParser;
 
     public FileInputController() {
-        System.out.println("Test");
+        impressionLogParser = new ImpressionLogParser(databaseName);
+        clickLogParser = new ClickLogParser(databaseName);
+        serverLogParser = new ServerLogParser(databaseName);
     }
-    @FXML
-    void upload(ActionEvent event) {
-        event.consume();
 
-        String databaseName = "campaign";
+    public StringProperty impressionPathProperty() {
+        return impressionLogParser.pathProperty();
+    }
 
-        CsvParser impressionParser = new ImpressionParser(databaseName);
-        CsvParser clickLogParser = new ClickLogParser(databaseName);
-        CsvParser serverLogParser = new ServerLogParser(databaseName);
+    public StringProperty clickPathProperty() {
+        return clickLogParser.pathProperty();
+    }
 
-        try {
-            impressionParser.parse(impressionLogPath.getText());
-            clickLogParser.parse(clickLogPath.getText());
-            serverLogParser.parse(serverLogPath.getText());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public StringProperty serverPathProperty() {
+        return serverLogParser.pathProperty();
+    }
+
+    public Task<Void> requestParse() {
+        return new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                impressionLogParser.parse();
+                clickLogParser.parse();
+                serverLogParser.parse();
+                return null;
+            }
+        };
     }
 }

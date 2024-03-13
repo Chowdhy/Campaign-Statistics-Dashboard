@@ -16,10 +16,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
-import uk.ac.soton.comp2211.data.parsing.ClickLogParser;
-import uk.ac.soton.comp2211.data.parsing.CsvParser;
-import uk.ac.soton.comp2211.data.parsing.ImpressionParser;
-import uk.ac.soton.comp2211.data.parsing.ServerLogParser;
+import uk.ac.soton.comp2211.control.FileInputController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
 public class FileInputScene extends BaseScene {
@@ -38,6 +35,8 @@ public class FileInputScene extends BaseScene {
 
     @Override
     public void build() {
+        FileInputController controller = new FileInputController();
+
         root = new VBox();
 
         var optionsDrop = new Menu("Options");
@@ -62,6 +61,9 @@ public class FileInputScene extends BaseScene {
         var impressionField = new TextField();
         var clickField = new TextField();
         var serverField = new TextField();
+        impressionField.textProperty().bindBidirectional(controller.impressionPathProperty());
+        clickField.textProperty().bindBidirectional(controller.clickPathProperty());
+        serverField.textProperty().bindBidirectional(controller.serverPathProperty());
 
         var impressionBox = new HBox();
         var clickBox = new HBox();
@@ -155,20 +157,7 @@ public class FileInputScene extends BaseScene {
             event.consume();
             progressIndicator.setVisible(true);
 
-            String databaseName = "campaign";
-            CsvParser impressionParser = new ImpressionParser(databaseName);
-            CsvParser clickLogParser = new ClickLogParser(databaseName);
-            CsvParser serverLogParser = new ServerLogParser(databaseName);
-
-            Task<Void> task = new Task<>() {
-                @Override
-                protected Void call() throws Exception {
-                    impressionParser.parse(impressionField.getText());
-                    clickLogParser.parse(clickField.getText());
-                    serverLogParser.parse(serverField.getText());
-                    return null;
-                }
-            };
+            Task<Void> task = controller.requestParse();
 
             task.setOnSucceeded(workerStateEvent -> {
                 progressIndicator.setVisible(false);
