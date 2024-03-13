@@ -6,14 +6,10 @@ import javafx.geometry.Pos;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Pair;
-import uk.ac.soton.comp2211.control.FileInputController;
-import uk.ac.soton.comp2211.data.graph.GraphData;
+import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
 import java.sql.SQLException;
@@ -21,7 +17,7 @@ import java.util.ArrayList;
 
 public class DashboardScene extends BaseScene {
 
-    GraphData graphData = new GraphData();
+    DashboardController controller;
 
     public DashboardScene(MainWindow window) {
         super(window);
@@ -34,6 +30,8 @@ public class DashboardScene extends BaseScene {
 
     @Override
     public void build() {
+        controller = new DashboardController();
+
         root = new VBox();
 
         Menu userManagementMenu = new Menu("User Management");
@@ -56,67 +54,67 @@ public class DashboardScene extends BaseScene {
         HBox impressionMetric = new HBox();
         Label impressionsText = new Label(" Num of impressions: ");
         Label impressionsNum = new Label("");
-        impressionsNum.textProperty().bind(graphData.impressionsNumProperty().asString());
+        impressionsNum.textProperty().bind(controller.impressionsNumProperty().asString());
         impressionMetric.getChildren().addAll(impressionsText, impressionsNum);
 
         HBox uniqueMetric = new HBox();
         Label uniquesText = new Label(" Num of uniques: ");
         Label uniquesNum = new Label("");
-        uniquesNum.textProperty().bind(graphData.uniqueNumProperty().asString());
+        uniquesNum.textProperty().bind(controller.uniqueNumProperty().asString());
         uniqueMetric.getChildren().addAll(uniquesText, uniquesNum);
 
         HBox clicksMetric = new HBox();
         Label clicksText = new Label(" Num of clicks: ");
         Label clicksNum = new Label("");
-        clicksNum.textProperty().bind(graphData.clicksNumProperty().asString());
+        clicksNum.textProperty().bind(controller.clicksNumProperty().asString());
         clicksMetric.getChildren().addAll(clicksText, clicksNum);
 
         HBox bounceMetric = new HBox();
         Label bouncesText = new Label(" Num of bounces: ");
         Label bounceNum = new Label("");
-        bounceNum.textProperty().bind(graphData.bounceNumProperty().asString());
+        bounceNum.textProperty().bind(controller.bounceNumProperty().asString());
         bounceMetric.getChildren().addAll(bouncesText, bounceNum);
 
         HBox conversionMetric = new HBox();
         Label conversionsText = new Label(" Num of conversions: ");
         Label conversionsNum = new Label("");
-        conversionsNum.textProperty().bind(graphData.conversionsNumProperty().asString());
+        conversionsNum.textProperty().bind(controller.conversionsNumProperty().asString());
         conversionMetric.getChildren().addAll(conversionsText, conversionsNum);
 
         HBox totalCostMetric = new HBox();
         Label totalCostText = new Label(" Total cost: £");
         Label totalCostNum = new Label("");
-        totalCostNum.textProperty().bind(graphData.totalNumProperty().asString());
+        totalCostNum.textProperty().bind(controller.totalNumProperty().asString());
         totalCostMetric.getChildren().addAll(totalCostText, totalCostNum);
 
         HBox ctrMetric = new HBox();
         Label ctrText = new Label(" CTR: ");
         Label ctrNum = new Label("");
-        ctrNum.textProperty().bind(graphData.ctrNumProperty().asString());
+        ctrNum.textProperty().bind(controller.ctrNumProperty().asString());
         ctrMetric.getChildren().addAll(ctrText, ctrNum);
 
         HBox cpaMetric = new HBox();
         Label cpaText = new Label(" CPA: £");
         Label cpaNum = new Label();
-        cpaNum.textProperty().bind(graphData.cpaNumProperty().asString());
+        cpaNum.textProperty().bind(controller.cpaNumProperty().asString());
         cpaMetric.getChildren().addAll(cpaText, cpaNum);
 
         HBox cpcMetric = new HBox();
         Label cpcText = new Label(" CPC: £");
         Label cpcNum = new Label("");
-        cpcNum.textProperty().bind(graphData.cpcNumProperty().asString());
+        cpcNum.textProperty().bind(controller.cpcNumProperty().asString());
         cpcMetric.getChildren().addAll(cpcText, cpcNum);
 
         HBox cpmMetric = new HBox();
         Label cpmText = new Label(" CPM: £");
         Label cpmNum = new Label("");
-        cpmNum.textProperty().bind(graphData.cpmNumProperty().asString());
+        cpmNum.textProperty().bind(controller.cpmNumProperty().asString());
         cpmMetric.getChildren().addAll(cpmText, cpmNum);
 
         HBox bounceRateMetric = new HBox();
         Label bounceRateText = new Label(" Bounce rate: ");
         Label bounceRateNum = new Label("");
-        bounceRateNum.textProperty().bind(graphData.bounceRateNumProperty().asString());
+        bounceRateNum.textProperty().bind(controller.bounceRateNumProperty().asString());
         bounceRateMetric.getChildren().addAll(bounceRateText, bounceRateNum);
 
         Separator separator1 = new Separator();
@@ -211,9 +209,9 @@ public class DashboardScene extends BaseScene {
         lineChart.setAnimated(false);
         lineChart.setLegendVisible(false);
 
-        ArrayList<String> dates = graphData.getDates("2015-01-01", "2015-01-14");
+        ArrayList<String> dates = controller.getDates("2015-01-01", "2015-01-14");
         try {
-            graphData.calculateMetrics(lineChart, "2015-01-01", "2015-01-14");
+            controller.calculateMetrics(lineChart, "2015-01-01", "2015-01-14");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -232,45 +230,45 @@ public class DashboardScene extends BaseScene {
         dateSelectionBar.setAlignment(Pos.CENTER);
         dateSelectionBar.setSpacing(10);
 
-        maleButton.selectedProperty().bindBidirectional(graphData.maleProperty());
+        maleButton.selectedProperty().bindBidirectional(controller.maleProperty());
         maleButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        femaleButton.selectedProperty().bindBidirectional(graphData.femaleProperty());
+        femaleButton.selectedProperty().bindBidirectional(controller.femaleProperty());
         femaleButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
-        lowButton.selectedProperty().bindBidirectional(graphData.lowProperty());
+        lowButton.selectedProperty().bindBidirectional(controller.lowProperty());
         lowButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        mediumButton.selectedProperty().bindBidirectional(graphData.mediumProperty());
+        mediumButton.selectedProperty().bindBidirectional(controller.mediumProperty());
         mediumButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        highButton.selectedProperty().bindBidirectional(graphData.highProperty());
+        highButton.selectedProperty().bindBidirectional(controller.highProperty());
         highButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
-        under25Button.selectedProperty().bindBidirectional(graphData.under25Property());
+        under25Button.selectedProperty().bindBidirectional(controller.under25Property());
         under25Button.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        twentiesButton.selectedProperty().bindBidirectional(graphData.twentiesProperty());
+        twentiesButton.selectedProperty().bindBidirectional(controller.twentiesProperty());
         twentiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        thirtiesButton.selectedProperty().bindBidirectional(graphData.thirtiesProperty());
+        thirtiesButton.selectedProperty().bindBidirectional(controller.thirtiesProperty());
         thirtiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        fortiesButton.selectedProperty().bindBidirectional(graphData.fortiesProperty());
+        fortiesButton.selectedProperty().bindBidirectional(controller.fortiesProperty());
         fortiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        above54Button.selectedProperty().bindBidirectional(graphData.above54Property());
+        above54Button.selectedProperty().bindBidirectional(controller.above54Property());
         above54Button.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
-        socialMediaButton.selectedProperty().bindBidirectional(graphData.socialMediaProperty());
+        socialMediaButton.selectedProperty().bindBidirectional(controller.socialMediaProperty());
         socialMediaButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        shoppingButton.selectedProperty().bindBidirectional(graphData.shoppingProperty());
+        shoppingButton.selectedProperty().bindBidirectional(controller.shoppingProperty());
         shoppingButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        newsButton.selectedProperty().bindBidirectional(graphData.newsProperty());
+        newsButton.selectedProperty().bindBidirectional(controller.newsProperty());
         newsButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        blogButton.selectedProperty().bindBidirectional(graphData.blogProperty());
+        blogButton.selectedProperty().bindBidirectional(controller.blogProperty());
         blogButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        travelButton.selectedProperty().bindBidirectional(graphData.travelProperty());
+        travelButton.selectedProperty().bindBidirectional(controller.travelProperty());
         travelButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        hobbiesButton.selectedProperty().bindBidirectional(graphData.hobbiesProperty());
+        hobbiesButton.selectedProperty().bindBidirectional(controller.hobbiesProperty());
         hobbiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
-        timeBounceButton.selectedProperty().bindBidirectional(graphData.timeProperty());
+        timeBounceButton.selectedProperty().bindBidirectional(controller.timeProperty());
         timeBounceButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        singlePageBounceButton.selectedProperty().bindBidirectional(graphData.pageProperty());
+        singlePageBounceButton.selectedProperty().bindBidirectional(controller.pageProperty());
         singlePageBounceButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
         HBox choiceBoxContainer = new HBox();
@@ -278,9 +276,9 @@ public class DashboardScene extends BaseScene {
         choiceBox.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate");
         choiceBox.getSelectionModel().select(0);
         choiceBox.setOnAction(e -> {
-            graphData.graphNumProperty().set(choiceBox.getValue());
+            controller.graphNumProperty().set(choiceBox.getValue());
             lineChart.getData().clear();
-            graphData.changeChart(lineChart);
+            controller.changeChart(lineChart);
         });
         choiceBoxContainer.getChildren().add(choiceBox);
         choiceBoxContainer.setAlignment(Pos.CENTER);
@@ -303,7 +301,7 @@ public class DashboardScene extends BaseScene {
         if (dates.contains(startDate) && dates.contains(endDate)) {
             lineChart.getData().clear();
             try {
-                graphData.calculateMetrics(lineChart, startDate, endDate);
+                controller.calculateMetrics(lineChart, startDate, endDate);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }

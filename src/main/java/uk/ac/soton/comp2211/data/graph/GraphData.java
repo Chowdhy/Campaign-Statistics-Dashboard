@@ -1,8 +1,7 @@
 package uk.ac.soton.comp2211.data.graph;
 
 import javafx.beans.property.*;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
+import javafx.util.Pair;
 import uk.ac.soton.comp2211.data.Database;
 
 import java.text.DecimalFormat;
@@ -138,7 +137,7 @@ public class GraphData {
         return result;
     }
 
-    public void calculateMetrics(LineChart linechart, String startDate, String endDate) throws SQLException {
+    public void calculateMetrics(String startDate, String endDate) throws SQLException {
         String sqlFilters = filterSQL(startDate, endDate);
         String impressionSQL = "SELECT COUNT(*), DATE(date) FROM impression_log " + sqlFilters + " GROUP BY DATE(date)";
         String uniqueSQL = "WITH clicks AS (SELECT DISTINCT id FROM click_log), impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM clicks INNER JOIN impressions ON clicks.id = impressions.id GROUP BY DATE(impressions.date)";
@@ -185,11 +184,13 @@ public class GraphData {
         cpcNum.set(Double.parseDouble(df.format(clickCostNum / clicksNum.get())));
         cpmNum.set(Double.parseDouble(df.format(impressionCostNum / ((double) impressionsNum.get() / 1000))));
         bounceRateNum.set(Double.parseDouble(df.format((double) bounceNum.get() / clicksNum.get())));
-
-        changeChart(linechart);
     }
 
-    public void changeChart(LineChart lineChart){
+    public ArrayList<String> getDates() {
+        return dates;
+    }
+
+    public Pair<ArrayList<Integer>, ArrayList<Double>> getData() {
         ArrayList<Integer> integerData = null;
         ArrayList<Double> doubleData = new ArrayList<>();
 
@@ -241,17 +242,7 @@ public class GraphData {
             }
         }
 
-        XYChart.Series series = new XYChart.Series();
-        if (doubleData.size() > 0) {
-            for (int i = 0; i < dates.size(); i++) {
-                series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], doubleData.get(i)));
-            }
-        } else {
-            for (int i = 0; i < dates.size(); i++) {
-                series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], integerData.get(i)));
-            }
-        }
-        lineChart.getData().add(series);
+        return new Pair<>(integerData, doubleData);
     }
 
     public BooleanProperty maleProperty(){
