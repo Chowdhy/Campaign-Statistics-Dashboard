@@ -1,4 +1,4 @@
 /target/
 /.idea/
 .DS_Store
-campaign.db
+/data/campaign.db

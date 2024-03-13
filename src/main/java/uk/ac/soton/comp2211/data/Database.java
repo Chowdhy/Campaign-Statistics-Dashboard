@@ -21,6 +21,12 @@ public class Database {
             Files.createDirectories(Paths.get("data"));
 
             SQLiteConfig config = new SQLiteConfig();
+            config.setCacheSize(1000000);
+            config.setPageSize(16000);
+            config.setSynchronous(SQLiteConfig.SynchronousMode.OFF);
+            config.setJournalMode(SQLiteConfig.JournalMode.OFF);
+            config.setTempStore(SQLiteConfig.TempStore.MEMORY);
+            config.setLockingMode(SQLiteConfig.LockingMode.EXCLUSIVE);
             config.enforceForeignKeys(true);
             conn = DriverManager.getConnection(url + dbName + ".db", config.toProperties());
         } catch (Exception e) {
