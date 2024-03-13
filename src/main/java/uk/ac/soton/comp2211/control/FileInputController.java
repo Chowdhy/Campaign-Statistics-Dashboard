@@ -4,6 +4,10 @@ import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 import uk.ac.soton.comp2211.data.parsing.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class FileInputController {
     String databaseName = "campaign";
     CsvParser impressionLogParser;
@@ -11,6 +15,12 @@ public class FileInputController {
     CsvParser serverLogParser;
 
     public FileInputController() {
+        try {
+            Files.createDirectories(Paths.get("data"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         impressionLogParser = new ImpressionLogParser(databaseName);
         clickLogParser = new ClickLogParser(databaseName);
         serverLogParser = new ServerLogParser(databaseName);

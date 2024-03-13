@@ -1,9 +1,6 @@
 package uk.ac.soton.comp2211.scene;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
@@ -26,11 +23,6 @@ public class FileInputScene extends BaseScene {
 
     @Override
     public void initialise() {
-        try {
-            Files.createDirectories(Paths.get("data"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
