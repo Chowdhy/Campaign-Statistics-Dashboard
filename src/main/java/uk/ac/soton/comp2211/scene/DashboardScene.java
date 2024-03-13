@@ -12,9 +12,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Pair;
+import uk.ac.soton.comp2211.control.FileInputController;
 import uk.ac.soton.comp2211.data.graph.GraphData;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class DashboardScene extends BaseScene {
@@ -39,9 +41,6 @@ public class DashboardScene extends BaseScene {
         Menu fileSettingsMenu = new Menu("File Settings");
         Menu exportMenu = new Menu("Export");
         MenuBar menuBar = new MenuBar(userManagementMenu,chartSettingsMenu,fileSettingsMenu,exportMenu);
-
-
-
         root.getChildren().add(menuBar);
 
         SplitPane splitPane = new SplitPane();
@@ -85,7 +84,7 @@ public class DashboardScene extends BaseScene {
         conversionMetric.getChildren().addAll(conversionsText, conversionsNum);
 
         HBox totalCostMetric = new HBox();
-        Label totalCostText = new Label(" Total cost: ");
+        Label totalCostText = new Label(" Total cost: £");
         Label totalCostNum = new Label("");
         totalCostNum.textProperty().bind(graphData.totalNumProperty().asString());
         totalCostMetric.getChildren().addAll(totalCostText, totalCostNum);
@@ -97,19 +96,19 @@ public class DashboardScene extends BaseScene {
         ctrMetric.getChildren().addAll(ctrText, ctrNum);
 
         HBox cpaMetric = new HBox();
-        Label cpaText = new Label(" CPA: ");
+        Label cpaText = new Label(" CPA: £");
         Label cpaNum = new Label();
         cpaNum.textProperty().bind(graphData.cpaNumProperty().asString());
         cpaMetric.getChildren().addAll(cpaText, cpaNum);
 
         HBox cpcMetric = new HBox();
-        Label cpcText = new Label(" CPC: ");
+        Label cpcText = new Label(" CPC: £");
         Label cpcNum = new Label("");
         cpcNum.textProperty().bind(graphData.cpcNumProperty().asString());
         cpcMetric.getChildren().addAll(cpcText, cpcNum);
 
         HBox cpmMetric = new HBox();
-        Label cpmText = new Label(" CPM: ");
+        Label cpmText = new Label(" CPM: £");
         Label cpmNum = new Label("");
         cpmNum.textProperty().bind(graphData.cpmNumProperty().asString());
         cpmMetric.getChildren().addAll(cpmText, cpmNum);
@@ -204,8 +203,6 @@ public class DashboardScene extends BaseScene {
         travelButton.setSelected(true);
         contextFilters.getChildren().addAll(contextLabel,socialMediaButton,shoppingButton,blogButton,newsButton,hobbiesButton,travelButton);
 
-
-
         filterHBox.getChildren().addAll(bounceFilter,genderFilters,incomeFilters,ageGroupFilters,contextFilters);
 
         CategoryAxis xAxis = new CategoryAxis();
@@ -213,11 +210,16 @@ public class DashboardScene extends BaseScene {
         LineChart<String,Number> lineChart = new LineChart<>(xAxis,yAxis);
         lineChart.setAnimated(false);
         lineChart.setLegendVisible(false);
-        ArrayList<String> dates = makeGraph(lineChart, "2015-01-01", "2015-02-28");
+
+        ArrayList<String> dates = graphData.getDates("2015-01-01", "2015-01-14");
+        try {
+            graphData.calculateMetrics(lineChart, "2015-01-01", "2015-01-14");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         VBox chartVbox = new VBox();
         chartVbox.setPadding(new Insets(5, 0, 0, 0));
-
 
         HBox dateSelectionBar = new HBox();
         TextField startDate = new TextField(dates.getFirst());
@@ -226,7 +228,7 @@ public class DashboardScene extends BaseScene {
         endDate.setPromptText(dates.getLast());
         Button submit = new Button("Submit");
         submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        dateSelectionBar.getChildren().addAll(startDate,endDate, submit);
+        dateSelectionBar.getChildren().addAll(startDate, endDate, submit);
         dateSelectionBar.setAlignment(Pos.CENTER);
         dateSelectionBar.setSpacing(10);
 
@@ -277,7 +279,8 @@ public class DashboardScene extends BaseScene {
         choiceBox.getSelectionModel().select(0);
         choiceBox.setOnAction(e -> {
             graphData.graphNumProperty().set(choiceBox.getValue());
-            checkGraph(lineChart, dates, startDate.getText(), endDate.getText());
+            lineChart.getData().clear();
+            graphData.changeChart(lineChart);
         });
         choiceBoxContainer.getChildren().add(choiceBox);
         choiceBoxContainer.setAlignment(Pos.CENTER);
@@ -296,135 +299,14 @@ public class DashboardScene extends BaseScene {
 
     }
 
-    public void checkGraph(LineChart lineChart, ArrayList<String> dates, String startDate, String endDate){
+    public void checkGraph(LineChart lineChart, ArrayList<String> dates, String startDate, String endDate) {
         if (dates.contains(startDate) && dates.contains(endDate)) {
             lineChart.getData().clear();
-            makeGraph(lineChart, startDate, endDate);
-        }
-    }
-
-    public ArrayList<String> makeGraph(LineChart lineChart, String startDate, String endDate) {
-        graphData.impressionsNumProperty().set(0);
-        String impressionSQL = "SELECT id, date, gender, income, age, context FROM impression_log";
-        Pair<ArrayList<String>, ArrayList<Integer>> impressionData = graphData.filterDate(startDate, endDate, impressionSQL);
-        ArrayList<String> dates = impressionData.getKey();
-        ArrayList<Integer> impressions = impressionData.getValue();
-        graphData.impressionsNumProperty().set(impressions.stream().mapToInt(a -> a).sum());
-
-        graphData.uniqueNumProperty().set(0);
-        String uniqueSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id GROUP BY impression_log.id ORDER BY impression_log.date";
-        Pair<ArrayList<String>, ArrayList<Integer>> uniqueData = graphData.filterDate(startDate, endDate, uniqueSQL);
-        ArrayList<Integer> unique = uniqueData.getValue();
-        graphData.uniqueNumProperty().set(unique.stream().mapToInt(a -> a).sum());
-
-        graphData.clicksNumProperty().set(0);
-        String clickSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id";
-        Pair<ArrayList<String>, ArrayList<Integer>> clickData = graphData.filterDate(startDate, endDate, clickSQL);
-        ArrayList<Integer> clicks = clickData.getValue();
-        graphData.clicksNumProperty().set(clicks.stream().mapToInt(a -> a).sum());
-
-        graphData.conversionsNumProperty().set(0);
-        String conversionSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context FROM server_log INNER JOIN impression_log ON impression_log.id = server_log.id WHERE server_log.conversion = 'Yes' ORDER BY impression_log.date";
-        Pair<ArrayList<String>, ArrayList<Integer>> conversionData = graphData.filterDate(startDate, endDate, conversionSQL);
-        ArrayList<Integer> conversions = conversionData.getValue();
-        graphData.conversionsNumProperty().set(conversions.stream().mapToInt(a -> a).sum());
-
-        graphData.ctrNumProperty().set(0);
-        ArrayList<Double> ctr = new ArrayList<>();
-        for (int i = 0; i < impressions.size(); i++) {
-            ctr.add(Double.parseDouble(String.format("%.2g%n", (double) clicks.get(i) / impressions.get(i))));
-        }
-        graphData.ctrNumProperty().set(Double.parseDouble(String.format("%.5g%n", ctr.stream().mapToDouble(a -> a).sum() / dates.size())));
-
-        graphData.cpcNumProperty().set(0);
-        String cpcSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context, click_log.click_cost FROM impression_log INNER JOIN click_log ON impression_log.id = click_log.id";
-        ArrayList<Double> cpcTest = graphData.costFilterDate(startDate, endDate, cpcSQL);
-        ArrayList<Double> cpc = new ArrayList<>();
-        for (int i = 0; i < cpcTest.size(); i++) {
-            cpc.add(Double.parseDouble(String.format("%.5g%n", cpcTest.get(i) / clicks.get(i))));
-        }
-        graphData.cpcNumProperty().set(Double.parseDouble(String.format("%.5g%n", cpc.stream().mapToDouble(a -> a).sum() / dates.size())));
-
-        graphData.cpmNumProperty().set(0);
-        String cpmSQL = "SELECT id, date, gender, income, age, context, impression_cost FROM impression_log";
-        ArrayList<Double> cpmTest = graphData.costFilterDate(startDate, endDate, cpmSQL);
-        ArrayList<Double> cpm = new ArrayList<>();
-        for (int i = 0; i < cpmTest.size(); i++) {
-            cpm.add(Double.parseDouble(String.format("%.5g%n", (cpmTest.get(i) / impressions.get(i))*1000)));
-        }
-        graphData.cpmNumProperty().set(Double.parseDouble(String.format("%.5g%n", cpm.stream().mapToDouble(a -> a).sum() / dates.size())));
-
-        graphData.totalNumProperty().set(0);
-        ArrayList<Double> total = cpcTest;
-        graphData.totalNumProperty().set(Double.parseDouble(String.format("%.5g%n", total.stream().mapToDouble(a -> a).sum())));
-
-        graphData.cpaNumProperty().set(0);
-        ArrayList<Double> cpa = new ArrayList<>();
-        for (int i = 0; i < total.size(); i++) {
-            cpa.add(Double.parseDouble(String.format("%.5g%n", total.get(i) / conversions.get(i))));
-        }
-        graphData.cpaNumProperty().set(Double.parseDouble(String.format("%.5g%n", cpa.stream().mapToDouble(a -> a).sum() / dates.size())));
-
-        graphData.bounceNumProperty().set(0);
-        String timeSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context FROM server_log INNER JOIN impression_log ON impression_log.id = server_log.id WHERE time(server_log.exit_date) > time(server_log.entry_date, '+1 minutes') ORDER BY impression_log.date";
-        Pair<ArrayList<String>, ArrayList<Integer>> timeData = graphData.filterDate(startDate, endDate, timeSQL);
-        ArrayList<Integer> time = timeData.getValue();
-        String pageSQL = "SELECT impression_log.id, impression_log.date, impression_log.gender, impression_log.income, impression_log.age, impression_log.context FROM server_log INNER JOIN impression_log ON impression_log.id = server_log.id WHERE server_log.pages_viewed > 1 ORDER BY impression_log.date";
-        Pair<ArrayList<String>, ArrayList<Integer>> pageData = graphData.filterDate(startDate, endDate, pageSQL);
-        ArrayList<Integer> page = pageData.getValue();
-        if (graphData.timeProperty().getValue()) {
-            graphData.bounceNumProperty().set(time.stream().mapToInt(a -> a).sum());
-        } else {
-            graphData.bounceNumProperty().set(page.stream().mapToInt(a -> a).sum());
-        }
-
-        graphData.bounceRateNumProperty().set(0);
-        ArrayList<Double> timeRate = new ArrayList<>();
-        for (int i = 0; i < clicks.size(); i++) {
-            timeRate.add(Double.parseDouble(String.format("%.5g%n", (double) time.get(i) / clicks.get(i))));
-        }
-        ArrayList<Double> pageRate = new ArrayList<>();
-        for (int i = 0; i < clicks.size(); i++) {
-            pageRate.add(Double.parseDouble(String.format("%.5g%n", (double) page.get(i) / clicks.get(i))));
-        }
-        if (graphData.timeProperty().getValue()) {
-            graphData.bounceRateNumProperty().set(Double.parseDouble(String.format("%.5g%n", timeRate.stream().mapToDouble(a -> a).sum() / dates.size())));
-        } else {
-            graphData.bounceRateNumProperty().set(Double.parseDouble(String.format("%.5g%n", pageRate.stream().mapToDouble(a -> a).sum() / dates.size())));
-        }
-
-        XYChart.Series series = new XYChart.Series();
-        for (int i = 0; i < dates.size(); i++) {
-            if (graphData.graphNumProperty().get().equals("Impressions")) {
-                series.getData().add(new XYChart.Data(dates.get(i), impressions.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("Uniques")) {
-                series.getData().add(new XYChart.Data(dates.get(i), unique.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("Clicks")) {
-                series.getData().add(new XYChart.Data(dates.get(i), clicks.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("Bounces") && graphData.timeProperty().getValue()) {
-                series.getData().add(new XYChart.Data(dates.get(i), time.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("Bounces")) {
-                series.getData().add(new XYChart.Data(dates.get(i), page.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("Conversions")) {
-                series.getData().add(new XYChart.Data(dates.get(i), conversions.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("Total cost")) {
-                series.getData().add(new XYChart.Data(dates.get(i), total.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("CTR")) {
-                series.getData().add(new XYChart.Data(dates.get(i), ctr.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("CPA")) {
-                series.getData().add(new XYChart.Data(dates.get(i), cpa.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("CPC")) {
-                series.getData().add(new XYChart.Data(dates.get(i), cpc.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("CPM")) {
-                series.getData().add(new XYChart.Data(dates.get(i), cpm.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("Bounce rate") && graphData.timeProperty().getValue()) {
-                series.getData().add(new XYChart.Data(dates.get(i), timeRate.get(i)));
-            } else if (graphData.graphNumProperty().get().equals("Bounce rate")) {
-                series.getData().add(new XYChart.Data(dates.get(i), pageRate.get(i)));
+            try {
+                graphData.calculateMetrics(lineChart, startDate, endDate);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         }
-        lineChart.getData().add(series);
-
-        return dates;
     }
 }
