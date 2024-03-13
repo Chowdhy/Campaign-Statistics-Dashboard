@@ -3,16 +3,15 @@ package uk.ac.soton.comp2211.data.graph;
 import javafx.beans.property.*;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
+import uk.ac.soton.comp2211.data.Database;
 
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Collections;
 
 public class GraphData {
 
@@ -60,15 +59,7 @@ public class GraphData {
     ArrayList<String> dates;
 
     private Connection connect() {
-        // SQLite connection string
-        String url = "jdbc:sqlite:data/campaign.db";
-        Connection conn = null;
-        try {
-            conn = DriverManager.getConnection(url);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return conn;
+        return Database.getConnection("campaign");
     }
 
     public ArrayList<String> getDates(String startDate, String endDate){

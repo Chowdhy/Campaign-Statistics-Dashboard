@@ -1,18 +1,15 @@
 package uk.ac.soton.comp2211.data.parsing;
 
-import com.opencsv.CSVParser;
-import com.opencsv.CSVReader;
+import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.data.Database;
 
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.File;
 import java.sql.*;
 
 public abstract class CsvParser {
-    private static final Logger logger = LogManager.getLogger(CSVParser.class);
+    private static final Logger logger = LogManager.getLogger(CsvParser.class);
     private final String createTableSql;
     private final String insertSql;
     private final String databaseName;
@@ -65,35 +62,36 @@ public abstract class CsvParser {
         Connection conn = null;
         PreparedStatement prp = null;
 
-        path = inputFilePath;
-        Path inputPath = Path.of(inputFilePath);
-        Reader reader = null;
-        CSVReader csvReader = null;
-
         try {
             conn = Database.getConnection(databaseName);
             if (conn == null) return;
             conn.setAutoCommit(false);
             prp = conn.prepareStatement(insertSql);
 
-            reader = Files.newBufferedReader(inputPath);
-            csvReader = new CSVReader(reader);
-            String[] line;
-            csvReader.readNextSilently();
+            CsvParserSettings settings = new CsvParserSettings();
+            com.univocity.parsers.csv.CsvParser parser = new com.univocity.parsers.csv.CsvParser(settings);
 
-            while (((line = csvReader.readNext()) != null)) {
+            int counter = 0;
+
+            parser.beginParsing(new File(inputFilePath));
+            parser.parseNext();
+
+            String[] line;
+            while (((line = parser.parseNext()) != null)) {
                 this.insert(prp, line);
+
+                counter++;
+                if (counter % 1000 == 0) {
+                    prp.executeBatch();
+                }
             }
 
             prp.executeBatch();
-
             conn.commit();
         } finally {
             try {
                 if (prp != null) prp.close();
                 if (conn != null) conn.close();
-                if (csvReader != null) csvReader.close();
-                if (reader != null) reader.close();
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
