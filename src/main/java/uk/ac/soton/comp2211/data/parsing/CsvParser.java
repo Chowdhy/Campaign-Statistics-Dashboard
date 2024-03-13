@@ -1,6 +1,8 @@
 package uk.ac.soton.comp2211.data.parsing;
 
 import com.univocity.parsers.csv.CsvParserSettings;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.data.Database;
@@ -14,7 +16,7 @@ public abstract class CsvParser {
     private final String insertSql;
     private final String databaseName;
     private String preamble = null;
-    protected String path;
+    protected StringProperty path = new SimpleStringProperty();
 
     public CsvParser(String dbName, String createTableSql, String insertSql) {
         this.databaseName = dbName;
@@ -58,7 +60,7 @@ public abstract class CsvParser {
         }
     }
 
-    public void parse(String inputFilePath) throws Exception {
+    public void parse() throws Exception {
         Connection conn = null;
         PreparedStatement prp = null;
 
@@ -73,7 +75,7 @@ public abstract class CsvParser {
 
             int counter = 0;
 
-            parser.beginParsing(new File(inputFilePath));
+            parser.beginParsing(new File(path.get()));
             parser.parseNext();
 
             String[] line;
@@ -99,4 +101,8 @@ public abstract class CsvParser {
     }
 
     abstract void insert(PreparedStatement prp, String[] line);
+
+    public StringProperty pathProperty() {
+        return path;
+    }
 }
