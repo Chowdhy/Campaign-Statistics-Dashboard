@@ -5,15 +5,15 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.ui.MainWindow;
-import uk.ac.soton.comp2211.users.Credentials;
+import uk.ac.soton.comp2211.users.User;
 
 /**
  * JavaFX App Test1
  */
 public class App extends Application {
-
     private static final Logger logger = LogManager.getLogger(App.class);
     private static App instance;
+    private static User currentUser;
 
     @Override
     public void start(Stage stage) {
@@ -31,6 +31,14 @@ public class App extends Application {
 
     public static App getInstance() {
         return instance;
+    }
+
+    public static void setUser(User user) {
+        currentUser = user;
+    }
+
+    public static User getUser() {
+        return currentUser;
     }
 
     public static void main(String[] args) {

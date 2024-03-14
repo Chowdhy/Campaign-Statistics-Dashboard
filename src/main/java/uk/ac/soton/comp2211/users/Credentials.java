@@ -45,7 +45,7 @@ public class Credentials {
         }
     }
 
-    private Permissions getAuthentication(String username) {
+    public Permissions getAuthentication(String username) {
         String query = "SELECT permission FROM credentials WHERE username = (?)";
 
         try (Connection conn = Database.getConnection("user_info.db");
