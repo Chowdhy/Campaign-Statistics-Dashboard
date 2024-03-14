@@ -5,6 +5,7 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2211.users.Credentials;
 
 /**
  * JavaFX App Test1
@@ -21,7 +22,6 @@ public class App extends Application {
         var window = new MainWindow(stage, 640, 480);
 
         stage.show();
-
     }
 
     public void shutdown() {
