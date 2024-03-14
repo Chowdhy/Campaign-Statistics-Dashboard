@@ -1,19 +1,19 @@
 package uk.ac.soton.comp2211.data.graph;
 
-import uk.ac.soton.comp2211.data.Database;
-
-import java.sql.Connection;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class GraphDataTest {
     GraphData gD;
+
+
     @org.junit.jupiter.api.BeforeEach
-    void setUp() {
-        gD = new GraphData();
+    void setUp() throws SQLException {
+        this.gD = new GraphData();
     }
 
     @org.junit.jupiter.api.Test
@@ -40,6 +40,11 @@ class GraphDataTest {
         ArrayList<String> expectedDates2 = new ArrayList<>();
         ArrayList<String> actualDates2 = gD.getDates("2015-01-03", "2015-01-01");
         assertEquals(expectedDates2, actualDates2);
+
+        //Invalid date fails (no exception thrown).
+        ArrayList<String> expectedDates3 = new ArrayList<>();
+        ArrayList<String> actualDates3 = gD.getDates("2015-00-03", "2015-01-01");
+        assertEquals(expectedDates3, actualDates3);
     }
 
 
@@ -98,26 +103,76 @@ class GraphDataTest {
         String actualSQL6 = gD.filterSQL("2015-01-01", "2015-01-14");
         assertEquals(expectedSQL6, actualSQL6);
 
-
-    }
-
-    @org.junit.jupiter.api.Test
-    void getIntMetric() throws SQLException {
-        Connection conn = Database.getConnection("campaign");
-        Statement stmt = conn.createStatement();
+        gD.female.set(true);
+        gD.low.set(true);
+        gD.medium.set(true);
+        gD.above54.set(true);
+        gD.blog.set(true);
 
 
     }
 
-    @org.junit.jupiter.api.Test
-    void getDoubleMetric() {
-    }
 
     @org.junit.jupiter.api.Test
-    void calculateMetrics() {
+    void calculateMetricsTwoWeeks() throws SQLException {
+        gD.calculateMetrics("2015-01-01","2015-02-28");
+        IntegerProperty impressionNum = gD.impressionsNum;
+        IntegerProperty uniqueNum = gD.uniqueNum;
+        IntegerProperty clicksNum = gD.clicksNum;
+        IntegerProperty conversionsNum = gD.conversionsNum;
+        IntegerProperty bounceNum = gD.bounceNum;
+        DoubleProperty ctrNum = gD.ctrNum;
+        DoubleProperty cpcNum = gD.cpcNum;
+        DoubleProperty totalNum = gD.totalNum;
+        DoubleProperty cpaNum = gD.cpaNum;
+        DoubleProperty bounceRateNum = gD.bounceRateNum;
+
+        assertAll("Verify metrics",
+                () -> assertEquals(486104, impressionNum.get()),
+                () -> assertEquals(23806, uniqueNum.get()),
+                () -> assertEquals(23923, clicksNum.get()),
+                () -> assertEquals(2026, conversionsNum.get()),
+                () -> assertEquals(6482, bounceNum.get()),
+                () -> assertEquals(0.049214, ctrNum.get()),
+                () -> assertEquals(4.916226, cpcNum.get()),
+                () -> assertEquals(118097.921228, totalNum.get()),
+                () -> assertEquals(58.291175, cpaNum.get()),
+                () -> assertEquals(0.270953, bounceRateNum.get())
+
+
+        );
+
     }
 
+
+
     @org.junit.jupiter.api.Test
-    void getData() {
+    void calculateMetricsTwoMonths() throws SQLException {
+        gD.calculateMetrics("2015-01-01","2015-02-28");
+        IntegerProperty impressionNum = gD.impressionsNum;
+        IntegerProperty uniqueNum = gD.uniqueNum;
+        IntegerProperty clicksNum = gD.clicksNum;
+        IntegerProperty conversionsNum = gD.conversionsNum;
+        IntegerProperty bounceNum = gD.bounceNum;
+        DoubleProperty ctrNum = gD.ctrNum;
+        DoubleProperty cpcNum = gD.cpcNum;
+        DoubleProperty totalNum = gD.totalNum;
+        DoubleProperty cpaNum = gD.cpaNum;
+        DoubleProperty bounceRateNum = gD.bounceRateNum;
+
+        assertAll("Verify metrics",
+                () -> assertEquals(8828249, impressionNum.get()),
+                () -> assertEquals(23806, uniqueNum.get()),
+                () -> assertEquals(23923, clicksNum.get()),
+                () -> assertEquals(2026, conversionsNum.get()),
+                () -> assertEquals(6482, bounceNum.get()),
+                () -> assertEquals(0.049214, ctrNum.get()),
+                () -> assertEquals(4.916226, cpcNum.get()),
+                () -> assertEquals(118097.921228, totalNum.get()),
+                () -> assertEquals(58.291175, cpaNum.get()),
+                () -> assertEquals(0.270953, bounceRateNum.get())
+
+        );
+
     }
 }
