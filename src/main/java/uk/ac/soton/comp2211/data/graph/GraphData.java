@@ -46,6 +46,9 @@ public class GraphData {
     DoubleProperty bounceRateNum = new SimpleDoubleProperty(0);
     StringProperty graph = new SimpleStringProperty("Impressions");
 
+    SimpleStringProperty timeVal = new SimpleStringProperty("1");
+    SimpleStringProperty pageVal = new SimpleStringProperty("1");
+
     ArrayList<Integer> impressions;
     ArrayList<Integer> uniques;
     ArrayList<Integer> clicks;
@@ -56,6 +59,9 @@ public class GraphData {
     ArrayList<Double> impressionCost;
     ArrayList<Double> totals;
     ArrayList<String> dates;
+    String maxDate;
+    Integer maxPage;
+    Integer maxTime;
 
     private Connection connect() {
         return Database.getConnection("campaign");
@@ -142,8 +148,8 @@ public class GraphData {
         String impressionSQL = "SELECT COUNT(*), DATE(date) FROM impression_log " + sqlFilters + " GROUP BY DATE(date)";
         String uniqueSQL = "WITH clicks AS (SELECT DISTINCT id FROM click_log), impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM clicks INNER JOIN impressions ON clicks.id = impressions.id GROUP BY DATE(impressions.date)";
         String clickSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM click_log INNER JOIN impressions ON click_log.id = impressions.id GROUP BY DATE(impressions.date)";
-        String pageSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE server_log.pages_viewed = 1 GROUP BY DATE(impressions.date)";
-        String timeSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE time(server_log.exit_date) < time(server_log.entry_date, '+1 minutes') GROUP BY DATE(impressions.date)";
+        String pageSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE server_log.pages_viewed <= " + pageVal.get() + " GROUP BY DATE(impressions.date)";
+        String timeSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE time(server_log.exit_date) < time(server_log.entry_date, '+" + timeVal.get() + " minutes') GROUP BY DATE(impressions.date)";
         String conversionSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT COUNT(*), DATE(impressions.date) FROM server_log INNER JOIN impressions ON server_log.id = impressions.id WHERE server_log.conversion = 'Yes' GROUP BY DATE(impressions.date)";
         String clickCostSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT SUM(click_cost), DATE(impressions.date) FROM click_log INNER JOIN impressions ON click_log.id = impressions.id GROUP BY DATE(impressions.date)";
         String impressionCostSQL = "SELECT SUM(impression_cost), DATE(date) FROM impression_log " + sqlFilters + " GROUP BY DATE(date)";
@@ -151,7 +157,8 @@ public class GraphData {
         Connection conn = this.connect();
         Statement stmt = conn.createStatement();
 
-        DecimalFormat df = new DecimalFormat("#.000000");
+        DecimalFormat value = new DecimalFormat("#.00000");
+        DecimalFormat cost = new DecimalFormat("#.00");
         dates = getDates(startDate, endDate);
 
         impressions = getIntMetric(stmt, impressionSQL);
@@ -178,12 +185,12 @@ public class GraphData {
         conversionsNum.set(getIntMetric(stmt, conversionSQL).stream().mapToInt(a -> a).sum());
         double clickCostNum = clickCost.stream().mapToDouble(a -> a).sum();
         double impressionCostNum = impressionCost.stream().mapToDouble(a -> a).sum();
-        totalNum.set(Double.parseDouble(df.format(clickCostNum + impressionCostNum)));
-        ctrNum.set(Double.parseDouble(df.format((double) clicksNum.get() / impressionsNum.get())));
-        cpaNum.set(Double.parseDouble(df.format(totalNum.get() / conversionsNum.get())));
-        cpcNum.set(Double.parseDouble(df.format(clickCostNum / clicksNum.get())));
-        cpmNum.set(Double.parseDouble(df.format(impressionCostNum / ((double) impressionsNum.get() / 1000))));
-        bounceRateNum.set(Double.parseDouble(df.format((double) bounceNum.get() / clicksNum.get())));
+        totalNum.set(Double.parseDouble(cost.format(clickCostNum + impressionCostNum)));
+        ctrNum.set(Double.parseDouble(value.format((double) clicksNum.get() / impressionsNum.get())));
+        cpaNum.set(Double.parseDouble(cost.format(totalNum.get() / conversionsNum.get())));
+        cpcNum.set(Double.parseDouble(cost.format(clickCostNum / clicksNum.get())));
+        cpmNum.set(Double.parseDouble(cost.format(impressionCostNum / ((double) impressionsNum.get() / 1000))));
+        bounceRateNum.set(Double.parseDouble(value.format((double) bounceNum.get() / clicksNum.get())));
     }
 
     public ArrayList<String> getDates() {
@@ -243,6 +250,27 @@ public class GraphData {
         }
 
         return new Pair<>(integerData, doubleData);
+    }
+
+    public void maxValues(){
+        String maxDateSQL = "SELECT MAX(DATE(date)) FROM impression_log";
+        String maxPageSQL = "SELECT MAX(pages_viewed) FROM server_log";
+        String maxTimeSQL = "SELECT TIME(MAX(julianday(datetime(exit_date)) - julianday(datetime(entry_date)))) FROM server_log";
+        try {
+            Connection conn = this.connect();
+            Statement stmt = conn.createStatement();
+
+            ResultSet dateRS = stmt.executeQuery(maxDateSQL);
+            maxDate = dateRS.getString("MAX(DATE(date))");
+
+            ResultSet pageRS = stmt.executeQuery(maxPageSQL);
+            maxPage = Integer.parseInt(pageRS.getString("MAX(pages_viewed)"));
+
+            ResultSet timeRS = stmt.executeQuery(maxTimeSQL);
+            maxTime = Integer.parseInt(timeRS.getString("TIME(MAX(julianday(datetime(exit_date)) - julianday(datetime(entry_date))))").split(":")[1]);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public BooleanProperty maleProperty(){
@@ -364,4 +392,14 @@ public class GraphData {
     public StringProperty graphNumProperty() {
         return graph;
     }
+
+    public SimpleStringProperty timeValProperty(){ return timeVal; }
+
+    public SimpleStringProperty pageValProperty(){ return pageVal; }
+
+    public String getMaxDate(){ return maxDate; }
+
+    public Integer getMaxPage(){ return maxPage; }
+
+    public Integer getMaxTime(){ return maxTime; }
 }

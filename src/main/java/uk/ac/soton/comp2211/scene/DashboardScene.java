@@ -155,7 +155,12 @@ public class DashboardScene extends BaseScene {
         timeBounceButton.setSelected(true);
         RadioButton singlePageBounceButton = new RadioButton("Pages");
         singlePageBounceButton.setToggleGroup(group);
-        bounceFilter.getChildren().addAll(bounceLabel,timeBounceButton,singlePageBounceButton);
+        TextField defineBounce = new TextField();
+        defineBounce.setPrefWidth(35);
+        defineBounce.setPromptText("0-" + controller.maxTime());
+        defineBounce.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
+        defineBounce.textProperty().bindBidirectional(controller.timeValProperty());
+        bounceFilter.getChildren().addAll(bounceLabel,timeBounceButton,singlePageBounceButton, defineBounce);
 
         Label genderLabel = new Label("Gender");
         CheckBox maleButton = new CheckBox("Male");
@@ -209,9 +214,10 @@ public class DashboardScene extends BaseScene {
         lineChart.setAnimated(false);
         lineChart.setLegendVisible(false);
 
-        ArrayList<String> dates = controller.getDates("2015-01-01", "2015-01-14");
+        controller.setMaxValues();
+        ArrayList<String> dates = controller.getDates("2015-01-01", controller.maxDate());
         try {
-            controller.calculateMetrics(lineChart, "2015-01-01", "2015-01-14");
+            controller.calculateMetrics(lineChart, "2015-01-01", controller.maxDate());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -222,54 +228,41 @@ public class DashboardScene extends BaseScene {
         HBox dateSelectionBar = new HBox();
         TextField startDate = new TextField(dates.getFirst());
         startDate.setPromptText(dates.getFirst());
+        startDate.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
         TextField endDate = new TextField(dates.getLast());
         endDate.setPromptText(dates.getLast());
+        endDate.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
         Button submit = new Button("Submit");
         submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+
         dateSelectionBar.getChildren().addAll(startDate, endDate, submit);
         dateSelectionBar.setAlignment(Pos.CENTER);
         dateSelectionBar.setSpacing(10);
 
         maleButton.selectedProperty().bindBidirectional(controller.maleProperty());
-        maleButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         femaleButton.selectedProperty().bindBidirectional(controller.femaleProperty());
-        femaleButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
         lowButton.selectedProperty().bindBidirectional(controller.lowProperty());
-        lowButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         mediumButton.selectedProperty().bindBidirectional(controller.mediumProperty());
-        mediumButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         highButton.selectedProperty().bindBidirectional(controller.highProperty());
-        highButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
         under25Button.selectedProperty().bindBidirectional(controller.under25Property());
-        under25Button.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         twentiesButton.selectedProperty().bindBidirectional(controller.twentiesProperty());
-        twentiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         thirtiesButton.selectedProperty().bindBidirectional(controller.thirtiesProperty());
-        thirtiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         fortiesButton.selectedProperty().bindBidirectional(controller.fortiesProperty());
-        fortiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         above54Button.selectedProperty().bindBidirectional(controller.above54Property());
-        above54Button.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
         socialMediaButton.selectedProperty().bindBidirectional(controller.socialMediaProperty());
-        socialMediaButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         shoppingButton.selectedProperty().bindBidirectional(controller.shoppingProperty());
-        shoppingButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         newsButton.selectedProperty().bindBidirectional(controller.newsProperty());
-        newsButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         blogButton.selectedProperty().bindBidirectional(controller.blogProperty());
-        blogButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         travelButton.selectedProperty().bindBidirectional(controller.travelProperty());
-        travelButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         hobbiesButton.selectedProperty().bindBidirectional(controller.hobbiesProperty());
-        hobbiesButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
         timeBounceButton.selectedProperty().bindBidirectional(controller.timeProperty());
-        timeBounceButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        timeBounceButton.setOnAction(e -> changeBounce(defineBounce));
         singlePageBounceButton.selectedProperty().bindBidirectional(controller.pageProperty());
-        singlePageBounceButton.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        singlePageBounceButton.setOnAction(e -> changeBounce(defineBounce));
 
         HBox choiceBoxContainer = new HBox();
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
@@ -287,9 +280,17 @@ public class DashboardScene extends BaseScene {
         chartVbox.getChildren().add(lineChart);
         chartVbox.getChildren().add(choiceBoxContainer);
 
+        Button filter = new Button("Filter");
+        filter.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+
+        VBox bottom = new VBox();
+        bottom.setAlignment(Pos.CENTER);
+        bottom.getChildren().add(filterHBox);
+        bottom.getChildren().add(filter);
+
         leftSplitPane.setOrientation(Orientation.VERTICAL);
         leftSplitPane.getItems().add(chartVbox);
-        leftSplitPane.getItems().add(filterHBox);
+        leftSplitPane.getItems().add(bottom);
     }
 
     @Override
@@ -298,13 +299,25 @@ public class DashboardScene extends BaseScene {
     }
 
     public void checkGraph(LineChart lineChart, ArrayList<String> dates, String startDate, String endDate) {
-        if (dates.contains(startDate) && dates.contains(endDate)) {
-            lineChart.getData().clear();
-            try {
+        try {
+            if (dates.contains(startDate) && dates.contains(endDate) && controller.maxTime() >= Integer.parseInt(controller.timeValProperty().get()) && controller.maxPage() >= Integer.parseInt(controller.pageValProperty().get())) {
+                lineChart.getData().clear();
                 controller.calculateMetrics(lineChart, startDate, endDate);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
+        } catch(Exception ignored) {
+
+        }
+    }
+
+    public void changeBounce(TextField defineBounce){
+        if (controller.timeProperty().get()) {
+            defineBounce.setPromptText("0-" + controller.maxTime());
+            defineBounce.textProperty().unbindBidirectional(controller.pageValProperty());
+            defineBounce.textProperty().bindBidirectional(controller.timeValProperty());
+        } else {
+            defineBounce.setPromptText("0-" + controller.maxPage());
+            defineBounce.textProperty().unbindBidirectional(controller.timeValProperty());
+            defineBounce.textProperty().bindBidirectional(controller.pageValProperty());
         }
     }
 }
