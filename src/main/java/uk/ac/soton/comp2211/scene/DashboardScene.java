@@ -57,6 +57,12 @@ public class DashboardScene extends BaseScene {
         var deleteUserItem = new MenuItem("Delete user");
 
         var chartSettingsMenu = new Menu("Chart settings");
+        var histogramMenuItem = new MenuItem("Histogram");
+        var compareCharts = new MenuItem("Compare charts");
+        chartSettingsMenu.getItems().addAll(histogramMenuItem,compareCharts);
+
+
+
         var fileSettingsMenu = new Menu("Upload files");
         var fileSettingsMenuItem = new MenuItem("Upload");
         var exportMenu = new Menu("Export");
