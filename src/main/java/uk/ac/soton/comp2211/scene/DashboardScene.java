@@ -324,9 +324,7 @@ public class DashboardScene extends BaseScene {
 
         leftSplitPane.setOrientation(Orientation.VERTICAL);
         leftSplitPane.getItems().add(chartVbox);
-        leftSplitPane.getItems().add(filterHBox);
-
-
+        leftSplitPane.getItems().add(bottom);
     }
 
     @Override

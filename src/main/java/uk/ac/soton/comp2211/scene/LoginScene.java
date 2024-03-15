@@ -13,8 +13,6 @@ import uk.ac.soton.comp2211.ui.MainWindow;
 
 public class LoginScene extends BaseScene {
 
-    LoginController controller;
-
     public LoginScene(MainWindow window){
         super(window);
     }
@@ -26,7 +24,7 @@ public class LoginScene extends BaseScene {
 
     @Override
     public void build(){
-        controller = new LoginController();
+        LoginController controller = new LoginController();
 
         root = new StackPane();
         root.setFocusTraversable(false);
@@ -34,8 +32,10 @@ public class LoginScene extends BaseScene {
         var loginLabel = new Label("Ad Dashboard Login");
         var usernameInput = new TextField();
         usernameInput.setPromptText("Username");
+        usernameInput.textProperty().bindBidirectional(controller.usernameProperty());
         var passwordInput = new PasswordField();
         passwordInput.setPromptText("Password");
+        passwordInput.textProperty().bindBidirectional(controller.passwordProperty());
         var loginButton = new Button("Login");
         root.getChildren().add(loginFields);
         loginFields.getChildren().addAll(loginLabel,usernameInput,passwordInput,loginButton);
@@ -47,20 +47,19 @@ public class LoginScene extends BaseScene {
         passwordInput.setFocusTraversable(false);
         loginButton.setFocusTraversable(false);
 
-        usernameInput.textProperty().bindBidirectional(controller.usernameProperty());
-        passwordInput.textProperty().bindBidirectional(controller.passwordProperty());
-
-
-
 
         loginButton.setOnAction(e ->{
             try {
-                controller.requestLogin();
-                window.loadDashboard();
+                if (controller.requestLogin() != null) {
+                    System.out.println("Successfully logged in!");
+                    window.loadDashboard();
+                    System.out.println("Done");
+                } else {
+                    System.out.println("Unsuccessful login attempt.");
+                }
             } catch (Exception ex) {
                 throw new RuntimeException(ex);
             }
-
         });
     }
 
