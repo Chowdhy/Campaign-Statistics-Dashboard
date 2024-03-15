@@ -72,6 +72,9 @@ public class ModifyUserScene extends BaseScene{
             if (readWriteCheckBox.isSelected()) {
                 viewerCheckBox.setSelected(true);
             }
+            else{
+                adminCheckBox.setSelected(false);
+            }
         });
 
 

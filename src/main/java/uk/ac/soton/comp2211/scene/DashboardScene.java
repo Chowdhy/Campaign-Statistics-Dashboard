@@ -44,11 +44,17 @@ public class DashboardScene extends BaseScene {
         var fileSettingsMenuItem = new MenuItem("Upload");
         var exportMenu = new Menu("Export");
 
+        var logoutMenu = new Menu("Logout");
+        var logoutMenuItem = new MenuItem("Logout");
+        logoutMenu.getItems().add(logoutMenuItem);
+
         userManagementMenu.getItems().addAll(addUserItem,modifyUserItem,deleteUserItem);
         fileSettingsMenu.getItems().add(fileSettingsMenuItem);
 
 
-        MenuBar menuBar = new MenuBar(fileSettingsMenu,userManagementMenu,chartSettingsMenu,exportMenu);
+        MenuBar menuBar = new MenuBar(fileSettingsMenu,userManagementMenu,chartSettingsMenu,exportMenu,logoutMenu);
+
+
         root.getChildren().add(menuBar);
 
         fileSettingsMenuItem.setOnAction( e->{

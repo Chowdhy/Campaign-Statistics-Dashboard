@@ -8,9 +8,12 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uk.ac.soton.comp2211.control.LoginController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
 public class LoginScene extends BaseScene {
+
+    LoginController controller;
 
     public LoginScene(MainWindow window){
         super(window);
@@ -23,6 +26,8 @@ public class LoginScene extends BaseScene {
 
     @Override
     public void build(){
+        controller = new LoginController();
+
         root = new StackPane();
         root.setFocusTraversable(false);
         var loginFields = new VBox();
@@ -42,10 +47,20 @@ public class LoginScene extends BaseScene {
         passwordInput.setFocusTraversable(false);
         loginButton.setFocusTraversable(false);
 
+        usernameInput.textProperty().bindBidirectional(controller.usernameProperty());
+        passwordInput.textProperty().bindBidirectional(controller.passwordProperty());
+
+
+
 
         loginButton.setOnAction(e ->{
-            window.loadDashboard();
-            System.out.println("Done");
+            try {
+                controller.requestLogin();
+                window.loadDashboard();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
+
         });
     }
 
