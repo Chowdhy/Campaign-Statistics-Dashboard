@@ -31,36 +31,23 @@ public abstract class CsvParser {
         this.preamble = preamble;
         this.createTableSql = createTableSql;
         this.insertSql = insertSql;
-
-        createTable();
     }
 
     private void createTable() {
-        Connection conn = null;
-        Statement stat = null;
-
-        try {
-            conn = Database.getConnection(databaseName);
-            if (conn == null) return;
-
-            stat = conn.createStatement();
+        try (Connection conn = Database.getConnection(databaseName);
+             Statement stat = conn.createStatement()) {
 
             if (preamble != null) stat.execute(preamble);
 
             stat.execute(createTableSql);
         } catch (Exception e) {
             logger.error(e.getMessage());
-        } finally {
-            try {
-                if (stat != null) stat.close();
-                if (conn != null) conn.close();
-            } catch (SQLException e) {
-                logger.error(e.getMessage());
-            }
         }
     }
 
     public void parse() throws Exception {
+        createTable();
+
         Connection conn = null;
         PreparedStatement prp = null;
 
