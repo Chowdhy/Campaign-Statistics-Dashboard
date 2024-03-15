@@ -53,6 +53,9 @@ public class FileInputScene extends BaseScene {
         var impressionField = new TextField();
         var clickField = new TextField();
         var serverField = new TextField();
+        impressionField.setEditable(false);
+        clickField.setEditable(false);
+        serverField.setEditable(false);
         impressionField.textProperty().bindBidirectional(controller.impressionPathProperty());
         clickField.textProperty().bindBidirectional(controller.clickPathProperty());
         serverField.textProperty().bindBidirectional(controller.serverPathProperty());
