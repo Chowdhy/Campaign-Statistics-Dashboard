@@ -134,11 +134,11 @@ class GraphDataTest {
                 () -> assertEquals(23923, clicksNum.get()),
                 () -> assertEquals(2026, conversionsNum.get()),
                 () -> assertEquals(6482, bounceNum.get()),
-                () -> assertEquals(0.049214, ctrNum.get()),
-                () -> assertEquals(4.916226, cpcNum.get()),
-                () -> assertEquals(118097.921228, totalNum.get()),
-                () -> assertEquals(58.291175, cpaNum.get()),
-                () -> assertEquals(0.270953, bounceRateNum.get())
+                () -> assertEquals(0.04921, ctrNum.get()),
+                () -> assertEquals(4.92, cpcNum.get()),
+                () -> assertEquals(118097.92, totalNum.get()),
+                () -> assertEquals(58.29, cpaNum.get()),
+                () -> assertEquals(0.27095, bounceRateNum.get())
         );
 
     }
