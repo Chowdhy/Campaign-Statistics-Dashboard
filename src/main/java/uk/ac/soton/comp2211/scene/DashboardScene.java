@@ -36,9 +36,9 @@ public class DashboardScene extends BaseScene {
 
         Menu userManagementMenu = new Menu("User Management");
         Menu chartSettingsMenu = new Menu("Chart settings");
-        Menu fileSettingsMenu = new Menu("File Settings");
+        Menu fileSettingsMenu = new Menu("Upload files");
         Menu exportMenu = new Menu("Export");
-        MenuBar menuBar = new MenuBar(userManagementMenu,chartSettingsMenu,fileSettingsMenu,exportMenu);
+        MenuBar menuBar = new MenuBar(fileSettingsMenu,userManagementMenu,chartSettingsMenu,exportMenu);
         root.getChildren().add(menuBar);
 
         SplitPane splitPane = new SplitPane();

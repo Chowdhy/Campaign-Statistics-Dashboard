@@ -11,6 +11,7 @@ import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.scene.BaseScene;
 import uk.ac.soton.comp2211.scene.DashboardScene;
 import uk.ac.soton.comp2211.scene.FileInputScene;
+import uk.ac.soton.comp2211.scene.LoginScene;
 
 public class MainWindow {
     private static final Logger logger = LogManager.getLogger(MainWindow.class);
@@ -29,7 +30,7 @@ public class MainWindow {
 
         setupDefault();
 
-        loadFileInput();
+        loadLoginScene();
     }
 
     public Scene getScene() {
@@ -62,6 +63,10 @@ public class MainWindow {
     }
     public void loadDashboard() {
         loadScene(new DashboardScene(this));
+    }
+
+    public void loadLoginScene() {
+        loadScene(new LoginScene(this));
     }
 
     public void cleanup() {
