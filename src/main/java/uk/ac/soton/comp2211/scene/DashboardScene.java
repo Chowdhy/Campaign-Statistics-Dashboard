@@ -74,6 +74,10 @@ public class DashboardScene extends BaseScene {
             window.loadDeleteUserScene();
         });
 
+        logoutMenuItem.setOnAction(e -> {
+            window.loadLoginScene();
+        });
+
 
         SplitPane splitPane = new SplitPane();
         root.getChildren().add(splitPane);
