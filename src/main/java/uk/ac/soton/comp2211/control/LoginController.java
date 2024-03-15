@@ -27,7 +27,7 @@ public class LoginController {
             App.setUser(user);
             return user;
         } else {
-            throw new RuntimeException();
+            return null;
         }
     }
 
