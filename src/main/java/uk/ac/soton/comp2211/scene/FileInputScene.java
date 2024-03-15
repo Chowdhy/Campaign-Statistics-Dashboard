@@ -73,7 +73,6 @@ public class FileInputScene extends BaseScene {
         HBox.setHgrow(serverField, Priority.ALWAYS);
 
         var impressionExplorer = new Button("Browse");
-        impressionExplorer.getStyleClass().add("text");
         var clickExplorer = new Button("Browse");
         var serverExplorer = new Button("Browse");
 
@@ -82,7 +81,6 @@ public class FileInputScene extends BaseScene {
         serverBox.getChildren().addAll(serverField, serverExplorer);
 
         var uploadButton = new Button("Upload");
-        uploadButton.getStyleClass().add("upload-button");
 
         ProgressIndicator progressIndicator = new ProgressIndicator();
         progressIndicator.isIndeterminate();
