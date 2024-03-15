@@ -3,14 +3,11 @@ package uk.ac.soton.comp2211.ui;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.App;
-import uk.ac.soton.comp2211.scene.BaseScene;
-import uk.ac.soton.comp2211.scene.DashboardScene;
-import uk.ac.soton.comp2211.scene.FileInputScene;
+import uk.ac.soton.comp2211.scene.*;
 
 public class MainWindow {
     private static final Logger logger = LogManager.getLogger(MainWindow.class);
@@ -29,7 +26,7 @@ public class MainWindow {
 
         setupDefault();
 
-        loadFileInput();
+        loadLoginScene();
     }
 
     public Scene getScene() {
@@ -64,6 +61,21 @@ public class MainWindow {
         loadScene(new DashboardScene(this));
     }
 
+    public void loadLoginScene() {
+        loadScene(new LoginScene(this));
+    }
+
+    public void loadAddUserScene() {
+        loadScene(new AddUserScene(this));
+    }
+
+    public void loadModifyUserScene() {
+        loadScene(new ModifyUserScene(this));
+    }
+
+    public void loadDeleteUserScene() {
+        loadScene(new DeleteUserScene(this));
+    }
     public void cleanup() {
         if (currentScene != null) currentScene.cleanup();
     }
