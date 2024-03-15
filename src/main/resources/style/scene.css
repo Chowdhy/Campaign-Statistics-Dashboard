@@ -1,0 +1,46 @@
+.root {
+    -fx-background-color: #B0C4DE;
+    -fx-text-color: black;
+    -fx-font-family: Consolas, "Times New Roman";
+    -fx-font-size: 16px;
+}
+.label {
+    -fx-text-fill: linear-gradient(to right, #483D8B, #6A5ACD, #7B68EE, #8470FF);
+}
+
+.button {
+    -fx-display: inline-block;
+    -fx-border-radius: 10px;
+    -fx-border-width: 1px;
+    -fx-border-color: #03045e;
+    -fx-alignment: center;
+    -fx-background-color: transparent;
+    -fx-background-radius: 10px;
+    -fx-padding: 5px, 10px;
+    -fx-transition: all 0.5s ease-in;
+    -fx-animated: true;
+}
+
+.button:hover {
+    -fx-background-color: #5a189a;
+    -fx-text-fill: #e0aaff;
+    -fx-transition-duration: 0.3s;
+}
+
+.menu-button {
+    -fx-display: flex;
+    -fx-alignment: center;
+    -fx-padding: 6px 12px;
+    -fx-spacing: 8px;
+    -fx-background-color: #5e41de33;
+    -fx-background-radius: 10px;
+    -fx-cursor: hand;
+}
+
+.menu-button:hover {
+    -fx-background-color: #5e41de4d;
+}
+
+.menu-bar {
+    -fx-background-color: #AFEEEE;
+}
