@@ -30,7 +30,7 @@ public class Credentials {
     private String getStoredPassword(String username) {
         String query = "SELECT password FROM credentials WHERE username = (?)";
 
-        try (Connection conn = Database.getConnection("user_info.db");
+        try (Connection conn = Database.getConnection("user_info");
              PreparedStatement stat = conn.prepareStatement(query)) {
             stat.setString(1, username);
             ResultSet rs = stat.executeQuery();
@@ -38,7 +38,7 @@ public class Credentials {
             if (rs.next()) {
                 return rs.getString(1);
             } else {
-                throw new RuntimeException();
+                return null;
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -48,16 +48,17 @@ public class Credentials {
     public Permissions getAuthentication(String username) {
         String query = "SELECT permission FROM credentials WHERE username = (?)";
 
-        try (Connection conn = Database.getConnection("user_info.db");
+        try (Connection conn = Database.getConnection("user_info");
              PreparedStatement stat = conn.prepareStatement(query)) {
             stat.setString(1, username);
             ResultSet rs = stat.executeQuery();
 
             if (rs.next()) {
                 String permission = rs.getString(1);
-                return Permissions.valueOf(permission);
+
+                return Permissions.find(permission);
             } else {
-                throw new RuntimeException();
+                return null;
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -67,6 +68,8 @@ public class Credentials {
     public boolean validateCredentials(String username, String password) throws Exception {
         String storedPassword = getStoredPassword(username.toLowerCase());
         String hashedInput = hash(password);
+
+        if (storedPassword == null) return false;
 
         return storedPassword.equals(hashedInput);
     }

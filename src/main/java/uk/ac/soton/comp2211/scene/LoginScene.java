@@ -8,6 +8,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import uk.ac.soton.comp2211.control.LoginController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
 public class LoginScene extends BaseScene {
@@ -23,14 +24,18 @@ public class LoginScene extends BaseScene {
 
     @Override
     public void build(){
+        LoginController controller = new LoginController();
+
         root = new StackPane();
         root.setFocusTraversable(false);
         var loginFields = new VBox();
         var loginLabel = new Label("Ad Dashboard Login");
         var usernameInput = new TextField();
         usernameInput.setPromptText("Username");
+        usernameInput.textProperty().bindBidirectional(controller.usernameProperty());
         var passwordInput = new PasswordField();
         passwordInput.setPromptText("Password");
+        passwordInput.textProperty().bindBidirectional(controller.passwordProperty());
         var loginButton = new Button("Login");
         root.getChildren().add(loginFields);
         loginFields.getChildren().addAll(loginLabel,usernameInput,passwordInput,loginButton);
@@ -44,8 +49,17 @@ public class LoginScene extends BaseScene {
 
 
         loginButton.setOnAction(e ->{
-            window.loadDashboard();
-            System.out.println("Done");
+            try {
+                if (controller.requestLogin() != null) {
+                    System.out.println("Successfully logged in!");
+                    window.loadDashboard();
+                    System.out.println("Done");
+                } else {
+                    System.out.println("Unsuccessful login attempt.");
+                }
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         });
     }
 
