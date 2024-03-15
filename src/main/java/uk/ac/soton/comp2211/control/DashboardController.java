@@ -1,15 +1,15 @@
 package uk.ac.soton.comp2211.control;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
 import uk.ac.soton.comp2211.data.graph.GraphData;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 public class DashboardController {
@@ -46,6 +46,10 @@ public class DashboardController {
 
     public ArrayList<String> getDates(String startDate, String endDate) {
         return graphData.getDates(startDate, endDate);
+    }
+
+    public void setMaxValues() {
+        graphData.maxValues();
     }
 
     public BooleanProperty maleProperty(){
@@ -167,4 +171,14 @@ public class DashboardController {
     public StringProperty graphNumProperty() {
         return graphData.graphNumProperty();
     }
+
+    public SimpleStringProperty timeValProperty(){ return graphData.timeValProperty(); }
+
+    public SimpleStringProperty pageValProperty(){ return graphData.pageValProperty(); }
+
+    public String maxDate(){ return graphData.getMaxDate(); }
+
+    public Integer maxPage(){ return graphData.getMaxPage(); }
+
+    public Integer maxTime(){ return graphData.getMaxTime(); }
 }
