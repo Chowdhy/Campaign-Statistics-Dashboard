@@ -6,13 +6,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
-public class LoginScene extends BaseScene {
+public class AddUserScene extends BaseScene{
 
-    public LoginScene(MainWindow window){
+    public AddUserScene(MainWindow window){
         super(window);
     }
 
@@ -26,12 +27,12 @@ public class LoginScene extends BaseScene {
         root = new StackPane();
         root.setFocusTraversable(false);
         var loginFields = new VBox();
-        var loginLabel = new Label("Ad Dashboard Login");
+        var loginLabel = new Label("Add User");
         var usernameInput = new TextField();
         usernameInput.setPromptText("Username");
         var passwordInput = new PasswordField();
         passwordInput.setPromptText("Password");
-        var loginButton = new Button("Login");
+        var loginButton = new Button("Add");
         root.getChildren().add(loginFields);
         loginFields.getChildren().addAll(loginLabel,usernameInput,passwordInput,loginButton);
         root.setPadding(new Insets(200,200,200,200));
@@ -50,6 +51,7 @@ public class LoginScene extends BaseScene {
     }
 
     @Override
-    public void cleanup(){
+    public void cleanup() {
+
     }
 }

@@ -34,12 +34,40 @@ public class DashboardScene extends BaseScene {
 
         root = new VBox();
 
-        Menu userManagementMenu = new Menu("User Management");
-        Menu chartSettingsMenu = new Menu("Chart settings");
-        Menu fileSettingsMenu = new Menu("Upload files");
-        Menu exportMenu = new Menu("Export");
+        var userManagementMenu = new Menu("User Management");
+        var addUserItem = new MenuItem("Add user");
+        var modifyUserItem = new MenuItem("Modify user");
+        var deleteUserItem = new MenuItem("Delete user");
+
+        var chartSettingsMenu = new Menu("Chart settings");
+        var fileSettingsMenu = new Menu("Upload files");
+        var fileSettingsMenuItem = new MenuItem("Upload");
+        var exportMenu = new Menu("Export");
+
+        userManagementMenu.getItems().addAll(addUserItem,modifyUserItem,deleteUserItem);
+        fileSettingsMenu.getItems().add(fileSettingsMenuItem);
+
+
         MenuBar menuBar = new MenuBar(fileSettingsMenu,userManagementMenu,chartSettingsMenu,exportMenu);
         root.getChildren().add(menuBar);
+
+        fileSettingsMenuItem.setOnAction( e->{
+            window.loadFileInput();
+
+        });
+
+        addUserItem.setOnAction(e -> {
+            window.loadAddUserScene();
+        });
+
+        modifyUserItem.setOnAction(e -> {
+            window.loadModifyUserScene();
+        });
+
+        deleteUserItem.setOnAction(e -> {
+            window.loadDeleteUserScene();
+        });
+
 
         SplitPane splitPane = new SplitPane();
         root.getChildren().add(splitPane);
@@ -290,6 +318,8 @@ public class DashboardScene extends BaseScene {
         leftSplitPane.setOrientation(Orientation.VERTICAL);
         leftSplitPane.getItems().add(chartVbox);
         leftSplitPane.getItems().add(filterHBox);
+
+
     }
 
     @Override
