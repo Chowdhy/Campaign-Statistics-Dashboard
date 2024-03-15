@@ -154,43 +154,42 @@ public class GraphData {
         String clickCostSQL = "WITH impressions AS (SELECT * FROM impression_log " + sqlFilters + " GROUP BY id) SELECT SUM(click_cost), DATE(impressions.date) FROM click_log INNER JOIN impressions ON click_log.id = impressions.id GROUP BY DATE(impressions.date)";
         String impressionCostSQL = "SELECT SUM(impression_cost), DATE(date) FROM impression_log " + sqlFilters + " GROUP BY DATE(date)";
 
-        Connection conn = this.connect();
-        Statement stmt = conn.createStatement();
+        try (Connection conn = this.connect(); Statement stmt = conn.createStatement()) {
+            DecimalFormat value = new DecimalFormat("#.00000");
+            DecimalFormat cost = new DecimalFormat("#.00");
+            dates = getDates(startDate, endDate);
 
-        DecimalFormat value = new DecimalFormat("#.00000");
-        DecimalFormat cost = new DecimalFormat("#.00");
-        dates = getDates(startDate, endDate);
+            impressions = getIntMetric(stmt, impressionSQL);
+            uniques = getIntMetric(stmt, uniqueSQL);
+            clicks = getIntMetric(stmt, clickSQL);
+            pages = getIntMetric(stmt, pageSQL);
+            times = getIntMetric(stmt, timeSQL);
+            conversions = getIntMetric(stmt, conversionSQL);
+            clickCost = getDoubleMetric(stmt, clickCostSQL);
+            impressionCost = getDoubleMetric(stmt, impressionCostSQL);
+            totals = new ArrayList<>();
+            for (int i = 0; i < dates.size(); i++) {
+                totals.add(clickCost.get(i) + impressionCost.get(i));
+            }
 
-        impressions = getIntMetric(stmt, impressionSQL);
-        uniques = getIntMetric(stmt, uniqueSQL);
-        clicks = getIntMetric(stmt, clickSQL);
-        pages = getIntMetric(stmt, pageSQL);
-        times = getIntMetric(stmt, timeSQL);
-        conversions = getIntMetric(stmt, conversionSQL);
-        clickCost = getDoubleMetric(stmt, clickCostSQL);
-        impressionCost = getDoubleMetric(stmt, impressionCostSQL);
-        totals = new ArrayList<>();
-        for (int i = 0; i < dates.size(); i++) {
-            totals.add(clickCost.get(i) + impressionCost.get(i));
+            impressionsNum.set(impressions.stream().mapToInt(a -> a).sum());
+            uniqueNum.set(uniques.stream().mapToInt(a -> a).sum());
+            clicksNum.set(clicks.stream().mapToInt(a -> a).sum());
+            if (page.get()) {
+                bounceNum.set(pages.stream().mapToInt(a -> a).sum());
+            } else {
+                bounceNum.set(times.stream().mapToInt(a -> a).sum());
+            }
+            conversionsNum.set(getIntMetric(stmt, conversionSQL).stream().mapToInt(a -> a).sum());
+            double clickCostNum = clickCost.stream().mapToDouble(a -> a).sum();
+            double impressionCostNum = impressionCost.stream().mapToDouble(a -> a).sum();
+            totalNum.set(Double.parseDouble(cost.format(clickCostNum + impressionCostNum)));
+            ctrNum.set(Double.parseDouble(value.format((double) clicksNum.get() / impressionsNum.get())));
+            cpaNum.set(Double.parseDouble(cost.format(totalNum.get() / conversionsNum.get())));
+            cpcNum.set(Double.parseDouble(cost.format(clickCostNum / clicksNum.get())));
+            cpmNum.set(Double.parseDouble(cost.format(impressionCostNum / ((double) impressionsNum.get() / 1000))));
+            bounceRateNum.set(Double.parseDouble(value.format((double) bounceNum.get() / clicksNum.get())));
         }
-
-        impressionsNum.set(impressions.stream().mapToInt(a -> a).sum());
-        uniqueNum.set(uniques.stream().mapToInt(a -> a).sum());
-        clicksNum.set(clicks.stream().mapToInt(a -> a).sum());
-        if (page.get()) {
-            bounceNum.set(pages.stream().mapToInt(a -> a).sum());
-        } else {
-            bounceNum.set(times.stream().mapToInt(a -> a).sum());
-        }
-        conversionsNum.set(getIntMetric(stmt, conversionSQL).stream().mapToInt(a -> a).sum());
-        double clickCostNum = clickCost.stream().mapToDouble(a -> a).sum();
-        double impressionCostNum = impressionCost.stream().mapToDouble(a -> a).sum();
-        totalNum.set(Double.parseDouble(cost.format(clickCostNum + impressionCostNum)));
-        ctrNum.set(Double.parseDouble(value.format((double) clicksNum.get() / impressionsNum.get())));
-        cpaNum.set(Double.parseDouble(cost.format(totalNum.get() / conversionsNum.get())));
-        cpcNum.set(Double.parseDouble(cost.format(clickCostNum / clicksNum.get())));
-        cpmNum.set(Double.parseDouble(cost.format(impressionCostNum / ((double) impressionsNum.get() / 1000))));
-        bounceRateNum.set(Double.parseDouble(value.format((double) bounceNum.get() / clicksNum.get())));
     }
 
     public ArrayList<String> getDates() {
@@ -252,23 +251,22 @@ public class GraphData {
         return new Pair<>(integerData, doubleData);
     }
 
-    public void maxValues(){
+    public void maxValues() {
         String maxDateSQL = "SELECT MAX(DATE(date)) FROM impression_log";
         String maxPageSQL = "SELECT MAX(pages_viewed) FROM server_log";
         String maxTimeSQL = "SELECT TIME(MAX(julianday(datetime(exit_date)) - julianday(datetime(entry_date)))) FROM server_log";
-        try {
-            Connection conn = this.connect();
-            Statement stmt = conn.createStatement();
+
+        try (Connection conn = this.connect(); Statement stmt = conn.createStatement()) {
 
             ResultSet dateRS = stmt.executeQuery(maxDateSQL);
             maxDate = dateRS.getString("MAX(DATE(date))");
 
             ResultSet pageRS = stmt.executeQuery(maxPageSQL);
-            maxPage = Integer.parseInt(pageRS.getString("MAX(pages_viewed)"));
+            maxPage = pageRS.getInt("MAX(pages_viewed)");
 
             ResultSet timeRS = stmt.executeQuery(maxTimeSQL);
             maxTime = Integer.parseInt(timeRS.getString("TIME(MAX(julianday(datetime(exit_date)) - julianday(datetime(entry_date))))").split(":")[1]);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
