@@ -17,8 +17,9 @@ public class DashboardController {
     }
 
     public void changeChart(LineChart lineChart) {
-        ArrayList<String> dates = graphData.getDates();
+        lineChart.getData().clear();
         Pair<ArrayList<Integer>, ArrayList<Double>> data = graphData.getData();
+        ArrayList<String> dates = graphData.getDates();
         ArrayList<Integer> integerData = data.getKey();
         ArrayList<Double> doubleData = data.getValue();
 
@@ -36,13 +37,12 @@ public class DashboardController {
         lineChart.getData().add(series);
     }
 
-    public void calculateMetrics(LineChart lineChart, String startDate, String endDate) throws SQLException {
+    public void calculateMetrics(String startDate, String endDate) throws SQLException {
         graphData.calculateMetrics(startDate, endDate);
-        changeChart(lineChart);
     }
 
     public ArrayList<String> getDates(String startDate, String endDate) {
-        return graphData.getDates(startDate, endDate);
+        return graphData.getDayDates(startDate, endDate);
     }
 
     public void setMaxValues() {
@@ -176,6 +176,8 @@ public class DashboardController {
     public SimpleStringProperty timeValProperty(){ return graphData.timeValProperty(); }
 
     public SimpleStringProperty pageValProperty(){ return graphData.pageValProperty(); }
+
+    public SimpleStringProperty buttonValProperty(){ return graphData.buttonValProperty(); }
 
     public String maxDate(){ return graphData.getMaxDate(); }
 
