@@ -89,7 +89,13 @@ public class FileInputScene extends BaseScene {
         Region spacer = new Region(); //Need to change this, it's a hacky way to do it I'm just running out of time lol
         spacer.setMinHeight(20);
 
-        centreBox.getChildren().addAll(impressionLabel, impressionBox, clickLabel, clickBox, serverLabel, serverBox, uploadButton,spacer,progressIndicator);
+        var buttonsHBox = new HBox();
+        var backButton = new Button("Back");
+        buttonsHBox.getChildren().addAll(backButton,uploadButton);
+        buttonsHBox.setSpacing(10);
+        buttonsHBox.setAlignment(Pos.CENTER);
+
+        centreBox.getChildren().addAll(impressionLabel, impressionBox, clickLabel, clickBox, serverLabel, serverBox, buttonsHBox,spacer,progressIndicator);
 
         impressionExplorer.setOnAction(event -> {
            event.consume();
@@ -164,6 +170,10 @@ public class FileInputScene extends BaseScene {
             Thread thread = new Thread(task);
             thread.setDaemon(true);
             thread.start();
+        });
+
+        backButton.setOnAction( e -> {
+            window.loadDashboard();
         });
 
     }

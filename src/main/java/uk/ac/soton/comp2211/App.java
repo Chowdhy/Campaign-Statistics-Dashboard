@@ -18,6 +18,14 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         instance = this;
+        //        var screen = Screen.getPrimary();
+        //        var bounds = screen.getVisualBounds();
+        //
+        //        var screenWidth = (int) bounds.getWidth();
+        //        var screenHeight = (int) bounds.getHeight();
+        //
+        //
+        //        MainWindow window = new MainWindow(stage, screenWidth, screenHeight);
 
         var window = new MainWindow(stage, 640, 480);
 

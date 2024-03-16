@@ -6,10 +6,7 @@ import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
 import uk.ac.soton.comp2211.data.graph.GraphData;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 
 public class DashboardController {
@@ -49,7 +46,11 @@ public class DashboardController {
     }
 
     public void setMaxValues() {
-        graphData.maxValues();
+        try {
+            graphData.maxValues();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public BooleanProperty maleProperty(){
