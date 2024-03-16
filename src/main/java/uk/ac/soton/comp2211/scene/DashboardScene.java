@@ -255,9 +255,7 @@ public class DashboardScene extends BaseScene {
         controller.setMaxValues();
         ArrayList<String> dates = controller.getDates("2015-01-01", controller.maxDate());
         try {
-            controller.calculateMetrics("2015-01-01", controller.maxDate());
-            lineChart.getData().clear();
-            controller.changeChart(lineChart);
+            controller.calculateMetrics(lineChart, "2015-01-01", controller.maxDate());
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -304,52 +302,21 @@ public class DashboardScene extends BaseScene {
         singlePageBounceButton.selectedProperty().bindBidirectional(controller.pageProperty());
         singlePageBounceButton.setOnAction(e -> changeBounce(defineBounce));
 
+        HBox choiceBoxContainer = new HBox();
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
         choiceBox.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate");
         choiceBox.getSelectionModel().select(0);
         choiceBox.setOnAction(e -> {
             controller.graphNumProperty().set(choiceBox.getValue());
-            controller.changeChart(lineChart);
-        });
-
-        ToggleGroup timeToggleGroup = new ToggleGroup();
-        HBox graphTime = new HBox();
-
-        ToggleButton hour = new ToggleButton("Hour");
-        hour.setToggleGroup(timeToggleGroup);
-        hour.setOnAction(e -> {
-            controller.buttonValProperty().set("hour");
             lineChart.getData().clear();
             controller.changeChart(lineChart);
         });
-
-        ToggleButton day = new ToggleButton("Day");
-        day.setSelected(true);
-        day.setToggleGroup(timeToggleGroup);
-        day.setOnAction(e -> {
-            controller.buttonValProperty().set("day");
-            lineChart.getData().clear();
-            controller.changeChart(lineChart);
-        });
-
-        ToggleButton week = new ToggleButton("Week");
-        week.setToggleGroup(timeToggleGroup);
-        week.setOnAction(e -> {
-            controller.buttonValProperty().set("week");
-            lineChart.getData().clear();
-            controller.changeChart(lineChart);
-        });
-
-        graphTime.getChildren().addAll(hour, day, week);
-
-        HBox graphOptions = new HBox();
-        graphOptions.getChildren().addAll(graphTime, choiceBox);
-        graphOptions.setAlignment(Pos.CENTER);
-        graphOptions.setSpacing(10);
+        choiceBoxContainer.getChildren().add(choiceBox);
+        choiceBoxContainer.setAlignment(Pos.CENTER);
 
         chartVbox.getChildren().add(dateSelectionBar);
         chartVbox.getChildren().add(lineChart);
-        chartVbox.getChildren().add(graphOptions);
+        chartVbox.getChildren().add(choiceBoxContainer);
 
         Button filter = new Button("Filter");
         filter.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
@@ -372,8 +339,8 @@ public class DashboardScene extends BaseScene {
     public void checkGraph(LineChart lineChart, ArrayList<String> dates, String startDate, String endDate) {
         try {
             if (dates.contains(startDate) && dates.contains(endDate) && controller.maxTime() >= Integer.parseInt(controller.timeValProperty().get()) && controller.maxPage() >= Integer.parseInt(controller.pageValProperty().get())) {
-                controller.calculateMetrics(startDate, endDate);
-                controller.changeChart(lineChart);
+                lineChart.getData().clear();
+                controller.calculateMetrics(lineChart, startDate, endDate);
             }
         } catch(Exception ignored) {
 
