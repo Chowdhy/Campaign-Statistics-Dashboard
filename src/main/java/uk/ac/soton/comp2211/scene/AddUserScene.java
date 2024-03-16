@@ -32,14 +32,9 @@ public class AddUserScene extends BaseScene{
         usernameInput.setPromptText("Username");
         var passwordInput = new PasswordField();
         passwordInput.setPromptText("Password");
-        var buttonsHBox = new HBox();
         var loginButton = new Button("Add");
-        var backButton = new Button("Back");
-        buttonsHBox.getChildren().addAll(backButton,loginButton);
-        buttonsHBox.setSpacing(10);
-        buttonsHBox.setAlignment(Pos.CENTER);
         root.getChildren().add(loginFields);
-        loginFields.getChildren().addAll(loginLabel,usernameInput,passwordInput,buttonsHBox);
+        loginFields.getChildren().addAll(loginLabel,usernameInput,passwordInput,loginButton);
         root.setPadding(new Insets(200,200,200,200));
         loginFields.setSpacing(10);
         loginFields.setAlignment(Pos.CENTER);
@@ -47,15 +42,11 @@ public class AddUserScene extends BaseScene{
         usernameInput.setFocusTraversable(false);
         passwordInput.setFocusTraversable(false);
         loginButton.setFocusTraversable(false);
-        backButton.setFocusTraversable(false);
 
 
         loginButton.setOnAction(e ->{
             window.loadDashboard();
-        });
-
-        backButton.setOnAction( e -> {
-            window.loadDashboard();
+            System.out.println("Done");
         });
     }
 
