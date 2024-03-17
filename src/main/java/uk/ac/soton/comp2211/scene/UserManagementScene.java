@@ -137,8 +137,7 @@ public class UserManagementScene extends BaseScene {
                 if (username.getText().isEmpty()) {
                     errorLabel.setText("Cannot have empty username");
                     event.consume();
-                }
-                if (controller.isAlreadyUser(username.getText())) {
+                } else if (controller.isAlreadyUser(username.getText())) {
                     errorLabel.setText("Username is already taken");
                     event.consume();
                 }
