@@ -22,7 +22,7 @@ public class LoginController {
         String username = this.username.get();
         String password = this.password.get();
         if (credentials.validateCredentials(username, password)) {
-            Permissions permissions = credentials.getAuthentication(username);
+            Permissions permissions = credentials.getPermissions(username);
             User user = new User(username, permissions);
             App.setUser(user);
             return user;

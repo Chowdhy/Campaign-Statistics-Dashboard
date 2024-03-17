@@ -8,6 +8,10 @@ import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
+
+import java.util.Map;
+import java.util.TreeMap;
 
 public class Credentials {
     private static final String databaseName = "user_info";
@@ -34,7 +38,7 @@ public class Credentials {
         return stringBuilder.toString();
     }
 
-    private boolean isAlreadyUser(String username) {
+    public boolean isAlreadyUser(String username) {
         if (username == null || username.isEmpty()) throw new RuntimeException();
 
         String query = "SELECT EXISTS (SELECT 1 FROM credentials WHERE username = (?))";
@@ -54,11 +58,15 @@ public class Credentials {
         }
     }
 
-    public boolean addUser(String username, String password, Permissions permissions) {
-        if (!App.getUser().getPermissions().equals(Permissions.ADMIN)) return false;
+    public boolean addUser(String username, String password, Permissions permissions) throws UserAlreadyExistsException, IncorrectPermissionsException {
+        if (!App.getUser().getPermissions().equals(Permissions.ADMIN)) {
+            throw new IncorrectPermissionsException("Application user is not authorised to create users");
+        }
         if (username == null || username.isEmpty()) return false;
         if (password == null || password.isEmpty()) return false;
-        if (isAlreadyUser(username)) return false;
+        if (isAlreadyUser(username)) {
+            throw new UserAlreadyExistsException("User '" + username + "' already exists");
+        }
 
         String insertionStatement = "INSERT INTO credentials(username, password, permission) VALUES(?,?,?)";
 
@@ -78,11 +86,17 @@ public class Credentials {
         }
     }
 
-    public boolean deleteUser(String username) {
-        if (!App.getUser().getPermissions().equals(Permissions.ADMIN)) return false;
+    public boolean deleteUser(String username) throws UserDoesntExistException, IncorrectPermissionsException {
+        if (!App.getUser().getPermissions().equals(Permissions.ADMIN)) {
+            throw new IncorrectPermissionsException("Application user is not authorised to delete users");
+        }
         if (username == null || username.isEmpty()) return false;
-        if (!isAlreadyUser(username)) return false;
-        if (username.equalsIgnoreCase(App.getUser().getUsername())) return false;
+        if (!isAlreadyUser(username)) {
+            throw new UserDoesntExistException("User '" + username + "' does not exist");
+        }
+        if (username.equalsIgnoreCase(App.getUser().getUsername())) {
+            throw new IncorrectPermissionsException("Application user is not authorised to delete selected user");
+        }
 
         String deleteSql = """
                                 DELETE FROM credentials
@@ -99,15 +113,45 @@ public class Credentials {
         }
     }
 
-    public boolean updatePermissions(String username, Permissions permissions) {
-        if (!App.getUser().getPermissions().equals(Permissions.ADMIN)) return false;
+    public boolean resetPassword(String username, String password) throws UserDoesntExistException, IncorrectPermissionsException {
+        if ((username == null) || username.isEmpty()) return false;
+        if (!(App.getUser().getUsername().equalsIgnoreCase(username) || App.getUser().getPermissions().equals(Permissions.ADMIN))) {
+            throw new IncorrectPermissionsException("Application user is not authorised to reset selected user's password");
+        }
+        if (!isAlreadyUser(username)) {
+            throw new UserDoesntExistException("User '" + username + "' does not exist");
+        }
+
+        String updateSQL = """
+                              UPDATE OR ROLLBACK credentials
+                              SET password = (?)
+                              WHERE username = (?)""";
+
+        try (Connection conn = connect();
+             PreparedStatement prep = conn.prepareStatement(updateSQL)) {
+            prep.setString(1, hash(password));
+            prep.setString(2, username.toLowerCase());
+            return prep.execute();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean updatePermissions(String username, Permissions permissions) throws UserDoesntExistException, IncorrectPermissionsException {
+        if (!App.getUser().getPermissions().equals(Permissions.ADMIN)) {
+            throw new IncorrectPermissionsException("Application user is not authorised to update permissions");
+        }
         if (username == null || username.isEmpty()) return false;
-        if (username.equalsIgnoreCase(App.getUser().getUsername())) return false;
-        if (!isAlreadyUser(username)) return false;
+        if (username.equalsIgnoreCase(App.getUser().getUsername())) {
+            throw new IncorrectPermissionsException("Application user is not authorised to update permissions of selected user");
+        }
+        if (!isAlreadyUser(username)) {
+            throw new UserDoesntExistException("User '" + username + "' does not exist");
+        }
 
         String updateSql = """
                               UPDATE OR ROLLBACK credentials
-                              SET permissions = (?)
+                              SET permission = (?)
                               WHERE username = (?);
                               """;
 
@@ -146,7 +190,7 @@ public class Credentials {
         }
     }
 
-    public Permissions getAuthentication(String username) {
+    public Permissions getPermissions(String username) {
         if (username == null || username.isEmpty()) throw new RuntimeException();
 
         String query = "SELECT permission FROM credentials WHERE username = (?)";
@@ -177,5 +221,26 @@ public class Credentials {
         if (storedPassword == null) return false;
 
         return storedPassword.equals(hashedInput);
+    }
+
+    public Map<String, Permissions> getUserList() {
+        Map<String, Permissions> userList = null;
+
+        String querySql = "SELECT username, permission FROM credentials";
+
+        try (Connection conn = connect();
+             Statement stat = conn.createStatement()) {
+            ResultSet rs = stat.executeQuery(querySql);
+
+            userList = new TreeMap<>();
+
+            while (rs.next()) {
+                userList.put(rs.getString(1), Permissions.find(rs.getString(2)));
+            }
+        } catch (Exception e) {
+
+        }
+
+        return userList;
     }
 }

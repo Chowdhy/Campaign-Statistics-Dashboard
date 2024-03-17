@@ -4,6 +4,7 @@ import javafx.beans.property.*;
 import javafx.util.Pair;
 import uk.ac.soton.comp2211.data.Database;
 
+import java.sql.*;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -69,6 +70,25 @@ public class GraphData {
     private Connection connect() {
         return Database.getConnection("campaign");
     }
+
+    public boolean isTableEmpty(String tableName) {
+        String query = "SELECT COUNT(*) FROM " + tableName;
+
+        try (Connection conn = this.connect();
+             Statement stat = conn.createStatement()) {
+            ResultSet rs = stat.executeQuery(query);
+
+            if (rs.next()) {
+                return (rs.getInt(1) == 0);
+            }
+
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public ArrayList<String> getDates(String startDate, String endDate){
 
     public ArrayList<String> getDayDates(String startDate, String endDate){
         LocalDate start = LocalDate.parse(startDate);

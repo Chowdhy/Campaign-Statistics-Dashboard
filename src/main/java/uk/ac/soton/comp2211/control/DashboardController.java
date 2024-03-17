@@ -5,6 +5,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
 import uk.ac.soton.comp2211.data.graph.GraphData;
+import uk.ac.soton.comp2211.ui.Dialogs;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,7 +38,9 @@ public class DashboardController {
         lineChart.getData().add(series);
     }
 
-    public void calculateMetrics(String startDate, String endDate) throws SQLException {
+    public void calculateMetrics(LineChart lineChart, String startDate, String endDate) throws SQLException {
+        if (!checkSanity()) return;
+
         graphData.calculateMetrics(startDate, endDate);
     }
 
@@ -46,11 +49,30 @@ public class DashboardController {
     }
 
     public void setMaxValues() {
+        if (!checkSanity()) return;
+
         try {
             graphData.maxValues();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean checkSanity() {
+        if (false) {
+            return true;
+        } else if (graphData.isTableEmpty("impression_log")) {
+            Dialogs.error("No impression log data");
+            return false;
+        } else if (graphData.isTableEmpty("click_log")) {
+            Dialogs.error("No click log data");
+            return false;
+        } else if (graphData.isTableEmpty("server_log")) {
+            Dialogs.error("No server log data");
+            return false;
+        }
+
+        return true;
     }
 
     public BooleanProperty maleProperty(){
