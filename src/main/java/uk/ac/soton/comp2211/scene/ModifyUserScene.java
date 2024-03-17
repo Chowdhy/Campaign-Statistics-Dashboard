@@ -57,7 +57,13 @@ public class ModifyUserScene extends BaseScene{
         viewerHBox.getChildren().addAll(viewerCheckBox,viewerLabel);
         viewerHBox.setSpacing(5);
 
-        loginFields.getChildren().addAll(loginLabel,adminHBox,readWriteHBox,viewerHBox,usernameInput,loginButton);
+        var buttonsHBox = new HBox();
+        var backButton = new Button("Back");
+        buttonsHBox.getChildren().addAll(backButton,loginButton);
+        buttonsHBox.setSpacing(10);
+        buttonsHBox.setAlignment(Pos.CENTER);
+
+        loginFields.getChildren().addAll(loginLabel,adminHBox,readWriteHBox,viewerHBox,usernameInput,buttonsHBox);
 
 
         adminCheckBox.setOnAction(e -> {
@@ -86,6 +92,10 @@ public class ModifyUserScene extends BaseScene{
         });
 
         loginButton.setOnAction(e ->{
+            window.loadDashboard();
+        });
+
+        backButton.setOnAction( e -> {
             window.loadDashboard();
         });
     }

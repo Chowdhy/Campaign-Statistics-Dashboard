@@ -18,11 +18,6 @@ import java.util.ArrayList;
 public class DashboardScene extends BaseScene {
 
     DashboardController controller;
-    TextField startDate;
-    TextField endDate;
-    LineChart<String, Number> lineChart;
-    Button submit;
-    Button filter;
 
     public DashboardScene(MainWindow window) {
         super(window);
@@ -30,19 +25,7 @@ public class DashboardScene extends BaseScene {
 
     @Override
     public void initialise() {
-        controller.setMaxValues();
-        ArrayList<String> dates = controller.getDates("2015-01-01", controller.maxDate());
-        try {
-            controller.calculateMetrics(lineChart, "2015-01-01", controller.maxDate());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        startDate.setText(dates.getFirst());
-        startDate.setPromptText(dates.getFirst());
-        endDate.setText(dates.getLast());
-        endDate.setPromptText(dates.getLast());
-        submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        filter.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+
     }
 
     @Override
@@ -264,19 +247,31 @@ public class DashboardScene extends BaseScene {
 
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
-        lineChart = new LineChart<>(xAxis,yAxis);
+        LineChart<String,Number> lineChart = new LineChart<>(xAxis,yAxis);
         lineChart.setAnimated(false);
         lineChart.setLegendVisible(false);
+
+        controller.setMaxValues();
+        ArrayList<String> dates = controller.getDates("2015-01-01", controller.maxDate());
+        try {
+            controller.calculateMetrics("2015-01-01", controller.maxDate());
+            controller.changeChart(lineChart);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         VBox chartVbox = new VBox();
         chartVbox.setPadding(new Insets(5, 0, 0, 0));
 
         HBox dateSelectionBar = new HBox();
-        startDate = new TextField();
+        TextField startDate = new TextField(dates.getFirst());
+        startDate.setPromptText(dates.getFirst());
         startDate.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
-        endDate = new TextField();
+        TextField endDate = new TextField(dates.getLast());
+        endDate.setPromptText(dates.getLast());
         endDate.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
-        submit = new Button("Submit");
+        Button submit = new Button("Submit");
+        submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
         dateSelectionBar.getChildren().addAll(startDate, endDate, submit);
         dateSelectionBar.setAlignment(Pos.CENTER);
@@ -307,23 +302,55 @@ public class DashboardScene extends BaseScene {
         singlePageBounceButton.selectedProperty().bindBidirectional(controller.pageProperty());
         singlePageBounceButton.setOnAction(e -> changeBounce(defineBounce));
 
-        HBox choiceBoxContainer = new HBox();
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
         choiceBox.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate");
         choiceBox.getSelectionModel().select(0);
         choiceBox.setOnAction(e -> {
             controller.graphNumProperty().set(choiceBox.getValue());
+            controller.changeChart(lineChart);
+        });
+
+        ToggleGroup timeToggleGroup = new ToggleGroup();
+        HBox graphTime = new HBox();
+
+        ToggleButton hour = new ToggleButton("Hour");
+        hour.setToggleGroup(timeToggleGroup);
+        hour.setOnAction(e -> {
+            controller.buttonValProperty().set("hour");
             lineChart.getData().clear();
             controller.changeChart(lineChart);
         });
-        choiceBoxContainer.getChildren().add(choiceBox);
-        choiceBoxContainer.setAlignment(Pos.CENTER);
+
+        ToggleButton day = new ToggleButton("Day");
+        day.setSelected(true);
+        day.setToggleGroup(timeToggleGroup);
+        day.setOnAction(e -> {
+            controller.buttonValProperty().set("day");
+            lineChart.getData().clear();
+            controller.changeChart(lineChart);
+        });
+
+        ToggleButton week = new ToggleButton("Week");
+        week.setToggleGroup(timeToggleGroup);
+        week.setOnAction(e -> {
+            controller.buttonValProperty().set("week");
+            lineChart.getData().clear();
+            controller.changeChart(lineChart);
+        });
+
+        graphTime.getChildren().addAll(hour, day, week);
+
+        HBox graphOptions = new HBox();
+        graphOptions.getChildren().addAll(graphTime, choiceBox);
+        graphOptions.setAlignment(Pos.CENTER);
+        graphOptions.setSpacing(10);
 
         chartVbox.getChildren().add(dateSelectionBar);
         chartVbox.getChildren().add(lineChart);
-        chartVbox.getChildren().add(choiceBoxContainer);
+        chartVbox.getChildren().add(graphOptions);
 
-        filter = new Button("Filter");
+        Button filter = new Button("Filter");
+        filter.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
         VBox bottom = new VBox();
         bottom.setAlignment(Pos.CENTER);
@@ -343,8 +370,8 @@ public class DashboardScene extends BaseScene {
     public void checkGraph(LineChart lineChart, ArrayList<String> dates, String startDate, String endDate) {
         try {
             if (dates.contains(startDate) && dates.contains(endDate) && controller.maxTime() >= Integer.parseInt(controller.timeValProperty().get()) && controller.maxPage() >= Integer.parseInt(controller.pageValProperty().get())) {
-                lineChart.getData().clear();
-                controller.calculateMetrics(lineChart, startDate, endDate);
+                controller.calculateMetrics(startDate, endDate);
+                controller.changeChart(lineChart);
             }
         } catch(Exception ignored) {
 
