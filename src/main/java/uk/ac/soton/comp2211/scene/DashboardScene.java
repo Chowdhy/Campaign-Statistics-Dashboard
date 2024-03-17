@@ -76,7 +76,6 @@ public class DashboardScene extends BaseScene {
 
         fileSettingsMenuItem.setOnAction( e->{
             window.loadFileInput();
-
         });
 
         addUserItem.setOnAction(e -> {

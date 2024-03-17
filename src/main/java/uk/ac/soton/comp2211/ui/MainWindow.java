@@ -26,7 +26,7 @@ public class MainWindow {
 
         setupDefault();
 
-        loadLoginScene();
+        loadUserManagementScene();
     }
 
     public Scene getScene() {
@@ -76,6 +76,11 @@ public class MainWindow {
     public void loadDeleteUserScene() {
         loadScene(new DeleteUserScene(this));
     }
+
+    public void loadUserManagementScene() {
+        loadScene(new UserManagementScene(this));
+    }
+
     public void cleanup() {
         if (currentScene != null) currentScene.cleanup();
     }
