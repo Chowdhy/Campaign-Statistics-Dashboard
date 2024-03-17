@@ -1,0 +1,82 @@
+.root {
+    -fx-background-color: white;
+    -fx-font-family: Consolas, "Times New Roman";
+    -fx-font-size: 12px;
+}
+.label {
+    -fx-text-fill:  cornflowerblue;
+}
+
+.button {
+    -fx-border-radius: 10px;
+    -fx-border-width: 2px;
+    -fx-border-color: lightblue;
+    -fx-text-fill: grey;
+    -fx-alignment: center;
+    -fx-background-color: transparent;
+    -fx-background-radius: 10px;
+    -fx-padding: 5px, 10px;
+    -fx-transition: all 0.5s ease-in;
+    -fx-animated: true;
+}
+
+.button:hover {
+    -fx-background-color: lightblue;
+    -fx-text-fill: black;
+    -fx-transition-duration: 0.3s;
+}
+
+.button:pressed {
+    -fx-background-color: cornflowerblue;
+    -fx-text-fill: black;
+    -fx-transition-duration: 0.3s;
+}
+
+
+.menu-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: gray;
+}
+
+.menu-button:hover {
+    -fx-background-color: gray;
+    -fx-text-fill: black;
+}
+
+.menu-bar {
+    -fx-background-color: lightgray;
+}
+
+.text-field {
+    -fx-background-color: transparent;
+    -fx-border-color: gray;
+    -fx-border-width: 2px;
+    -fx-text-fill: black;
+    -fx-font-size: 10px;
+    -fx-padding: 5px;
+    -fx-background-radius: 10px;
+}
+
+.text-field:hover {
+    -fx-background-color: lightgray;
+}
+
+.text-field:pressed {
+    -fx-background-color: lightgray;
+}
+
+.check-box {
+    -fx-text-fill: cornflowerblue;
+}
+
+.choice-box {
+    -fx-text-fill: cornflowerblue;
+}
+
+.combo-box {
+    -fx-text-fill: cornflowerblue;
+}
+
+.radio-button {
+    -fx-text-fill: cornflowerblue;
+}

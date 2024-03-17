@@ -1,0 +1,60 @@
+.root {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 100%, rgba(174,225,238,1) 0%, white 100%);
+    -fx-font-family: Consolas;
+    -fx-font-size: 12px;
+}
+
+.label {
+    -fx-font-size: 12px;
+}
+
+.button {
+    -fx-border-radius: 5px;
+    -fx-border-color: black;
+    -fx-text-fill: black;
+    -fx-alignment: center;
+    -fx-background-color: transparent;
+    -fx-background-radius: 5px;
+}
+
+.button:hover {
+    -fx-background-color: cornflowerblue;
+    -fx-text-fill: white;
+    -fx-transition-duration: 0.3s;
+}
+
+.button:pressed {
+    -fx-background-color: blue;
+    -fx-text-fill: white;
+}
+
+.menu-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: gray;
+}
+
+.menu-button:hover {
+    -fx-background-color: cornflowerblue;
+    -fx-text-fill: black;
+}
+
+.menu-button:pressed {
+    -fx-background-color: blue;
+    -fx-text-fill: white;
+}
+
+.menu-bar {
+    -fx-background-color: rgba(174,225,238,1);
+    /*-fx-background-color: radial-gradient(center 50% 50%, radius 100%, rgba(174,225,238,1) 0%, white 100%);*/
+}
+
+.text-field {
+    -fx-background-color: white;
+    -fx-border-color: gray;
+    -fx-text-fill: black;
+    -fx-font-size: 12px;
+}
+
+.split-pane {
+    -fx-background-color: radial-gradient(center 50% 50%, radius 100%, rgba(174,225,238,1) 0%, white 100%);
+}
