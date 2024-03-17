@@ -33,6 +33,10 @@ public abstract class CsvParser {
         this.insertSql = insertSql;
     }
 
+    private Connection connect() {
+        return Database.getConnection("campaign");
+    }
+
     private void createTable() {
         try (Connection conn = Database.getConnection(databaseName);
              Statement stat = conn.createStatement()) {
@@ -48,14 +52,9 @@ public abstract class CsvParser {
     public void parse() throws Exception {
         createTable();
 
-        Connection conn = null;
-        PreparedStatement prp = null;
-
-        try {
-            conn = Database.getConnection(databaseName);
-            if (conn == null) return;
+        try (Connection conn = connect();
+             PreparedStatement prep = conn.prepareStatement(insertSql)) {
             conn.setAutoCommit(false);
-            prp = conn.prepareStatement(insertSql);
 
             CsvParserSettings settings = new CsvParserSettings();
             com.univocity.parsers.csv.CsvParser parser = new com.univocity.parsers.csv.CsvParser(settings);
@@ -67,23 +66,16 @@ public abstract class CsvParser {
 
             String[] line;
             while (((line = parser.parseNext()) != null)) {
-                this.insert(prp, line);
+                this.insert(prep, line);
 
                 counter++;
                 if (counter % 1000 == 0) {
-                    prp.executeBatch();
+                    prep.executeBatch();
                 }
             }
 
-            prp.executeBatch();
+            prep.executeBatch();
             conn.commit();
-        } finally {
-            try {
-                if (prp != null) prp.close();
-                if (conn != null) conn.close();
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-            }
         }
     }
 

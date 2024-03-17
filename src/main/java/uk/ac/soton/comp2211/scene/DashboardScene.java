@@ -12,12 +12,16 @@ import javafx.scene.layout.VBox;
 import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class DashboardScene extends BaseScene {
-
     DashboardController controller;
+
+    LineChart<String, Number> lineChart;
+    TextField startDate;
+    TextField endDate;
+    Button submit;
+    Button filter;
 
     public DashboardScene(MainWindow window) {
         super(window);
@@ -25,7 +29,20 @@ public class DashboardScene extends BaseScene {
 
     @Override
     public void initialise() {
+        controller.setMaxValues();
+        ArrayList<String> dates = controller.getDates("2015-01-01", controller.maxDate());
+        controller.calculateMetrics("2015-01-01", controller.maxDate());
+        controller.changeChart(lineChart);
+        submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
 
+        startDate.setText(dates.getFirst());
+        startDate.setPromptText(dates.getFirst());
+
+        endDate.setText(dates.getLast());
+        endDate.setPromptText(dates.getLast());
+
+        submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        filter.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
     }
 
     @Override
@@ -247,31 +264,18 @@ public class DashboardScene extends BaseScene {
 
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
-        LineChart<String,Number> lineChart = new LineChart<>(xAxis,yAxis);
+        lineChart = new LineChart<>(xAxis,yAxis);
         lineChart.setAnimated(false);
         lineChart.setLegendVisible(false);
-
-        controller.setMaxValues();
-        ArrayList<String> dates = controller.getDates("2015-01-01", controller.maxDate());
-        try {
-            controller.calculateMetrics("2015-01-01", controller.maxDate());
-            controller.changeChart(lineChart);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
 
         VBox chartVbox = new VBox();
         chartVbox.setPadding(new Insets(5, 0, 0, 0));
 
         HBox dateSelectionBar = new HBox();
-        TextField startDate = new TextField(dates.getFirst());
-        startDate.setPromptText(dates.getFirst());
+        startDate = new TextField();
         startDate.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
-        TextField endDate = new TextField(dates.getLast());
-        endDate.setPromptText(dates.getLast());
-        endDate.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
-        Button submit = new Button("Submit");
-        submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        endDate = new TextField();endDate.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
+        submit = new Button("Submit");
 
         dateSelectionBar.getChildren().addAll(startDate, endDate, submit);
         dateSelectionBar.setAlignment(Pos.CENTER);
@@ -349,8 +353,7 @@ public class DashboardScene extends BaseScene {
         chartVbox.getChildren().add(lineChart);
         chartVbox.getChildren().add(graphOptions);
 
-        Button filter = new Button("Filter");
-        filter.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        filter = new Button("Filter");
 
         VBox bottom = new VBox();
         bottom.setAlignment(Pos.CENTER);
