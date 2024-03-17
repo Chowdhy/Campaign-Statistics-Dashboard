@@ -26,7 +26,7 @@ public class MainWindow {
 
         setupDefault();
 
-        loadUserManagementScene();
+        loadLoginScene();
     }
 
     public Scene getScene() {

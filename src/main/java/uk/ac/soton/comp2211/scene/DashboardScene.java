@@ -83,7 +83,7 @@ public class DashboardScene extends BaseScene {
         });
 
         modifyUserItem.setOnAction(e -> {
-            window.loadModifyUserScene();
+            window.loadUserManagementScene();
         });
 
         deleteUserItem.setOnAction(e -> {

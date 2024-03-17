@@ -17,4 +17,8 @@ public final class Dialogs {
         alert.show();
         dialogs.add(alert);
     }
+
+    public static void error(Exception e) {
+        error(e.getMessage());
+    }
 }
