@@ -1,5 +1,7 @@
 package uk.ac.soton.comp2211.scene;
 
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -24,6 +26,8 @@ public class DashboardScene extends BaseScene {
     Button submit;
     Button filter;
 
+    ProgressIndicator progressIndicator;
+
     public DashboardScene(MainWindow window) {
         super(window);
     }
@@ -42,7 +46,25 @@ public class DashboardScene extends BaseScene {
         endDate.setPromptText(dates.getLast());
 
         submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
-        filter.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        filter.setOnAction(e -> {
+            progressIndicator.setVisible(true);
+
+            Task<Void> task = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+
+                    checkGraph(lineChart, dates, startDate.getText(), endDate.getText());
+                    return null;
+                }
+            };
+
+            task.setOnSucceeded(event -> progressIndicator.setVisible(false));
+
+            new Thread(task).start();
+        });
+
+
+
     }
 
     @Override
@@ -390,10 +412,23 @@ public class DashboardScene extends BaseScene {
 
         filter = new Button("Filter");
 
+        var filterButtonHBox = new HBox();
+
+        progressIndicator = new ProgressIndicator();
+        progressIndicator.isIndeterminate();
+        progressIndicator.setVisible(false);
+
+        filterButtonHBox.getChildren().addAll(filter,progressIndicator);
+        filterButtonHBox.setAlignment(Pos.CENTER);
+
+
+
+
+
         VBox bottom = new VBox();
         bottom.setAlignment(Pos.CENTER);
         bottom.getChildren().add(filterHBox);
-        bottom.getChildren().add(filter);
+        bottom.getChildren().add(filterButtonHBox);
 
         leftSplitPane.setOrientation(Orientation.VERTICAL);
         leftSplitPane.getItems().add(chartVbox);
@@ -408,11 +443,13 @@ public class DashboardScene extends BaseScene {
     public void checkGraph(LineChart lineChart, ArrayList<String> dates, String startDate, String endDate) {
         try {
             if (dates.contains(startDate) && dates.contains(endDate) && controller.maxTime() >= Integer.parseInt(controller.timeValProperty().get()) && controller.maxPage() >= Integer.parseInt(controller.pageValProperty().get())) {
-                controller.calculateMetrics(startDate, endDate);
-                controller.changeChart(lineChart, controller.graphNumProperty().get());
-                if (controller.compareProperty().get()) {
-                    controller.changeChart(lineChart2, controller.graph2NumProperty().get());
-                }
+                Platform.runLater(() ->{
+                    controller.calculateMetrics(startDate, endDate);
+                    controller.changeChart(lineChart, controller.graphNumProperty().get());
+                    if (controller.compareProperty().get()) {
+                        controller.changeChart(lineChart2, controller.graph2NumProperty().get());
+                    }
+                });
             }
         } catch(Exception ignored) {
 
