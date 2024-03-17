@@ -46,6 +46,7 @@ public class UserManagementScene extends BaseScene {
 
         VBox leftSide = new VBox();
 
+
         ScrollPane scroller = new ScrollPane();
 
         userListBox = new VBox();
@@ -53,9 +54,15 @@ public class UserManagementScene extends BaseScene {
         VBox.setVgrow(scroller, Priority.ALWAYS);
         scroller.setFitToWidth(true);
 
+        HBox buttonsHBox = new HBox();
+
+
+        Button backButton = new Button("Back");
         Button addUserButton = new Button("Create new user");
 
-        leftSide.getChildren().addAll(scroller, addUserButton);
+        buttonsHBox.getChildren().addAll(backButton,addUserButton);
+
+        leftSide.getChildren().addAll(scroller, buttonsHBox);
 
         // UI right side
 
@@ -157,6 +164,10 @@ public class UserManagementScene extends BaseScene {
 
                 Platform.runLater(() -> controller.createUser(userDetailsTriple.getLeft(), userDetailsTriple.getMiddle(), userDetailsTriple.getRight()));
             }
+        });
+
+        backButton.setOnAction(e -> {
+            window.loadDashboard();
         });
 
         viewerButton.setOnAction(e -> {
