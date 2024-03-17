@@ -13,8 +13,10 @@ public final class Dialogs {
     }
 
     public static void error(String message) {
+        if (previousError != null) previousError.close();
         Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.CLOSE);
         alert.show();
+        previousError = alert;
         dialogs.add(alert);
     }
 

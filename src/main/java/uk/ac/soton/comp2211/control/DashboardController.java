@@ -38,10 +38,14 @@ public class DashboardController {
         lineChart.getData().add(series);
     }
 
-    public void calculateMetrics(LineChart lineChart, String startDate, String endDate) throws SQLException {
+    public void calculateMetrics(String startDate, String endDate) {
         if (!checkSanity()) return;
 
-        graphData.calculateMetrics(startDate, endDate);
+        try {
+            graphData.calculateMetrics(startDate, endDate);
+        } catch (SQLException e) {
+            Dialogs.error(e);
+        }
     }
 
     public ArrayList<String> getDates(String startDate, String endDate) {
