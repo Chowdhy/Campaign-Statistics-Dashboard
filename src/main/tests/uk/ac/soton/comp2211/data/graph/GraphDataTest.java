@@ -1,5 +1,7 @@
 package uk.ac.soton.comp2211.data.graph;
 
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.util.Pair;
 import uk.ac.soton.comp2211.data.Database;
 
@@ -159,6 +161,35 @@ class GraphDataTest {
         String actualSQL6 = gD.filterSQL("2015-01-01", "2015-01-14");
         assertEquals(expectedSQL6, actualSQL6);
 
+
+    }
+
+    @org.junit.jupiter.api.Test
+    void calculateMetricsTwoWeeks() throws SQLException {
+        gD.calculateMetrics("2015-01-01", "2015-01-14");
+        IntegerProperty impressionNum = gD.impressionsNum;
+        IntegerProperty uniqueNum = gD.uniqueNum;
+        IntegerProperty clicksNum = gD.clicksNum;
+        IntegerProperty conversionsNum = gD.conversionsNum;
+        IntegerProperty bounceNum = gD.bounceNum;
+        DoubleProperty ctrNum = gD.ctrNum;
+        DoubleProperty cpcNum = gD.cpcNum;
+        DoubleProperty totalNum = gD.totalNum;
+        DoubleProperty cpaNum = gD.cpaNum;
+        DoubleProperty bounceRateNum = gD.bounceRateNum;
+
+        assertAll("Verify metrics",
+                () -> assertEquals(486104, impressionNum.get()),
+                () -> assertEquals(23806, uniqueNum.get()),
+                () -> assertEquals(23923, clicksNum.get()),
+                () -> assertEquals(2026, conversionsNum.get()),
+                () -> assertEquals(6482, bounceNum.get()),
+                () -> assertEquals(0.04921, ctrNum.get()),
+                () -> assertEquals(4.92, cpcNum.get()),
+                () -> assertEquals(118097.92, totalNum.get()),
+                () -> assertEquals(58.29, cpaNum.get()),
+                () -> assertEquals(0.27095, bounceRateNum.get())
+        );
 
     }
 }
