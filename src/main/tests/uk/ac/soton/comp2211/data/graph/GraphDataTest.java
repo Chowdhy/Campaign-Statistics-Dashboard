@@ -1,5 +1,6 @@
 package uk.ac.soton.comp2211.data.graph;
 
+import javafx.util.Pair;
 import uk.ac.soton.comp2211.data.Database;
 
 import java.sql.Connection;
@@ -18,7 +19,8 @@ class GraphDataTest {
 
     @org.junit.jupiter.api.Test
     void getDates() {
-       ArrayList<String> expectedDates1 = new ArrayList<>();
+       //1 Month campaign
+        ArrayList<String> expectedDates1 = new ArrayList<>();
         expectedDates1.add("2015-01-01");
         expectedDates1.add("2015-01-02");
         expectedDates1.add("2015-01-03");
@@ -33,12 +35,71 @@ class GraphDataTest {
         expectedDates1.add("2015-01-12");
         expectedDates1.add("2015-01-13");
         expectedDates1.add("2015-01-14");
-        ArrayList<String> actualDates1 = gD.getDates("2015-01-01", "2015-01-14");
+        ArrayList<String> actualDates1 = gD.getDayDates("2015-01-01", "2015-01-14");
         assertEquals(expectedDates1, actualDates1);
 
-        //Inavlid date range, remains empty.
+        //2 Month campaign.
         ArrayList<String> expectedDates2 = new ArrayList<>();
-        ArrayList<String> actualDates2 = gD.getDates("2015-01-03", "2015-01-01");
+        expectedDates2.add("2015-01-01");
+        expectedDates2.add("2015-01-02");
+        expectedDates2.add("2015-01-03");
+        expectedDates2.add("2015-01-04");
+        expectedDates2.add("2015-01-05");
+        expectedDates2.add("2015-01-06");
+        expectedDates2.add("2015-01-07");
+        expectedDates2.add("2015-01-08");
+        expectedDates2.add("2015-01-09");
+        expectedDates2.add("2015-01-10");
+        expectedDates2.add("2015-01-11");
+        expectedDates2.add("2015-01-12");
+        expectedDates2.add("2015-01-13");
+        expectedDates2.add("2015-01-14");
+        expectedDates2.add("2015-01-15");
+        expectedDates2.add("2015-01-16");
+        expectedDates2.add("2015-01-17");
+        expectedDates2.add("2015-01-18");
+        expectedDates2.add("2015-01-19");
+        expectedDates2.add("2015-01-20");
+        expectedDates2.add("2015-01-21");
+        expectedDates2.add("2015-01-22");
+        expectedDates2.add("2015-01-23");
+        expectedDates2.add("2015-01-24");
+        expectedDates2.add("2015-01-25");
+        expectedDates2.add("2015-01-26");
+        expectedDates2.add("2015-01-27");
+        expectedDates2.add("2015-01-28");
+        expectedDates2.add("2015-01-29");
+        expectedDates2.add("2015-01-30");
+        expectedDates2.add("2015-01-31");
+        expectedDates2.add("2015-02-01");
+        expectedDates2.add("2015-02-02");
+        expectedDates2.add("2015-02-03");
+        expectedDates2.add("2015-02-04");
+        expectedDates2.add("2015-02-05");
+        expectedDates2.add("2015-02-06");
+        expectedDates2.add("2015-02-07");
+        expectedDates2.add("2015-02-08");
+        expectedDates2.add("2015-02-09");
+        expectedDates2.add("2015-02-10");
+        expectedDates2.add("2015-02-11");
+        expectedDates2.add("2015-02-12");
+        expectedDates2.add("2015-02-13");
+        expectedDates2.add("2015-02-14");
+        expectedDates2.add("2015-02-15");
+        expectedDates2.add("2015-02-16");
+        expectedDates2.add("2015-02-17");
+        expectedDates2.add("2015-02-18");
+        expectedDates2.add("2015-02-19");
+        expectedDates2.add("2015-02-20");
+        expectedDates2.add("2015-02-21");
+        expectedDates2.add("2015-02-22");
+        expectedDates2.add("2015-02-23");
+        expectedDates2.add("2015-02-24");
+        expectedDates2.add("2015-02-25");
+        expectedDates2.add("2015-02-26");
+        expectedDates2.add("2015-02-27");
+        expectedDates2.add("2015-02-28");
+        ArrayList<String> actualDates2 = gD.getDayDates("2015-01-01", "2015-02-28");
         assertEquals(expectedDates2, actualDates2);
     }
 
@@ -99,25 +160,5 @@ class GraphDataTest {
         assertEquals(expectedSQL6, actualSQL6);
 
 
-    }
-
-    @org.junit.jupiter.api.Test
-    void getIntMetric() throws SQLException {
-        Connection conn = Database.getConnection("campaign");
-        Statement stmt = conn.createStatement();
-
-
-    }
-
-    @org.junit.jupiter.api.Test
-    void getDoubleMetric() {
-    }
-
-    @org.junit.jupiter.api.Test
-    void calculateMetrics() {
-    }
-
-    @org.junit.jupiter.api.Test
-    void getData() {
     }
 }
