@@ -3,6 +3,7 @@ package uk.ac.soton.comp2211.scene;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
@@ -54,8 +55,13 @@ public class UserManagementScene extends BaseScene {
         scroller.setFitToWidth(true);
 
         Button addUserButton = new Button("Create new user");
+        addUserButton.setAlignment(Pos.BOTTOM_RIGHT);
+        Button backButton = new Button("Back");
+        backButton.setAlignment(Pos.BOTTOM_LEFT);
 
-        leftSide.getChildren().addAll(scroller, addUserButton);
+        leftSide.getChildren().addAll(scroller, addUserButton, backButton);
+
+        backButton.setOnAction( e -> window.loadDashboard());
 
         // UI right side
 

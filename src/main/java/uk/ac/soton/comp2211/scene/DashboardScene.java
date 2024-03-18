@@ -11,8 +11,10 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2211.users.Permissions;
 
 import java.util.ArrayList;
 
@@ -92,7 +94,12 @@ public class DashboardScene extends BaseScene {
 
 
         MenuBar menuBar = new MenuBar(fileSettingsMenu,userManagementMenu,chartSettingsMenu,exportMenu,logoutMenu);
-
+        if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
+            userManagementMenu.setDisable(true);
+        }else if(App.getUser().getPermissions().equals(Permissions.VIEWER)){
+            userManagementMenu.setDisable(true);
+            fileSettingsMenu.setDisable(true);
+        }
 
         root.getChildren().add(menuBar);
 
@@ -402,7 +409,12 @@ public class DashboardScene extends BaseScene {
             }
         });
 
-        graphOptions.getChildren().addAll(compare, graphTime, choiceBox);
+        Button costDistribution = new Button("Cost Distribution");
+        costDistribution.setOnAction(e -> {
+            window.loadHistogramScene();
+        });
+
+        graphOptions.getChildren().addAll(compare, graphTime, choiceBox, costDistribution);
         graphOptions.setAlignment(Pos.CENTER);
         graphOptions.setSpacing(10);
 
