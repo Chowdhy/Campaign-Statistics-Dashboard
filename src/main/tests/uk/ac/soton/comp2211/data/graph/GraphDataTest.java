@@ -2,12 +2,11 @@ package uk.ac.soton.comp2211.data.graph;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
-import javafx.util.Pair;
-import uk.ac.soton.comp2211.data.Database;
 
-import java.sql.Connection;
+
+
 import java.sql.SQLException;
-import java.sql.Statement;
+
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +19,7 @@ class GraphDataTest {
     }
 
     @org.junit.jupiter.api.Test
-    void getDates() {
+    void getDatesTest() {
        //1 Month campaign
         ArrayList<String> expectedDates1 = new ArrayList<>();
         expectedDates1.add("2015-01-01");
@@ -107,7 +106,7 @@ class GraphDataTest {
 
 
     @org.junit.jupiter.api.Test
-    void filterSQL() {
+    void filterSQLTest() {
         // Test case 1: Filtering with all options enabled
         String expectedSQL1 = "WHERE DATETIME('2015-01-01 00:00:01') < date AND DATETIME('2015-01-14 23:59:59') > date";
         String actualSQL1 = gD.filterSQL("2015-01-01", "2015-01-14");
@@ -165,7 +164,7 @@ class GraphDataTest {
     }
 
     @org.junit.jupiter.api.Test
-    void calculateMetricsTwoWeeks() throws SQLException {
+    void calculateMetricsTest() throws SQLException {
         gD.calculateMetrics("2015-01-01", "2015-01-14");
         IntegerProperty impressionNum = gD.impressionsNum;
         IntegerProperty uniqueNum = gD.uniqueNum;
