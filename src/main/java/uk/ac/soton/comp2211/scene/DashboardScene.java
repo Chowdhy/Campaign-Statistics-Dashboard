@@ -114,24 +114,20 @@ public class DashboardScene extends BaseScene {
             exportMenu.setDisable(true);
         }
 
-        Circle infoIcon1 = new Circle(20, Color.BLUE);
+        Circle infoIcon1 = new Circle(6, Color.BLUE);
         infoIcon1.setStroke(Color.BLACK);
+
 
         Tooltip tooltip1 = new Tooltip("For page bounce  an SQL query is used to get the maximum number on the 'pages_viewed' column. \n For time bounce, the maximum number from 'exit_date - entry_date is displayed.");
 
         Text iText = new Text("i");
-        iText.setFont(Font.font(30));
+        iText.setFont(Font.font(6));
         iText.setFill(Color.WHITE);
 
 
         StackPane iconWithText = new StackPane();
         iconWithText.getChildren().addAll(infoIcon1, iText);
         Tooltip.install(iconWithText, tooltip1);
-
-
-
-
-
 
         mainVBox.getChildren().add(menuBar);
 
@@ -308,7 +304,11 @@ public class DashboardScene extends BaseScene {
         defineBounce.setPromptText("0-" + controller.maxTime());
         defineBounce.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
         defineBounce.textProperty().bindBidirectional(controller.timeValProperty());
-        bounceFilter.getChildren().addAll(bounceLabel,timeBounceButton,singlePageBounceButton, defineBounce, iconWithText);
+        var inputAndTips = new HBox();
+        inputAndTips.getChildren().addAll(defineBounce,iconWithText);
+        inputAndTips.setSpacing(2);
+        bounceFilter.getChildren().addAll(bounceLabel,timeBounceButton,singlePageBounceButton, inputAndTips);
+        bounceFilter.setSpacing(5);
 
         Label genderLabel = new Label("Gender");
         CheckBox maleButton = new CheckBox("Male");
@@ -316,6 +316,7 @@ public class DashboardScene extends BaseScene {
         CheckBox femaleButton = new CheckBox("Female");
         femaleButton.setSelected(true);
         genderFilters.getChildren().addAll(genderLabel,maleButton,femaleButton);
+        genderFilters.setSpacing(5);
 
         Label incomeLabel = new Label("Income");
         CheckBox lowButton = new CheckBox("Low");
@@ -325,6 +326,7 @@ public class DashboardScene extends BaseScene {
         CheckBox highButton = new CheckBox("High");
         highButton.setSelected(true);
         incomeFilters.getChildren().addAll(incomeLabel,lowButton,mediumButton,highButton);
+        incomeFilters.setSpacing(5);
 
         Label ageGroupLabel = new Label("Age group");
         CheckBox under25Button = new CheckBox("Under 25");
@@ -338,6 +340,7 @@ public class DashboardScene extends BaseScene {
         CheckBox above54Button = new CheckBox("Above 54");
         above54Button.setSelected(true);
         ageGroupFilters.getChildren().addAll(ageGroupLabel,under25Button,twentiesButton,thirtiesButton,fortiesButton,above54Button);
+        ageGroupFilters.setSpacing(5);
 
         Label contextLabel = new Label("Context");
         CheckBox socialMediaButton = new CheckBox("Social media");
@@ -353,8 +356,10 @@ public class DashboardScene extends BaseScene {
         CheckBox travelButton = new CheckBox("Travel");
         travelButton.setSelected(true);
         contextFilters.getChildren().addAll(contextLabel,socialMediaButton,shoppingButton,blogButton,newsButton,hobbiesButton,travelButton);
+        contextFilters.setSpacing(5);
 
         filterHBox.getChildren().addAll(bounceFilter,genderFilters,incomeFilters,ageGroupFilters,contextFilters);
+        filterHBox.setSpacing(25);
 
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
@@ -506,10 +511,13 @@ public class DashboardScene extends BaseScene {
         bottom.setAlignment(Pos.CENTER);
         bottom.getChildren().add(filterHBox);
         bottom.getChildren().add(filterButtonHBox);
+        bottom.setAlignment(Pos.CENTER);
+        filterHBox.setAlignment(Pos.CENTER);
 
         leftSplitPane.setOrientation(Orientation.VERTICAL);
         leftSplitPane.getItems().add(chartVbox);
         leftSplitPane.getItems().add(bottom);
+
     }
 
     @Override
