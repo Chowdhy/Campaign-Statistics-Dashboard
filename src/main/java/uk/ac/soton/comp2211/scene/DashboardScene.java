@@ -419,8 +419,8 @@ public class DashboardScene extends BaseScene {
             if (selectedValue.equals("Cost Distribution Histogram")) {
                 window.loadHistogramScene();
             } else {
-                controller.graph2NumProperty().set(selectedValue);
-                controller.changeChart(lineChart2, selectedValue);
+                controller.graphNumProperty().set(selectedValue);
+                controller.changeChart(lineChart, selectedValue);
             }
         });
 

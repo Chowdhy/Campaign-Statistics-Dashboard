@@ -45,7 +45,7 @@ public class LoginScene extends BaseScene {
         loginButton.getStyleClass().add("fill-button");
         root.getChildren().add(loginFields);
         loginFields.getChildren().addAll(loginLabel,usernameInput,passwordInput,loginButton);
-        root.setPadding(new Insets(200,500,200,500));
+        root.setPadding(new Insets(225,500,225,500));
         loginFields.setSpacing(10);
         loginFields.setAlignment(Pos.CENTER);
         VBox.setMargin(loginLabel, new Insets(0, 0, 10, 0));
