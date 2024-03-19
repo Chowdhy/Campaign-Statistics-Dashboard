@@ -19,6 +19,7 @@ import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 import uk.ac.soton.comp2211.users.Permissions;
 
+import java.lang.runtime.SwitchBootstraps;
 import java.util.ArrayList;
 
 public class DashboardScene extends BaseScene {
@@ -58,20 +59,11 @@ public class DashboardScene extends BaseScene {
         filter.setOnAction(e -> {
             progressIndicator.setVisible(true);
 
-            Task<Void> task = new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-
-                    checkGraph(lineChart, dates, startDate.getText(), endDate.getText());
-                    return null;
-                }
-            };
-
-            task.setOnSucceeded(event -> progressIndicator.setVisible(false));
+            checkGraph(lineChart, dates, startDate.getText(), endDate.getText());
 
             tooltip1.setText("Page range: 0-" + controller.maxPage() + "\nTime range: 0-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce data");
 
-            new Thread(task).start();
+
         });
     }
 
@@ -89,8 +81,9 @@ public class DashboardScene extends BaseScene {
         var optionsMenu = new Menu("Options");
         var uploadMenuItem = new MenuItem("Upload files");
         var userMenuItem = new MenuItem("User management");
+        var themeMenuItem = new MenuItem("Switch theme");
         var logoutMenuItem = new MenuItem("Logout");
-        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem,logoutMenuItem);
+        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem, themeMenuItem,logoutMenuItem);
 
 
         var exportMenu = new Menu("Export");
@@ -508,16 +501,15 @@ public class DashboardScene extends BaseScene {
         filter = new Button("Filter");
 
         var filterButtonHBox = new HBox();
+        filterButtonHBox.setSpacing(5);
 
         progressIndicator = new ProgressIndicator();
+        progressIndicator.setMaxSize(20,20);
         progressIndicator.isIndeterminate();
         progressIndicator.setVisible(false);
 
         filterButtonHBox.getChildren().addAll(filter,progressIndicator);
         filterButtonHBox.setAlignment(Pos.CENTER);
-
-
-
 
 
         VBox bottom = new VBox();
@@ -550,6 +542,8 @@ public class DashboardScene extends BaseScene {
                     if (controller.compareProperty().get()) {
                         controller.changeChart(lineChart2, controller.graph2NumProperty().get());
                     }
+
+                    //progressIndicator.setVisible(false);
                 });
             }
         } catch(Exception ignored) {
