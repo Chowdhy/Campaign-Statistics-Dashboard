@@ -27,6 +27,7 @@ public class DashboardScene extends BaseScene {
 
     LineChart<String, Number> lineChart;
     LineChart<String, Number> lineChart2;
+    ArrayList<String> dates;
     TextField startDate;
     TextField endDate;
     Button submit;
@@ -40,8 +41,6 @@ public class DashboardScene extends BaseScene {
 
     @Override
     public void initialise() {
-        controller.setMaxValues();
-        ArrayList<String> dates = controller.getDates("2015-01-01", controller.maxDate());
         controller.calculateMetrics("2015-01-01", controller.maxDate());
         controller.changeChart(lineChart, controller.graphNumProperty().get());
 
@@ -117,8 +116,9 @@ public class DashboardScene extends BaseScene {
         Circle infoIcon1 = new Circle(6, Color.BLUE);
         infoIcon1.setStroke(Color.BLACK);
 
-
-        Tooltip tooltip1 = new Tooltip("For page bounce  an SQL query is used to get the maximum number on the 'pages_viewed' column. \n For time bounce, the maximum number from 'exit_date - entry_date is displayed.");
+        controller.setMaxValues();
+        dates = controller.getDates("2015-01-01", controller.maxDate());
+        Tooltip tooltip1 = new Tooltip("Page range: 0-" + controller.maxPage() + "\nTime range: 0-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce data");
 
         Text iText = new Text("i");
         iText.setFont(Font.font(6));
