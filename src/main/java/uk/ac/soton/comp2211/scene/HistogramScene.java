@@ -32,6 +32,7 @@ public class HistogramScene extends BaseScene {
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
         histogram = new BarChart<>(xAxis, yAxis);
+        histogram.setLegendVisible(false);
         hst.histogram(histogram);
         stp.getChildren().add(histogram);
         stp.centerShapeProperty();

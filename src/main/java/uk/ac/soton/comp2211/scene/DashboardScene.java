@@ -12,7 +12,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import uk.ac.soton.comp2211.App;
@@ -20,6 +19,7 @@ import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 import uk.ac.soton.comp2211.users.Permissions;
 
+import java.lang.runtime.SwitchBootstraps;
 import java.util.ArrayList;
 
 public class DashboardScene extends BaseScene {
@@ -32,6 +32,8 @@ public class DashboardScene extends BaseScene {
     TextField endDate;
     Button submit;
     Button filter;
+    Tooltip tooltip1;
+
 
     ProgressIndicator progressIndicator;
 
@@ -41,6 +43,9 @@ public class DashboardScene extends BaseScene {
 
     @Override
     public void initialise() {
+        controller.setMaxValues();
+        dates = controller.getDates("2015-01-01", controller.maxDate());
+
         controller.calculateMetrics("2015-01-01", controller.maxDate());
         controller.changeChart(lineChart, controller.graphNumProperty().get());
 
@@ -54,24 +59,12 @@ public class DashboardScene extends BaseScene {
         filter.setOnAction(e -> {
             progressIndicator.setVisible(true);
 
-            Task<Void> task = new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
+            checkGraph(lineChart, dates, startDate.getText(), endDate.getText());
 
-                    checkGraph(lineChart, dates, startDate.getText(), endDate.getText());
-                    return null;
-                }
-            };
+            tooltip1.setText("Page range: 0-" + controller.maxPage() + "\nTime range: 0-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce data");
 
-            task.setOnSucceeded(event -> progressIndicator.setVisible(false));
 
-            new Thread(task).start();
         });
-
-
-
-
-
     }
 
     @Override
@@ -85,40 +78,33 @@ public class DashboardScene extends BaseScene {
         root.getChildren().add(mainVBox);
 
 
-        var userManagementMenu = new Menu("User Management");
-        var addUserItem = new MenuItem("Add user");
-        var modifyUserItem = new MenuItem("Modify user");
-        var deleteUserItem = new MenuItem("Delete user");
-
-        var chartSettingsMenu = new Menu("Chart settings");
-        var fileSettingsMenu = new Menu("Upload files");
-        var fileSettingsMenuItem = new MenuItem("Upload");
-        var exportMenu = new Menu("Export");
-
-        var logoutMenu = new Menu("Logout");
+        var optionsMenu = new Menu("Options");
+        var uploadMenuItem = new MenuItem("Upload files");
+        var userMenuItem = new MenuItem("User management");
+        var themeMenuItem = new MenuItem("Switch theme");
         var logoutMenuItem = new MenuItem("Logout");
-        logoutMenu.getItems().add(logoutMenuItem);
-
-        userManagementMenu.getItems().addAll(addUserItem,modifyUserItem,deleteUserItem);
-        fileSettingsMenu.getItems().add(fileSettingsMenuItem);
+        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem, themeMenuItem,logoutMenuItem);
 
 
-        MenuBar menuBar = new MenuBar(fileSettingsMenu,userManagementMenu,chartSettingsMenu,exportMenu,logoutMenu);
+        var exportMenu = new Menu("Export");
+        var logsMenuItem = new MenuItem("Logs");
+        var graphMenuItem = new MenuItem("Graph");
+        var reportMenuItem = new MenuItem("Report");
+        exportMenu.getItems().addAll(graphMenuItem,reportMenuItem,logsMenuItem);
+
+
+
+        MenuBar menuBar = new MenuBar(optionsMenu,exportMenu);
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
-            userManagementMenu.setDisable(true);
-            exportMenu.setDisable(true);
+            logsMenuItem.setDisable(true);
         }else if(App.getUser().getPermissions().equals(Permissions.VIEWER)){
-            userManagementMenu.setDisable(true);
-            fileSettingsMenu.setDisable(true);
             exportMenu.setDisable(true);
         }
 
         Circle infoIcon1 = new Circle(6, Color.BLUE);
         infoIcon1.setStroke(Color.BLACK);
 
-        controller.setMaxValues();
-        dates = controller.getDates("2015-01-01", controller.maxDate());
-        Tooltip tooltip1 = new Tooltip("Page range: 0-" + controller.maxPage() + "\nTime range: 0-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce data");
+        tooltip1 = new Tooltip();
 
         Text iText = new Text("i");
         iText.setFont(Font.font(6));
@@ -131,26 +117,21 @@ public class DashboardScene extends BaseScene {
 
         mainVBox.getChildren().add(menuBar);
 
-        fileSettingsMenuItem.setOnAction( e->{
-            window.loadFileInput();
-        });
 
-        addUserItem.setOnAction(e -> {
-            window.loadAddUserScene();
-        });
-
-        modifyUserItem.setOnAction(e -> {
-            window.loadUserManagementScene();
-        });
-
-        deleteUserItem.setOnAction(e -> {
-            window.loadDeleteUserScene();
-        });
 
         logoutMenuItem.setOnAction(e -> {
             App.setUser(null);
             window.loadLoginScene();
         });
+
+        uploadMenuItem.setOnAction(e -> {
+            window.loadFileInput();
+        });
+
+        userMenuItem.setOnAction(e -> {
+            window.loadUserManagementScene();
+        });
+
 
 
         SplitPane splitPane = new SplitPane();
@@ -424,11 +405,16 @@ public class DashboardScene extends BaseScene {
         singlePageBounceButton.setOnAction(e -> changeBounce(defineBounce));
 
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
-        choiceBox.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate");
+        choiceBox.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate","Cost Distribution Histogram");
         choiceBox.getSelectionModel().select(0);
-        choiceBox.setOnAction(e -> {
-            controller.graphNumProperty().set(choiceBox.getValue());
-            controller.changeChart(lineChart, controller.graphNumProperty().get());
+        choiceBox.setOnAction(e2 -> {
+            String selectedValue = choiceBox.getValue();
+            if (selectedValue.equals("Cost Distribution Histogram")) {
+                window.loadHistogramScene();
+            } else {
+                controller.graphNumProperty().set(selectedValue);
+                controller.changeChart(lineChart, selectedValue);
+            }
         });
 
         ToggleGroup timeToggleGroup = new ToggleGroup();
@@ -476,11 +462,16 @@ public class DashboardScene extends BaseScene {
         lineChart2.setLegendVisible(false);
 
         ChoiceBox<String> choiceBox2 = new ChoiceBox<>();
-        choiceBox2.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate");
+        choiceBox2.getItems().addAll("Cost Distribution Histogram","Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate","Cost Distribution Histogram");
         choiceBox2.getSelectionModel().select(0);
         choiceBox2.setOnAction(e2 -> {
-            controller.graph2NumProperty().set(choiceBox2.getValue());
-            controller.changeChart(lineChart2, controller.graph2NumProperty().get());
+            String selectedValue = choiceBox2.getValue();
+            if (selectedValue.equals("Cost Distribution Histogram")) {
+                window.loadHistogramScene();
+            } else {
+                controller.graph2NumProperty().set(selectedValue);
+                controller.changeChart(lineChart2, selectedValue);
+            }
         });
 
         Button compare = new Button("Compare");
@@ -497,12 +488,9 @@ public class DashboardScene extends BaseScene {
             }
         });
 
-        Button costDistribution = new Button("Cost Distribution");
-        costDistribution.setOnAction(e -> {
-            window.loadHistogramScene();
-        });
 
-        graphOptions.getChildren().addAll(compare, graphTime, choiceBox, costDistribution);
+
+        graphOptions.getChildren().addAll(compare, graphTime, choiceBox);
         graphOptions.setAlignment(Pos.CENTER);
         graphOptions.setSpacing(10);
 
@@ -513,16 +501,15 @@ public class DashboardScene extends BaseScene {
         filter = new Button("Filter");
 
         var filterButtonHBox = new HBox();
+        filterButtonHBox.setSpacing(5);
 
         progressIndicator = new ProgressIndicator();
+        progressIndicator.setMaxSize(20,20);
         progressIndicator.isIndeterminate();
         progressIndicator.setVisible(false);
 
         filterButtonHBox.getChildren().addAll(filter,progressIndicator);
         filterButtonHBox.setAlignment(Pos.CENTER);
-
-
-
 
 
         VBox bottom = new VBox();
@@ -555,6 +542,8 @@ public class DashboardScene extends BaseScene {
                     if (controller.compareProperty().get()) {
                         controller.changeChart(lineChart2, controller.graph2NumProperty().get());
                     }
+
+                    //progressIndicator.setVisible(false);
                 });
             }
         } catch(Exception ignored) {
