@@ -163,9 +163,13 @@ public class DashboardScene extends BaseScene {
 
 
         VBox metricsVBox = new VBox();
+        VBox.setVgrow(metricsVBox, Priority.ALWAYS);
+
         metricsVBox.setSpacing(1);
 
         VBox totalCostMetric = new VBox();
+        VBox.setVgrow(totalCostMetric,Priority.ALWAYS);
+        totalCostMetric.setMaxHeight(200);
         totalCostMetric.setStyle("-fx-background-color: LIGHTGRAY;");
         Label totalCostText = new Label(" Total cost (£)");
         Label totalCostNum = new Label("");
@@ -175,9 +179,13 @@ public class DashboardScene extends BaseScene {
         metricsVBox.getChildren().add(totalCostMetric);
 
         var splitHBox = new HBox();
+        VBox.setVgrow(splitHBox,Priority.ALWAYS);
 
         var leftMetrics = new VBox();
+        VBox.setVgrow(leftMetrics,Priority.ALWAYS);
+
         var rightMetrics = new VBox();
+        VBox.setVgrow(rightMetrics,Priority.ALWAYS);
         splitHBox.getChildren().addAll(leftMetrics,rightMetrics);
         metricsVBox.getChildren().addAll(splitHBox);
         splitHBox.setSpacing(1);
@@ -189,6 +197,7 @@ public class DashboardScene extends BaseScene {
 
 
         VBox impressionMetric = new VBox();
+        VBox.setVgrow(impressionMetric,Priority.ALWAYS);
         impressionMetric.setStyle("-fx-background-color: LIGHTGRAY;");
         Label impressionsText = new Label(" Num of impressions");
         Label impressionsNum = new Label("");
@@ -198,6 +207,7 @@ public class DashboardScene extends BaseScene {
         leftMetrics.getChildren().add(impressionMetric);
 
         VBox uniqueMetric = new VBox();
+        VBox.setVgrow(uniqueMetric,Priority.ALWAYS);
         uniqueMetric.setStyle("-fx-background-color: LIGHTGRAY;");
         Label uniquesText = new Label("Num of uniques");
         Label uniquesNum = new Label("");
@@ -207,6 +217,7 @@ public class DashboardScene extends BaseScene {
         leftMetrics.getChildren().add(uniqueMetric);
 
         VBox clicksMetric = new VBox();
+        VBox.setVgrow(clicksMetric,Priority.ALWAYS);
         clicksMetric.setStyle("-fx-background-color: LIGHTGRAY;");
         Label clicksText = new Label("Num of clicks");
         Label clicksNum = new Label("");
@@ -216,6 +227,7 @@ public class DashboardScene extends BaseScene {
         leftMetrics.getChildren().add(clicksMetric);
 
         VBox bounceMetric = new VBox();
+        VBox.setVgrow(bounceMetric,Priority.ALWAYS);
         bounceMetric.setStyle("-fx-background-color: LIGHTGRAY;");
         Label bouncesText = new Label("Num of bounces");
         Label bounceNum = new Label("");
@@ -225,6 +237,7 @@ public class DashboardScene extends BaseScene {
         leftMetrics.getChildren().add(bounceMetric);
 
         VBox conversionMetric = new VBox();
+        VBox.setVgrow(conversionMetric,Priority.ALWAYS);
         conversionMetric.setStyle("-fx-background-color: LIGHTGRAY;");
         Label conversionsText = new Label("Num of conversions");
         Label conversionsNum = new Label("");
@@ -234,6 +247,7 @@ public class DashboardScene extends BaseScene {
         leftMetrics.getChildren().add(conversionMetric);
 
         VBox ctrMetric = new VBox();
+        VBox.setVgrow(ctrMetric,Priority.ALWAYS);
         ctrMetric.setStyle("-fx-background-color: LIGHTGRAY;");
         Label ctrText = new Label("CTR");
         Label ctrNum = new Label("");
@@ -243,6 +257,7 @@ public class DashboardScene extends BaseScene {
         rightMetrics.getChildren().add(ctrMetric);
 
         VBox cpaMetric = new VBox();
+        VBox.setVgrow(cpaMetric,Priority.ALWAYS);
         cpaMetric.setStyle("-fx-background-color: LIGHTGRAY;");
         Label cpaText = new Label("CPA");
         Label cpaNum = new Label();
@@ -252,6 +267,7 @@ public class DashboardScene extends BaseScene {
         rightMetrics.getChildren().add(cpaMetric);
 
         VBox cpcMetric = new VBox();
+        VBox.setVgrow(cpcMetric,Priority.ALWAYS);
         cpcMetric.setStyle("-fx-background-color: LIGHTGRAY;");
         Label cpcText = new Label("CPC");
         Label cpcNum = new Label("");
@@ -261,6 +277,7 @@ public class DashboardScene extends BaseScene {
         rightMetrics.getChildren().add(cpcMetric);
 
         VBox cpmMetric = new VBox();
+        VBox.setVgrow(cpmMetric,Priority.ALWAYS);
         cpmMetric.setStyle("-fx-background-color: LIGHTGRAY;");
         Label cpmText = new Label(" CPM");
         Label cpmNum = new Label("");
@@ -270,6 +287,7 @@ public class DashboardScene extends BaseScene {
         rightMetrics.getChildren().add(cpmMetric);
 
         VBox bounceRateMetric = new VBox();
+        VBox.setVgrow(bounceRateMetric,Priority.ALWAYS);
         bounceRateMetric.setStyle("-fx-background-color: LIGHTGRAY;");
         Label bounceRateText = new Label(" Bounce rate");
         Label bounceRateNum = new Label("");
@@ -513,6 +531,9 @@ public class DashboardScene extends BaseScene {
         bottom.getChildren().add(filterButtonHBox);
         bottom.setAlignment(Pos.CENTER);
         filterHBox.setAlignment(Pos.CENTER);
+
+        VBox.setVgrow(chartVbox,Priority.ALWAYS);
+
 
         leftSplitPane.setOrientation(Orientation.VERTICAL);
         leftSplitPane.getItems().add(chartVbox);

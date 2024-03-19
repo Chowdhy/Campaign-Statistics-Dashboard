@@ -40,7 +40,7 @@ public class LoginScene extends BaseScene {
         var loginButton = new Button("Login");
         root.getChildren().add(loginFields);
         loginFields.getChildren().addAll(loginLabel,usernameInput,passwordInput,loginButton);
-        root.setPadding(new Insets(200,200,200,200));
+        root.setPadding(new Insets(200,500,200,500));
         loginFields.setSpacing(10);
         loginFields.setAlignment(Pos.CENTER);
         VBox.setMargin(loginLabel, new Insets(0, 0, 20, 0));
