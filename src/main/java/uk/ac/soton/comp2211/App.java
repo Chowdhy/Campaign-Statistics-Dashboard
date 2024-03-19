@@ -1,6 +1,7 @@
 package uk.ac.soton.comp2211;
 
 import javafx.application.Application;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,7 +28,11 @@ public class App extends Application {
         //
         //        MainWindow window = new MainWindow(stage, screenWidth, screenHeight);
 
-        var window = new MainWindow(stage, 720, 580);
+        double screenWidth = Screen.getPrimary().getVisualBounds().getWidth();
+        double screenHeight = Screen.getPrimary().getVisualBounds().getHeight();
+
+
+        var window = new MainWindow(stage, (int) screenWidth, (int) screenHeight);
 
         stage.show();
     }

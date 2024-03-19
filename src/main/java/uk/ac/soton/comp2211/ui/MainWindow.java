@@ -36,10 +36,13 @@ public class MainWindow {
     public void setupStage() {
         stage.setTitle("Ad Auction Dashboard");
         stage.setOnCloseRequest(e -> App.getInstance().shutdown());
+
+        stage.setResizable(false);
     }
 
     public void setupDefault() {
         scene = new Scene(new Pane(), width, height);
+
         stage.setScene(scene);
     }
 

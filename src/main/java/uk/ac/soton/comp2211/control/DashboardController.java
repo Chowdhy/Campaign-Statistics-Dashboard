@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class DashboardController {
     GraphData graphData;
 
+
     public DashboardController() {
         graphData = new GraphData();
     }

@@ -78,7 +78,12 @@ public class DashboardScene extends BaseScene {
     public void build() {
         controller = new DashboardController();
 
-        root = new VBox();
+        root = new StackPane();
+
+        var mainVBox = new VBox();
+        VBox.setVgrow(mainVBox,Priority.ALWAYS);
+        root.getChildren().add(mainVBox);
+
 
         var userManagementMenu = new Menu("User Management");
         var addUserItem = new MenuItem("Add user");
@@ -106,7 +111,7 @@ public class DashboardScene extends BaseScene {
             fileSettingsMenu.setDisable(true);
         }
 
-        root.getChildren().add(menuBar);
+        mainVBox.getChildren().add(menuBar);
 
         fileSettingsMenuItem.setOnAction( e->{
             window.loadFileInput();
@@ -125,12 +130,14 @@ public class DashboardScene extends BaseScene {
         });
 
         logoutMenuItem.setOnAction(e -> {
+            App.setUser(null);
             window.loadLoginScene();
         });
 
 
         SplitPane splitPane = new SplitPane();
-        root.getChildren().add(splitPane);
+        mainVBox.getChildren().add(splitPane);
+        VBox.setVgrow(splitPane,Priority.ALWAYS);
         SplitPane leftSplitPane = new SplitPane();
 
         splitPane.setDividerPosition(0, 0.7);
@@ -159,6 +166,7 @@ public class DashboardScene extends BaseScene {
         leftMetrics.setSpacing(1);
         rightMetrics.setSpacing(1);
         HBox.setHgrow(rightMetrics, Priority.ALWAYS);
+        HBox.setHgrow(leftMetrics,Priority.ALWAYS);
 
 
 
@@ -251,9 +259,6 @@ public class DashboardScene extends BaseScene {
         bounceRateMetric.getChildren().addAll(bounceRateText, bounceRateNum);
         bounceRateMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(bounceRateMetric);
-
-
-
 
 
 
