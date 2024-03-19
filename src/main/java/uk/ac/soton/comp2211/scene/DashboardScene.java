@@ -96,10 +96,13 @@ public class DashboardScene extends BaseScene {
         MenuBar menuBar = new MenuBar(fileSettingsMenu,userManagementMenu,chartSettingsMenu,exportMenu,logoutMenu);
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
             userManagementMenu.setDisable(true);
+            exportMenu.setDisable(true);
         }else if(App.getUser().getPermissions().equals(Permissions.VIEWER)){
             userManagementMenu.setDisable(true);
             fileSettingsMenu.setDisable(true);
+            exportMenu.setDisable(true);
         }
+
 
         root.getChildren().add(menuBar);
 
