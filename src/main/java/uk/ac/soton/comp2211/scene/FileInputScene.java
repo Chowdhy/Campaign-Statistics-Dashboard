@@ -176,7 +176,7 @@ public class FileInputScene extends BaseScene {
         });
 
         backButton.setOnAction( e -> {
-            window.loadDashboard();
+            window.switchToDashboard();
         });
 
     }
