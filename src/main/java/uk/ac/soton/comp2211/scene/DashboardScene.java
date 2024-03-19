@@ -11,6 +11,7 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -106,10 +107,31 @@ public class DashboardScene extends BaseScene {
         MenuBar menuBar = new MenuBar(fileSettingsMenu,userManagementMenu,chartSettingsMenu,exportMenu,logoutMenu);
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
             userManagementMenu.setDisable(true);
+            exportMenu.setDisable(true);
         }else if(App.getUser().getPermissions().equals(Permissions.VIEWER)){
             userManagementMenu.setDisable(true);
             fileSettingsMenu.setDisable(true);
+            exportMenu.setDisable(true);
         }
+
+        Circle infoIcon1 = new Circle(20, Color.BLUE);
+        infoIcon1.setStroke(Color.BLACK);
+
+        Tooltip tooltip1 = new Tooltip("For page bounce  an SQL query is used to get the maximum number on the 'pages_viewed' column. \n For time bounce, the maximum number from 'exit_date - entry_date is displayed.");
+
+        Text iText = new Text("i");
+        iText.setFont(Font.font(30));
+        iText.setFill(Color.WHITE);
+
+
+        StackPane iconWithText = new StackPane();
+        iconWithText.getChildren().addAll(infoIcon1, iText);
+        Tooltip.install(iconWithText, tooltip1);
+
+
+
+
+
 
         mainVBox.getChildren().add(menuBar);
 
@@ -286,7 +308,7 @@ public class DashboardScene extends BaseScene {
         defineBounce.setPromptText("0-" + controller.maxTime());
         defineBounce.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
         defineBounce.textProperty().bindBidirectional(controller.timeValProperty());
-        bounceFilter.getChildren().addAll(bounceLabel,timeBounceButton,singlePageBounceButton, defineBounce);
+        bounceFilter.getChildren().addAll(bounceLabel,timeBounceButton,singlePageBounceButton, defineBounce, iconWithText);
 
         Label genderLabel = new Label("Gender");
         CheckBox maleButton = new CheckBox("Male");
