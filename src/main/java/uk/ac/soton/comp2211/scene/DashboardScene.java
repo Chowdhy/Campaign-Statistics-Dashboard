@@ -1,7 +1,6 @@
 package uk.ac.soton.comp2211.scene;
 
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -96,9 +95,12 @@ public class DashboardScene extends BaseScene {
 
         MenuBar menuBar = new MenuBar(optionsMenu,exportMenu);
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
+            userMenuItem.setDisable(true);
             logsMenuItem.setDisable(true);
         }else if(App.getUser().getPermissions().equals(Permissions.VIEWER)){
-            exportMenu.setDisable(true);
+            userMenuItem.setDisable(true);
+            uploadMenuItem.setDisable(true);
+            logsMenuItem.setDisable(true);
         }
 
         Circle infoIcon1 = new Circle(6, Color.BLUE);
