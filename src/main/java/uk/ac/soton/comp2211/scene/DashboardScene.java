@@ -12,7 +12,6 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import uk.ac.soton.comp2211.App;
@@ -32,6 +31,8 @@ public class DashboardScene extends BaseScene {
     TextField endDate;
     Button submit;
     Button filter;
+    Tooltip tooltip1;
+
 
     ProgressIndicator progressIndicator;
 
@@ -43,6 +44,9 @@ public class DashboardScene extends BaseScene {
     public void initialise() {
         controller.calculateMetrics("2015-01-01", controller.maxDate());
         controller.changeChart(lineChart, controller.graphNumProperty().get());
+
+        controller.setMaxValues();
+        dates = controller.getDates("2015-01-01", controller.maxDate());
 
         startDate.setText(dates.getFirst());
         startDate.setPromptText(dates.getFirst());
@@ -64,6 +68,8 @@ public class DashboardScene extends BaseScene {
             };
 
             task.setOnSucceeded(event -> progressIndicator.setVisible(false));
+
+            tooltip1.setText("Page range: 0-" + controller.maxPage() + "\nTime range: 0-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce data");
 
             new Thread(task).start();
         });
@@ -116,9 +122,7 @@ public class DashboardScene extends BaseScene {
         Circle infoIcon1 = new Circle(6, Color.BLUE);
         infoIcon1.setStroke(Color.BLACK);
 
-        controller.setMaxValues();
-        dates = controller.getDates("2015-01-01", controller.maxDate());
-        Tooltip tooltip1 = new Tooltip("Page range: 0-" + controller.maxPage() + "\nTime range: 0-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce data");
+        tooltip1 = new Tooltip();
 
         Text iText = new Text("i");
         iText.setFont(Font.font(6));
