@@ -538,15 +538,14 @@ public class DashboardScene extends BaseScene {
     public void checkGraph(LineChart lineChart, ArrayList<String> dates, String startDate, String endDate) {
         try {
             if (dates.contains(startDate) && dates.contains(endDate) && controller.maxTime() >= Integer.parseInt(controller.timeValProperty().get()) && controller.maxPage() >= Integer.parseInt(controller.pageValProperty().get())) {
-                Platform.runLater(() ->{
+
                     controller.calculateMetrics(startDate, endDate);
                     controller.changeChart(lineChart, controller.graphNumProperty().get());
                     if (controller.compareProperty().get()) {
                         controller.changeChart(lineChart2, controller.graph2NumProperty().get());
                     }
 
-                    //progressIndicator.setVisible(false);
-                });
+
             }
         } catch(Exception ignored) {
 
