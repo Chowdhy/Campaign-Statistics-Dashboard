@@ -17,9 +17,9 @@ public class DashboardController {
         graphData = new GraphData();
     }
 
-    public void changeChart(LineChart lineChart) {
+    public void changeChart(LineChart lineChart, String graphNum) {
         lineChart.getData().clear();
-        Pair<ArrayList<Integer>, ArrayList<Double>> data = graphData.getData();
+        Pair<ArrayList<Integer>, ArrayList<Double>> data = graphData.getData(graphNum);
         ArrayList<String> dates = graphData.getDates();
         ArrayList<Integer> integerData = data.getKey();
         ArrayList<Double> doubleData = data.getValue();
@@ -151,6 +151,10 @@ public class DashboardController {
         return graphData.pageProperty();
     }
 
+    public BooleanProperty compareProperty(){
+        return graphData.compareProperty();
+    }
+
     public IntegerProperty impressionsNumProperty(){
         return graphData.impressionsNumProperty();
     }
@@ -197,6 +201,10 @@ public class DashboardController {
 
     public StringProperty graphNumProperty() {
         return graphData.graphNumProperty();
+    }
+
+    public StringProperty graph2NumProperty() {
+        return graphData.graph2NumProperty();
     }
 
     public SimpleStringProperty timeValProperty(){ return graphData.timeValProperty(); }

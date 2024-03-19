@@ -11,8 +11,10 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2211.users.Permissions;
 
 import java.util.ArrayList;
 
@@ -20,6 +22,7 @@ public class DashboardScene extends BaseScene {
     DashboardController controller;
 
     LineChart<String, Number> lineChart;
+    LineChart<String, Number> lineChart2;
     TextField startDate;
     TextField endDate;
     Button submit;
@@ -36,8 +39,7 @@ public class DashboardScene extends BaseScene {
         controller.setMaxValues();
         ArrayList<String> dates = controller.getDates("2015-01-01", controller.maxDate());
         controller.calculateMetrics("2015-01-01", controller.maxDate());
-        controller.changeChart(lineChart);
-        submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        controller.changeChart(lineChart, controller.graphNumProperty().get());
 
         startDate.setText(dates.getFirst());
         startDate.setPromptText(dates.getFirst());
@@ -94,7 +96,12 @@ public class DashboardScene extends BaseScene {
 
 
         MenuBar menuBar = new MenuBar(fileSettingsMenu,userManagementMenu,chartSettingsMenu,exportMenu,logoutMenu);
-
+        if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
+            userManagementMenu.setDisable(true);
+        }else if(App.getUser().getPermissions().equals(Permissions.VIEWER)){
+            userManagementMenu.setDisable(true);
+            fileSettingsMenu.setDisable(true);
+        }
 
         root.getChildren().add(menuBar);
 
@@ -335,7 +342,7 @@ public class DashboardScene extends BaseScene {
         choiceBox.getSelectionModel().select(0);
         choiceBox.setOnAction(e -> {
             controller.graphNumProperty().set(choiceBox.getValue());
-            controller.changeChart(lineChart);
+            controller.changeChart(lineChart, controller.graphNumProperty().get());
         });
 
         ToggleGroup timeToggleGroup = new ToggleGroup();
@@ -345,8 +352,10 @@ public class DashboardScene extends BaseScene {
         hour.setToggleGroup(timeToggleGroup);
         hour.setOnAction(e -> {
             controller.buttonValProperty().set("hour");
-            lineChart.getData().clear();
-            controller.changeChart(lineChart);
+            controller.changeChart(lineChart, controller.graphNumProperty().get());
+            if (controller.compareProperty().get()) {
+                controller.changeChart(lineChart2, controller.graph2NumProperty().get());
+            }
         });
 
         ToggleButton day = new ToggleButton("Day");
@@ -354,22 +363,60 @@ public class DashboardScene extends BaseScene {
         day.setToggleGroup(timeToggleGroup);
         day.setOnAction(e -> {
             controller.buttonValProperty().set("day");
-            lineChart.getData().clear();
-            controller.changeChart(lineChart);
+            controller.changeChart(lineChart, controller.graphNumProperty().get());
+            if (controller.compareProperty().get()) {
+                controller.changeChart(lineChart2, controller.graph2NumProperty().get());
+            }
         });
 
         ToggleButton week = new ToggleButton("Week");
         week.setToggleGroup(timeToggleGroup);
         week.setOnAction(e -> {
             controller.buttonValProperty().set("week");
-            lineChart.getData().clear();
-            controller.changeChart(lineChart);
+            controller.changeChart(lineChart, controller.graphNumProperty().get());
+            if (controller.compareProperty().get()) {
+                controller.changeChart(lineChart2, controller.graph2NumProperty().get());
+            }
         });
 
         graphTime.getChildren().addAll(hour, day, week);
 
         HBox graphOptions = new HBox();
-        graphOptions.getChildren().addAll(graphTime, choiceBox);
+
+        CategoryAxis xAxis2 = new CategoryAxis();
+        NumberAxis yAxis2 = new NumberAxis();
+        lineChart2 = new LineChart<>(xAxis2,yAxis2);
+        lineChart2.setAnimated(false);
+        lineChart2.setLegendVisible(false);
+
+        ChoiceBox<String> choiceBox2 = new ChoiceBox<>();
+        choiceBox2.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate");
+        choiceBox2.getSelectionModel().select(0);
+        choiceBox2.setOnAction(e2 -> {
+            controller.graph2NumProperty().set(choiceBox2.getValue());
+            controller.changeChart(lineChart2, controller.graph2NumProperty().get());
+        });
+
+        Button compare = new Button("Compare");
+        compare.setOnAction(e -> {
+            controller.compareProperty().set(!controller.compareProperty().get());
+
+            if (controller.compareProperty().get()) {
+                controller.changeChart(lineChart2, controller.graph2NumProperty().get());
+                chartVbox.getChildren().add(1, lineChart2);
+                graphOptions.getChildren().add(choiceBox2);
+            } else {
+                chartVbox.getChildren().remove(lineChart2);
+                graphOptions.getChildren().remove(choiceBox2);
+            }
+        });
+
+        Button costDistribution = new Button("Cost Distribution");
+        costDistribution.setOnAction(e -> {
+            window.loadHistogramScene();
+        });
+
+        graphOptions.getChildren().addAll(compare, graphTime, choiceBox, costDistribution);
         graphOptions.setAlignment(Pos.CENTER);
         graphOptions.setSpacing(10);
 
@@ -412,9 +459,11 @@ public class DashboardScene extends BaseScene {
             if (dates.contains(startDate) && dates.contains(endDate) && controller.maxTime() >= Integer.parseInt(controller.timeValProperty().get()) && controller.maxPage() >= Integer.parseInt(controller.pageValProperty().get())) {
                 Platform.runLater(() ->{
                     controller.calculateMetrics(startDate, endDate);
-                    controller.changeChart(lineChart);
+                    controller.changeChart(lineChart, controller.graphNumProperty().get());
+                    if (controller.compareProperty().get()) {
+                        controller.changeChart(lineChart2, controller.graph2NumProperty().get());
+                    }
                 });
-
             }
         } catch(Exception ignored) {
 

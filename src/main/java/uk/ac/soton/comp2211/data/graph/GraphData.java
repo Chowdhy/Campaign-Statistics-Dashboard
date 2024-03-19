@@ -33,6 +33,7 @@ public class GraphData {
     BooleanProperty hobbies = new SimpleBooleanProperty(true);
     BooleanProperty time = new SimpleBooleanProperty(true);
     BooleanProperty page = new SimpleBooleanProperty(false);
+    BooleanProperty compare = new SimpleBooleanProperty(false);
 
     IntegerProperty impressionsNum = new SimpleIntegerProperty(0);
     IntegerProperty uniqueNum = new SimpleIntegerProperty(0);
@@ -46,6 +47,7 @@ public class GraphData {
     DoubleProperty cpaNum = new SimpleDoubleProperty(0);
     DoubleProperty bounceRateNum = new SimpleDoubleProperty(0);
     StringProperty graph = new SimpleStringProperty("Impressions");
+    StringProperty graph2 = new SimpleStringProperty("Impressions");
 
     SimpleStringProperty timeVal = new SimpleStringProperty("1");
     SimpleStringProperty pageVal = new SimpleStringProperty("1");
@@ -134,6 +136,33 @@ public class GraphData {
         }
         return newDates;
     }
+
+    public ArrayList<Double> getClickCosts() {
+        ArrayList<Double> columnValues = new ArrayList<>();
+        String getclicks = "SELECT click_cost FROM click_log";
+        try (Connection conn = this.connect();
+             Statement stmt = conn.createStatement()) {
+
+            ResultSet dateRS = stmt.executeQuery(getclicks);
+
+            while (dateRS.next()) {
+                double value = dateRS.getDouble("click_cost");
+                columnValues.add(value);
+            }
+
+            // Close the result set, statement, and connection
+            dateRS.close();
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return columnValues;
+    }
+
+
+
+
 
     public void maxValues(){
         String maxDateSQL = "SELECT MAX(DATE(date)) FROM impression_log";
@@ -272,30 +301,30 @@ public class GraphData {
         }
     }
 
-    public Pair<ArrayList<Integer>, ArrayList<Double>> getData() {
+    public Pair<ArrayList<Integer>, ArrayList<Double>> getData(String graphNum) {
         ArrayList<Integer> integerData = null;
         ArrayList<Double> doubleData = new ArrayList<>();
 
         dates = getHourDates();
-        if (graphNumProperty().get().equals("Impressions")) {
+        if (graphNum.equals("Impressions")) {
             integerData = impressions;
-        } else if (graphNumProperty().get().equals("Clicks")) {
+        } else if (graphNum.equals("Clicks")) {
             integerData = clicks;
-        } else if (graphNumProperty().get().equals("Uniques")) {
+        } else if (graphNum.equals("Uniques")) {
             integerData = uniques;
-        } else if (graphNumProperty().get().equals("Bounces")) {
+        } else if (graphNum.equals("Bounces")) {
             if (page.get()) {
                 integerData = pages;
             } else {
                 integerData = times;
             }
-        } else if (graphNumProperty().get().equals("Conversions")) {
+        } else if (graphNum.equals("Conversions")) {
             integerData = conversions;
-        } else if (graphNumProperty().get().equals("Total cost")) {
+        } else if (graphNum.equals("Total cost")) {
             for (int i = 0; i < dates.size(); i++) {
                 doubleData.add(totals.get(i));
             }
-        } else if (graphNumProperty().get().equals("CTR")) {
+        } else if (graphNum.equals("CTR")) {
             for (int i = 0; i < dates.size(); i++) {
                 if (impressions.get(i) == 0) {
                     doubleData.add((double) 0);
@@ -303,7 +332,7 @@ public class GraphData {
                     doubleData.add((double) clicks.get(i) / impressions.get(i));
                 }
             }
-        } else if (graphNumProperty().get().equals("CPA")) {
+        } else if (graphNum.equals("CPA")) {
             for (int i = 0; i < dates.size(); i++) {
                 if (conversions.get(i) == 0) {
                     doubleData.add((double) 0);
@@ -311,7 +340,7 @@ public class GraphData {
                     doubleData.add(totals.get(i) / conversions.get(i));
                 }
             }
-        } else if (graphNumProperty().get().equals("CPC")) {
+        } else if (graphNum.equals("CPC")) {
             for (int i = 0; i < dates.size(); i++) {
                 if (clicks.get(i) == 0) {
                     doubleData.add((double) 0);
@@ -319,7 +348,7 @@ public class GraphData {
                     doubleData.add(clickCost.get(i) / clicks.get(i));
                 }
             }
-        } else if (graphNumProperty().get().equals("CPM")) {
+        } else if (graphNum.equals("CPM")) {
             for (int i = 0; i < dates.size(); i++) {
                 if (impressions.get(i) == 0) {
                     doubleData.add((double) 0);
@@ -327,7 +356,7 @@ public class GraphData {
                     doubleData.add(impressionCost.get(i) / ((double) impressions.get(i) / 1000));
                 }
             }
-        } else if (graphNumProperty().get().equals("Bounce rate")) {
+        } else if (graphNum.equals("Bounce rate")) {
             for (int i = 0; i < dates.size(); i++) {
                 if (clicks.get(i) == 0) {
                     doubleData.add((double) 0);
@@ -359,9 +388,9 @@ public class GraphData {
 
         if (!doubleData.isEmpty()) {
             if (buttonVal.get().equals("day")) {
-                doubleData = getDoubleGraphTime(doubleData, 24);
+                doubleData = getDoubleGraphTime(doubleData, 24, graphNum);
             } else if (buttonVal.get().equals("week")) {
-                doubleData = getDoubleGraphTime(doubleData, 168);
+                doubleData = getDoubleGraphTime(doubleData, 168, graphNum);
             }
         }
 
@@ -392,7 +421,7 @@ public class GraphData {
         return newData;
     }
 
-    public ArrayList<Double> getDoubleGraphTime(ArrayList<Double> data, int loopy) {
+    public ArrayList<Double> getDoubleGraphTime(ArrayList<Double> data, int loopy, String graphNum) {
         ArrayList<Double> newData = new ArrayList<>();
         int counter = 0;
         for (int i = 0; i < data.size(); i++) {
@@ -416,7 +445,7 @@ public class GraphData {
 
         int sum = counter == 0 ? 157 : counter;
 
-        if (loopy == 24) {
+        if (loopy == 24 && !graphNum.equals("Total cost")) {
             for (int i = 0; i < newData.size(); i++) {
                 if (i == 0 && dates.get(0).equals("2015-01-01")) {
                     newData.set(i, newData.get(i)/12);
@@ -428,7 +457,7 @@ public class GraphData {
             }
         }
 
-        if (loopy == 168) {
+        if (loopy == 168 && !graphNum.equals("Total cost")) {
             for (int i = 0; i < newData.size(); i++) {
                 if (i == 0 && dates.get(0).equals("2015-01-01")) {
                     newData.set(i, newData.get(i)/156);
@@ -521,6 +550,10 @@ public class GraphData {
         return page;
     }
 
+    public BooleanProperty compareProperty(){
+        return compare;
+    }
+
     public IntegerProperty impressionsNumProperty(){
         return impressionsNum;
     }
@@ -567,6 +600,10 @@ public class GraphData {
 
     public StringProperty graphNumProperty() {
         return graph;
+    }
+
+    public StringProperty graph2NumProperty() {
+        return graph2;
     }
 
     public SimpleStringProperty timeValProperty(){ return timeVal; }

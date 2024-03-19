@@ -3,6 +3,7 @@ package uk.ac.soton.comp2211.scene;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
@@ -46,7 +47,6 @@ public class UserManagementScene extends BaseScene {
 
         VBox leftSide = new VBox();
 
-
         ScrollPane scroller = new ScrollPane();
 
         userListBox = new VBox();
@@ -54,15 +54,14 @@ public class UserManagementScene extends BaseScene {
         VBox.setVgrow(scroller, Priority.ALWAYS);
         scroller.setFitToWidth(true);
 
-        HBox buttonsHBox = new HBox();
-
-
-        Button backButton = new Button("Back");
         Button addUserButton = new Button("Create new user");
+        addUserButton.setAlignment(Pos.BOTTOM_RIGHT);
+        Button backButton = new Button("Back");
+        backButton.setAlignment(Pos.BOTTOM_LEFT);
 
-        buttonsHBox.getChildren().addAll(backButton,addUserButton);
+        leftSide.getChildren().addAll(scroller, addUserButton, backButton);
 
-        leftSide.getChildren().addAll(scroller, buttonsHBox);
+        backButton.setOnAction( e -> window.loadDashboard());
 
         // UI right side
 
@@ -164,10 +163,6 @@ public class UserManagementScene extends BaseScene {
 
                 Platform.runLater(() -> controller.createUser(userDetailsTriple.getLeft(), userDetailsTriple.getMiddle(), userDetailsTriple.getRight()));
             }
-        });
-
-        backButton.setOnAction(e -> {
-            window.loadDashboard();
         });
 
         viewerButton.setOnAction(e -> {

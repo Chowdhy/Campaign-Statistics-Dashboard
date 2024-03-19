@@ -27,7 +27,7 @@ public class App extends Application {
         //
         //        MainWindow window = new MainWindow(stage, screenWidth, screenHeight);
 
-        var window = new MainWindow(stage, 640, 480);
+        var window = new MainWindow(stage, 720, 580);
 
         stage.show();
     }
