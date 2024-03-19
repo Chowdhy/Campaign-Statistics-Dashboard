@@ -45,7 +45,7 @@ public class HistogramScene extends BaseScene {
 
         histogram.setTitle("Histogram of Click costs(Cost Distribution)");
         xAxis.setLabel("Ranges of click costs");
-        yAxis.setLabel("Frequency");
+        yAxis.setLabel("Frequency Density");
 
     }
 

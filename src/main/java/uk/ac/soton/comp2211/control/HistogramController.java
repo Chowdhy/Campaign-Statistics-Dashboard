@@ -29,14 +29,14 @@ public class HistogramController {
         double binWidth = (maxValue - minValue) / numBins;
 
 
-        // Populate histogram with data
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         for (int i = 0; i < numBins; i++) {
             double binStart = minValue + i * binWidth;
             double binEnd = binStart + binWidth;
             int frequency = countValuesInBin(data, binStart, binEnd);
+            double frequencyPerWidth = (double) frequency / binWidth;
             String binLabel = String.format("%.2f - %.2f", binStart, binEnd);
-            series.getData().add(new XYChart.Data<>(binLabel, frequency));
+            series.getData().add(new XYChart.Data<>(binLabel, frequencyPerWidth));
         }
 
         barChart.getData().add(series);
