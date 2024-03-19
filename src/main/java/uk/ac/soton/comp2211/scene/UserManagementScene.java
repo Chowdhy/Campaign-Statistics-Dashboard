@@ -61,7 +61,7 @@ public class UserManagementScene extends BaseScene {
 
         leftSide.getChildren().addAll(scroller, addUserButton, backButton);
 
-        backButton.setOnAction( e -> window.loadDashboard());
+        backButton.setOnAction( e -> window.switchToDashboard());
 
         // UI right side
 

@@ -42,11 +42,11 @@ public class DashboardScene extends BaseScene {
 
     @Override
     public void initialise() {
-        controller.calculateMetrics("2015-01-01", controller.maxDate());
-        controller.changeChart(lineChart, controller.graphNumProperty().get());
-
         controller.setMaxValues();
         dates = controller.getDates("2015-01-01", controller.maxDate());
+
+        controller.calculateMetrics("2015-01-01", controller.maxDate());
+        controller.changeChart(lineChart, controller.graphNumProperty().get());
 
         startDate.setText(dates.getFirst());
         startDate.setPromptText(dates.getFirst());
@@ -73,11 +73,6 @@ public class DashboardScene extends BaseScene {
 
             new Thread(task).start();
         });
-
-
-
-
-
     }
 
     @Override

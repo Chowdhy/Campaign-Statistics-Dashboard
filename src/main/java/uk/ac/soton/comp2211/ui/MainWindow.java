@@ -16,6 +16,7 @@ public class MainWindow {
     private final Stage stage;
     private BaseScene currentScene;
     private Scene scene;
+    private BaseScene dashboardScene;
 
     public MainWindow(Stage stage, int width, int height) {
         this.stage = stage;
@@ -58,12 +59,26 @@ public class MainWindow {
         Platform.runLater(() -> currentScene.initialise());
     }
 
+    public void switchToDashboard() {
+        if (dashboardScene == null) {
+            dashboardScene = new DashboardScene(this);
+        }
+
+        cleanup();
+
+        scene = dashboardScene.getScene();
+        scene.getStylesheets().add("style.css");
+        stage.setScene(scene);
+    }
+
     public void loadFileInput() {
         loadScene(new FileInputScene(this));
     }
     public void loadDashboard() {
-        loadScene(new DashboardScene(this));
+        dashboardScene = new DashboardScene(this);
+        loadScene(dashboardScene);
     }
+
 
     public void loadLoginScene() {
         loadScene(new LoginScene(this));
