@@ -30,20 +30,26 @@ public class LoginScene extends BaseScene {
         root = new StackPane();
         root.setFocusTraversable(false);
         var loginFields = new VBox();
+        loginFields.getStyleClass().add("container");
         var loginLabel = new Label("Ad Dashboard Login");
+        loginLabel.getStyleClass().add("title");
         var usernameInput = new TextField();
+        usernameInput.getStyleClass().add("input");
         usernameInput.setPromptText("Username");
         usernameInput.textProperty().bindBidirectional(controller.usernameProperty());
         var passwordInput = new PasswordField();
+        passwordInput.getStyleClass().add("input");
         passwordInput.setPromptText("Password");
         passwordInput.textProperty().bindBidirectional(controller.passwordProperty());
         var loginButton = new Button("Login");
+        loginButton.getStyleClass().add("fill-button");
         root.getChildren().add(loginFields);
         loginFields.getChildren().addAll(loginLabel,usernameInput,passwordInput,loginButton);
         root.setPadding(new Insets(200,500,200,500));
         loginFields.setSpacing(10);
         loginFields.setAlignment(Pos.CENTER);
-        VBox.setMargin(loginLabel, new Insets(0, 0, 20, 0));
+        VBox.setMargin(loginLabel, new Insets(0, 0, 10, 0));
+        VBox.setMargin(loginButton, new Insets(10, 0, 0, 0));
 
         loginButton.setOnAction(e ->{
             try {

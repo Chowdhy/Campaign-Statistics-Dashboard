@@ -52,6 +52,7 @@ public class MainWindow {
         nextScene.build();
         currentScene = nextScene;
         scene = currentScene.setScene();
+        scene.getStylesheets().add("style.css");
         stage.setScene(scene);
 
         Platform.runLater(() -> currentScene.initialise());
