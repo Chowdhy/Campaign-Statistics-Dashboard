@@ -9,8 +9,11 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.ui.MainWindow;
@@ -64,6 +67,8 @@ public class DashboardScene extends BaseScene {
 
             new Thread(task).start();
         });
+
+
 
 
 
@@ -134,93 +139,126 @@ public class DashboardScene extends BaseScene {
         splitPane.setDividerPosition(0, 0.7);
         leftSplitPane.setDividerPosition(0,0.68);
 
+
         VBox metricsVBox = new VBox();
-        metricsVBox.setSpacing(11);
+        metricsVBox.setSpacing(1);
 
-        HBox impressionMetric = new HBox();
-        Label impressionsText = new Label(" Num of impressions: ");
-        Label impressionsNum = new Label("");
-        impressionsNum.textProperty().bind(controller.impressionsNumProperty().asString());
-        impressionMetric.getChildren().addAll(impressionsText, impressionsNum);
-
-        HBox uniqueMetric = new HBox();
-        Label uniquesText = new Label(" Num of uniques: ");
-        Label uniquesNum = new Label("");
-        uniquesNum.textProperty().bind(controller.uniqueNumProperty().asString());
-        uniqueMetric.getChildren().addAll(uniquesText, uniquesNum);
-
-        HBox clicksMetric = new HBox();
-        Label clicksText = new Label(" Num of clicks: ");
-        Label clicksNum = new Label("");
-        clicksNum.textProperty().bind(controller.clicksNumProperty().asString());
-        clicksMetric.getChildren().addAll(clicksText, clicksNum);
-
-        HBox bounceMetric = new HBox();
-        Label bouncesText = new Label(" Num of bounces: ");
-        Label bounceNum = new Label("");
-        bounceNum.textProperty().bind(controller.bounceNumProperty().asString());
-        bounceMetric.getChildren().addAll(bouncesText, bounceNum);
-
-        HBox conversionMetric = new HBox();
-        Label conversionsText = new Label(" Num of conversions: ");
-        Label conversionsNum = new Label("");
-        conversionsNum.textProperty().bind(controller.conversionsNumProperty().asString());
-        conversionMetric.getChildren().addAll(conversionsText, conversionsNum);
-
-        HBox totalCostMetric = new HBox();
-        Label totalCostText = new Label(" Total cost: £");
+        VBox totalCostMetric = new VBox();
+        totalCostMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        Label totalCostText = new Label(" Total cost (£)");
         Label totalCostNum = new Label("");
         totalCostNum.textProperty().bind(controller.totalNumProperty().asString());
         totalCostMetric.getChildren().addAll(totalCostText, totalCostNum);
+        totalCostMetric.setAlignment(Pos.CENTER);
+        metricsVBox.getChildren().add(totalCostMetric);
 
-        HBox ctrMetric = new HBox();
-        Label ctrText = new Label(" CTR: ");
+        var splitHBox = new HBox();
+
+        var leftMetrics = new VBox();
+        var rightMetrics = new VBox();
+        splitHBox.getChildren().addAll(leftMetrics,rightMetrics);
+        metricsVBox.getChildren().addAll(splitHBox);
+        splitHBox.setSpacing(1);
+        leftMetrics.setSpacing(1);
+        rightMetrics.setSpacing(1);
+        HBox.setHgrow(rightMetrics, Priority.ALWAYS);
+
+
+
+        VBox impressionMetric = new VBox();
+        impressionMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        Label impressionsText = new Label(" Num of impressions");
+        Label impressionsNum = new Label("");
+        impressionsNum.textProperty().bind(controller.impressionsNumProperty().asString());
+        impressionMetric.getChildren().addAll(impressionsText, impressionsNum);
+        impressionMetric.setAlignment(Pos.CENTER);
+        leftMetrics.getChildren().add(impressionMetric);
+
+        VBox uniqueMetric = new VBox();
+        uniqueMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        Label uniquesText = new Label("Num of uniques");
+        Label uniquesNum = new Label("");
+        uniquesNum.textProperty().bind(controller.uniqueNumProperty().asString());
+        uniqueMetric.getChildren().addAll(uniquesText, uniquesNum);
+        uniqueMetric.setAlignment(Pos.CENTER);
+        leftMetrics.getChildren().add(uniqueMetric);
+
+        VBox clicksMetric = new VBox();
+        clicksMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        Label clicksText = new Label("Num of clicks");
+        Label clicksNum = new Label("");
+        clicksNum.textProperty().bind(controller.clicksNumProperty().asString());
+        clicksMetric.getChildren().addAll(clicksText, clicksNum);
+        clicksMetric.setAlignment(Pos.CENTER);
+        leftMetrics.getChildren().add(clicksMetric);
+
+        VBox bounceMetric = new VBox();
+        bounceMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        Label bouncesText = new Label("Num of bounces");
+        Label bounceNum = new Label("");
+        bounceNum.textProperty().bind(controller.bounceNumProperty().asString());
+        bounceMetric.getChildren().addAll(bouncesText, bounceNum);
+        bounceMetric.setAlignment(Pos.CENTER);
+        leftMetrics.getChildren().add(bounceMetric);
+
+        VBox conversionMetric = new VBox();
+        conversionMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        Label conversionsText = new Label("Num of conversions");
+        Label conversionsNum = new Label("");
+        conversionsNum.textProperty().bind(controller.conversionsNumProperty().asString());
+        conversionMetric.getChildren().addAll(conversionsText, conversionsNum);
+        conversionMetric.setAlignment(Pos.CENTER);
+        leftMetrics.getChildren().add(conversionMetric);
+
+        VBox ctrMetric = new VBox();
+        ctrMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        Label ctrText = new Label("CTR");
         Label ctrNum = new Label("");
         ctrNum.textProperty().bind(controller.ctrNumProperty().asString());
         ctrMetric.getChildren().addAll(ctrText, ctrNum);
+        ctrMetric.setAlignment(Pos.CENTER);
+        rightMetrics.getChildren().add(ctrMetric);
 
-        HBox cpaMetric = new HBox();
-        Label cpaText = new Label(" CPA: £");
+        VBox cpaMetric = new VBox();
+        cpaMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        Label cpaText = new Label("CPA");
         Label cpaNum = new Label();
         cpaNum.textProperty().bind(controller.cpaNumProperty().asString());
         cpaMetric.getChildren().addAll(cpaText, cpaNum);
+        cpaMetric.setAlignment(Pos.CENTER);
+        rightMetrics.getChildren().add(cpaMetric);
 
-        HBox cpcMetric = new HBox();
-        Label cpcText = new Label(" CPC: £");
+        VBox cpcMetric = new VBox();
+        cpcMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        Label cpcText = new Label("CPC");
         Label cpcNum = new Label("");
         cpcNum.textProperty().bind(controller.cpcNumProperty().asString());
         cpcMetric.getChildren().addAll(cpcText, cpcNum);
+        cpcMetric.setAlignment(Pos.CENTER);
+        rightMetrics.getChildren().add(cpcMetric);
 
-        HBox cpmMetric = new HBox();
-        Label cpmText = new Label(" CPM: £");
+        VBox cpmMetric = new VBox();
+        cpmMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        Label cpmText = new Label(" CPM");
         Label cpmNum = new Label("");
         cpmNum.textProperty().bind(controller.cpmNumProperty().asString());
         cpmMetric.getChildren().addAll(cpmText, cpmNum);
+        cpmMetric.setAlignment(Pos.CENTER);
+        rightMetrics.getChildren().add(cpmMetric);
 
-        HBox bounceRateMetric = new HBox();
-        Label bounceRateText = new Label(" Bounce rate: ");
+        VBox bounceRateMetric = new VBox();
+        bounceRateMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        Label bounceRateText = new Label(" Bounce rate");
         Label bounceRateNum = new Label("");
         bounceRateNum.textProperty().bind(controller.bounceRateNumProperty().asString());
         bounceRateMetric.getChildren().addAll(bounceRateText, bounceRateNum);
-
-        Separator separator1 = new Separator();
-        Separator separator2 = new Separator();
-        Separator separator3 = new Separator();
-        Separator separator4 = new Separator();
-        Separator separator5 = new Separator();
-        Separator separator6 = new Separator();
-        Separator separator7 = new Separator();
-        Separator separator8 = new Separator();
-        Separator separator9 = new Separator();
-        Separator separator10 = new Separator();
+        bounceRateMetric.setAlignment(Pos.CENTER);
+        rightMetrics.getChildren().add(bounceRateMetric);
 
 
-        metricsVBox.getChildren().addAll(
-                impressionMetric, separator1, uniqueMetric, separator2, clicksMetric, separator3,
-                bounceMetric, separator4, conversionMetric, separator5, totalCostMetric, separator6,
-                ctrMetric, separator7, cpaMetric, separator8, cpcMetric, separator9,
-                cpmMetric, separator10, bounceRateMetric
-        );
+
+
+
 
 
         splitPane.getItems().addAll(leftSplitPane, metricsVBox);
