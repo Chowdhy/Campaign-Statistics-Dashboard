@@ -39,20 +39,27 @@ public class FileInputScene extends BaseScene {
 
         var containerPane = new StackPane();
         var centreBox = new VBox();
+        centreBox.getStyleClass().add("upload-container");
         containerPane.getChildren().add(centreBox);
         containerPane.setAlignment(Pos.CENTER);
-        containerPane.setPadding(new Insets(100));
         root.getChildren().add(containerPane);
-        centreBox.setAlignment(Pos.TOP_CENTER);
+        centreBox.setAlignment(Pos.CENTER);
         centreBox.setMaxWidth(400);
+        centreBox.setSpacing(10);
+
+        var uploadLabel = new Label("Upload files");
+        uploadLabel.getStyleClass().add("login-title");
 
         var impressionLabel = new Label("Impression Log Path");
         var clickLabel = new Label("Click Log Path");
         var serverLabel = new Label("Server Log Path");
 
         var impressionField = new TextField();
+        impressionField.getStyleClass().add("login-field");
         var clickField = new TextField();
+        clickField.getStyleClass().add("login-field");
         var serverField = new TextField();
+        serverField.getStyleClass().add("login-field");
         impressionField.setEditable(false);
         clickField.setEditable(false);
         serverField.setEditable(false);
@@ -76,29 +83,40 @@ public class FileInputScene extends BaseScene {
         HBox.setHgrow(serverField, Priority.ALWAYS);
 
         var impressionExplorer = new Button("Browse");
+        impressionExplorer.getStyleClass().add("outline-button");
         var clickExplorer = new Button("Browse");
+        clickExplorer.getStyleClass().add("outline-button");
         var serverExplorer = new Button("Browse");
+        serverExplorer.getStyleClass().add("outline-button");
 
         impressionBox.getChildren().addAll(impressionField, impressionExplorer);
         clickBox.getChildren().addAll(clickField, clickExplorer);
         serverBox.getChildren().addAll(serverField, serverExplorer);
 
         var uploadButton = new Button("Upload");
+        uploadButton.getStyleClass().add("fill-button");
 
         ProgressIndicator progressIndicator = new ProgressIndicator();
         progressIndicator.isIndeterminate();
         progressIndicator.setVisible(false);
 
-        Region spacer = new Region(); //Need to change this, it's a hacky way to do it I'm just running out of time lol
-        spacer.setMinHeight(20);
-
         var buttonsHBox = new HBox();
         var backButton = new Button("Back");
+        backButton.getStyleClass().add("fill-button");
         buttonsHBox.getChildren().addAll(backButton,uploadButton);
         buttonsHBox.setSpacing(10);
         buttonsHBox.setAlignment(Pos.CENTER);
 
-        centreBox.getChildren().addAll(impressionLabel, impressionBox, clickLabel, clickBox, serverLabel, serverBox, buttonsHBox,spacer,progressIndicator);
+        VBox impressionContainer = new VBox();
+        impressionContainer.getChildren().addAll(impressionLabel, impressionBox);
+
+        VBox clickContainer = new VBox();
+        impressionContainer.getChildren().addAll(clickLabel, clickBox);
+
+        VBox serverContainer = new VBox();
+        impressionContainer.getChildren().addAll(serverLabel, serverBox);
+
+        centreBox.getChildren().addAll(uploadLabel, impressionContainer, clickContainer, serverContainer, buttonsHBox, progressIndicator);
 
         impressionExplorer.setOnAction(event -> {
            event.consume();

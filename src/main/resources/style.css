@@ -1,4 +1,12 @@
-.container {
+.upload-container {
+    -fx-background-color: white;
+    -fx-min-width: 700px;
+    -fx-padding: 70px 120px 30px 120px;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);
+}
+
+.login-container {
     -fx-background-color: white;
     -fx-min-width: 700px;
     -fx-padding: 0px 120px;
@@ -6,11 +14,11 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);
 }
 
-.title {
+.login-title {
     -fx-font-size: 24px;
 }
 
-.input {
+.login-field {
     -fx-padding: 6px 12px;
     -fx-font-size: 16px;
     -fx-font-weight: 400;
@@ -26,7 +34,7 @@
     -fx-transition: -fx-border-color 0.15s ease-in-out, -fx-box-shadow 0.15s ease-in-out;
 }
 
-.input:focused {
+.login-field:focused {
     -fx-text-fill: #212529;
     -fx-background-color: #ffffff;
     -fx-border-color: #86b7fe;
@@ -38,7 +46,7 @@
 }
 
 .fill-button {
-    -fx-cursor: hand; /* JavaFX equivalent of cursor: pointer */
+    -fx-cursor: hand;
     -fx-outline: 0;
     -fx-text-fill: #ffffff;
     -fx-background-color: #0d6efd;
@@ -50,7 +58,7 @@
     -fx-border-width: 1px;
     -fx-padding: 6px 12px;
     -fx-font-size: 16px;
-    -fx-border-radius: 3px; /* JavaFX equivalent of border-radius */
+    -fx-border-radius: 3px;
     -fx-transition: -fx-text-fill 0.15s ease-in-out, -fx-background-color 0.15s ease-in-out, -fx-border-color 0.15s ease-in-out, -fx-box-shadow 0.15s ease-in-out;
 }
 
@@ -58,4 +66,29 @@
     -fx-text-fill: #ffffff;
     -fx-background-color: #0b5ed7;
     -fx-border-color: #0a58ca;
+}
+
+.outline-button {
+    -fx-cursor: hand;
+    -fx-outline: 0;
+    -fx-display: inline-block;
+    -fx-font-weight: 400;
+    -fx-line-height: 1.5;
+    -fx-text-align: center;
+    -fx-background-color: transparent;
+    -fx-border-width: 1px;
+    -fx-border-color: transparent;
+    -fx-padding: 6px 12px;
+    -fx-font-size: 1rem;
+    -fx-border-radius: 2px;
+    -fx-transition-property: -fx-text-fill, -fx-background-color, -fx-border-color, -fx-box-shadow;
+    -fx-transition-duration: 0.15s;
+    -fx-text-fill: #0d6efd;
+    -fx-border-color: #0d6efd;
+}
+
+.outline-button:hover {
+    -fx-text-fill: #fff;
+    -fx-background-color: #0d6efd;
+    -fx-border-color: #0d6efd;
 }
