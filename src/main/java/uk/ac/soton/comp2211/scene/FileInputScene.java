@@ -1,6 +1,7 @@
 package uk.ac.soton.comp2211.scene;
 
 import java.io.File;
+import java.util.Stack;
 
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
@@ -29,20 +30,20 @@ public class FileInputScene extends BaseScene {
     public void build() {
         FileInputController controller = new FileInputController();
 
-        root = new VBox();
+        root = new StackPane();
 
-        var optionsDrop = new Menu("Options");
-        var menuBar = new MenuBar(optionsDrop);
+        var mainVBox = new VBox();
 
-        root.getChildren().add(menuBar);
-        VBox.setVgrow(menuBar, Priority.NEVER);
+        root.getChildren().add(mainVBox);
+        mainVBox.setPadding(new Insets(200,0,0,0));
+
 
         var containerPane = new StackPane();
         var centreBox = new VBox();
         centreBox.getStyleClass().add("upload-container");
         containerPane.getChildren().add(centreBox);
         containerPane.setAlignment(Pos.CENTER);
-        root.getChildren().add(containerPane);
+        mainVBox.getChildren().add(containerPane);
         centreBox.setAlignment(Pos.CENTER);
         centreBox.setMaxWidth(400);
         centreBox.setSpacing(10);
