@@ -91,31 +91,25 @@ public class DashboardScene extends BaseScene {
         root.getChildren().add(mainVBox);
 
 
-        var userManagementMenu = new Menu("User Management");
-        var addUserItem = new MenuItem("Add user");
-        var modifyUserItem = new MenuItem("Modify user");
-        var deleteUserItem = new MenuItem("Delete user");
-
-        var chartSettingsMenu = new Menu("Chart settings");
-        var fileSettingsMenu = new Menu("Upload files");
-        var fileSettingsMenuItem = new MenuItem("Upload");
-        var exportMenu = new Menu("Export");
-
-        var logoutMenu = new Menu("Logout");
+        var optionsMenu = new Menu("Options");
+        var uploadMenuItem = new MenuItem("Upload files");
+        var userMenuItem = new MenuItem("User management");
         var logoutMenuItem = new MenuItem("Logout");
-        logoutMenu.getItems().add(logoutMenuItem);
-
-        userManagementMenu.getItems().addAll(addUserItem,modifyUserItem,deleteUserItem);
-        fileSettingsMenu.getItems().add(fileSettingsMenuItem);
+        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem,logoutMenuItem);
 
 
-        MenuBar menuBar = new MenuBar(fileSettingsMenu,userManagementMenu,chartSettingsMenu,exportMenu,logoutMenu);
+        var exportMenu = new Menu("Export");
+        var logsMenuItem = new MenuItem("Logs");
+        var graphMenuItem = new MenuItem("Graph");
+        var reportMenuItem = new MenuItem("Report");
+        exportMenu.getItems().addAll(graphMenuItem,reportMenuItem,logsMenuItem);
+
+
+
+        MenuBar menuBar = new MenuBar(optionsMenu,exportMenu);
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
-            userManagementMenu.setDisable(true);
-            exportMenu.setDisable(true);
+            logsMenuItem.setDisable(true);
         }else if(App.getUser().getPermissions().equals(Permissions.VIEWER)){
-            userManagementMenu.setDisable(true);
-            fileSettingsMenu.setDisable(true);
             exportMenu.setDisable(true);
         }
 
@@ -135,26 +129,21 @@ public class DashboardScene extends BaseScene {
 
         mainVBox.getChildren().add(menuBar);
 
-        fileSettingsMenuItem.setOnAction( e->{
-            window.loadFileInput();
-        });
 
-        addUserItem.setOnAction(e -> {
-            window.loadAddUserScene();
-        });
-
-        modifyUserItem.setOnAction(e -> {
-            window.loadUserManagementScene();
-        });
-
-        deleteUserItem.setOnAction(e -> {
-            window.loadDeleteUserScene();
-        });
 
         logoutMenuItem.setOnAction(e -> {
             App.setUser(null);
             window.loadLoginScene();
         });
+
+        uploadMenuItem.setOnAction(e -> {
+            window.loadFileInput();
+        });
+
+        userMenuItem.setOnAction(e -> {
+            window.loadModifyUserScene();
+        });
+
 
 
         SplitPane splitPane = new SplitPane();
