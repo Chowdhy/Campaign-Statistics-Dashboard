@@ -141,7 +141,7 @@ public class DashboardScene extends BaseScene {
         });
 
         userMenuItem.setOnAction(e -> {
-            window.loadModifyUserScene();
+            window.loadUserManagementScene();
         });
 
 
@@ -417,11 +417,16 @@ public class DashboardScene extends BaseScene {
         singlePageBounceButton.setOnAction(e -> changeBounce(defineBounce));
 
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
-        choiceBox.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate");
+        choiceBox.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate","Cost Distribution Histogram");
         choiceBox.getSelectionModel().select(0);
-        choiceBox.setOnAction(e -> {
-            controller.graphNumProperty().set(choiceBox.getValue());
-            controller.changeChart(lineChart, controller.graphNumProperty().get());
+        choiceBox.setOnAction(e2 -> {
+            String selectedValue = choiceBox.getValue();
+            if (selectedValue.equals("Cost Distribution Histogram")) {
+                window.loadHistogramScene();
+            } else {
+                controller.graph2NumProperty().set(selectedValue);
+                controller.changeChart(lineChart2, selectedValue);
+            }
         });
 
         ToggleGroup timeToggleGroup = new ToggleGroup();
@@ -469,11 +474,16 @@ public class DashboardScene extends BaseScene {
         lineChart2.setLegendVisible(false);
 
         ChoiceBox<String> choiceBox2 = new ChoiceBox<>();
-        choiceBox2.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate");
+        choiceBox2.getItems().addAll("Cost Distribution Histogram","Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate","Cost Distribution Histogram");
         choiceBox2.getSelectionModel().select(0);
         choiceBox2.setOnAction(e2 -> {
-            controller.graph2NumProperty().set(choiceBox2.getValue());
-            controller.changeChart(lineChart2, controller.graph2NumProperty().get());
+            String selectedValue = choiceBox2.getValue();
+            if (selectedValue.equals("Cost Distribution Histogram")) {
+                window.loadHistogramScene();
+            } else {
+                controller.graph2NumProperty().set(selectedValue);
+                controller.changeChart(lineChart2, selectedValue);
+            }
         });
 
         Button compare = new Button("Compare");
@@ -490,12 +500,9 @@ public class DashboardScene extends BaseScene {
             }
         });
 
-        Button costDistribution = new Button("Cost Distribution");
-        costDistribution.setOnAction(e -> {
-            window.loadHistogramScene();
-        });
 
-        graphOptions.getChildren().addAll(compare, graphTime, choiceBox, costDistribution);
+
+        graphOptions.getChildren().addAll(compare, graphTime, choiceBox);
         graphOptions.setAlignment(Pos.CENTER);
         graphOptions.setSpacing(10);
 
