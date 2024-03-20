@@ -12,7 +12,7 @@ import uk.ac.soton.comp2211.control.LoginController;
 import uk.ac.soton.comp2211.ui.Dialogs;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
-public class LoginScene extends BaseScene {
+public class LoginScene extends MainScene {
 
     public LoginScene(MainWindow window){
         super(window);

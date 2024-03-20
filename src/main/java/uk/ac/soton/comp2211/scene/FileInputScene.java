@@ -1,7 +1,6 @@
 package uk.ac.soton.comp2211.scene;
 
 import java.io.File;
-import java.util.Stack;
 
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
@@ -10,14 +9,13 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import uk.ac.soton.comp2211.control.FileInputController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
-public class FileInputScene extends BaseScene {
+public class FileInputScene extends MainScene {
     public FileInputScene(MainWindow window) {
         super(window);
     }

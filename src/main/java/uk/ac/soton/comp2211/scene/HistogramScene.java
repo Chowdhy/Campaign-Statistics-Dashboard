@@ -11,7 +11,7 @@ import uk.ac.soton.comp2211.ui.MainWindow;
 
 
 
-public class HistogramScene extends BaseScene {
+public class HistogramScene extends MainScene {
     BarChart<String, Number> histogram;
     HistogramController hst = new HistogramController();
 
