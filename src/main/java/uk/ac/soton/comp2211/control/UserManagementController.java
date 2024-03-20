@@ -26,26 +26,32 @@ public class UserManagementController {
     public void createUser(String username, String password, Permissions permissions) {
         try {
             var success = credentials.addUser(username, password, permissions);
+
+            updateUserList();
+
+            scene.promptSuccessfulCreate("Successfully created user");
         } catch (UserAlreadyExistsException | IncorrectPermissionsException e) {
             Dialogs.error(e);
         }
-
-        updateUserList();
     }
 
     public void deleteSelectedUser() {
         try {
             var success = credentials.deleteUser(selectedUser.get());
+
+            selectedUser.set(null);
+
+            updateUserList();
         } catch (UserDoesntExistException | IncorrectPermissionsException e) {
             Dialogs.error(e);
         }
-
-        updateUserList();
     }
 
     public void updateSelectedPassword(String password) {
         try {
             credentials.resetPassword(selectedUser.get(), password);
+
+            updateSelectedUser();
         } catch (UserDoesntExistException | IncorrectPermissionsException e) {
             Dialogs.error(e);
         }
@@ -54,13 +60,13 @@ public class UserManagementController {
     public void updateSelectedPermissions(Permissions permissions) {
         try {
             credentials.updatePermissions(selectedUser.get(), permissions);
+
+            updateUserList();
+
+            updateSelectedUser();
         } catch (UserDoesntExistException | IncorrectPermissionsException e) {
             Dialogs.error(e);
         }
-
-        userList = credentials.getUserList();
-
-        scene.updateSelectedUser(credentials.getPermissions(selectedUser.get()));
     }
 
     public void updateUserList() {
@@ -69,7 +75,7 @@ public class UserManagementController {
     }
 
     public void updateSelectedUser() {
-        scene.updateSelectedUser(userList.get(selectedUser.get()));
+        scene.updateSelectedUser("Succesfully updated user");
     }
 
     public StringProperty selectedUserProperty() {
