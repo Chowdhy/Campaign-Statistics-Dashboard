@@ -31,25 +31,12 @@ public class FileInputScene extends BaseScene {
         FileInputController controller = new FileInputController();
 
         root = new StackPane();
+        root.setPadding(new Insets(225,500,225,500));
 
-        var mainVBox = new VBox();
-
-        root.getChildren().add(mainVBox);
-        mainVBox.setPadding(new Insets(200,0,0,0));
-
-
-        var containerPane = new StackPane();
         var centreBox = new VBox();
-        centreBox.getStyleClass().add("upload-container");
-        containerPane.getChildren().add(centreBox);
-        containerPane.setAlignment(Pos.CENTER);
-        mainVBox.getChildren().add(containerPane);
-        centreBox.setAlignment(Pos.CENTER);
-        centreBox.setMaxWidth(400);
-        centreBox.setSpacing(10);
 
         var uploadLabel = new Label("Upload files");
-        uploadLabel.getStyleClass().add("login-title");
+        uploadLabel.getStyleClass().add("form-title");
 
         var impressionLabel = new Label("Impression Log Path");
         var clickLabel = new Label("Click Log Path");
@@ -103,7 +90,7 @@ public class FileInputScene extends BaseScene {
 
         var buttonsHBox = new HBox();
         var backButton = new Button("Back");
-        backButton.getStyleClass().add("fill-button");
+        backButton.getStyleClass().add("outline-button");
         buttonsHBox.getChildren().addAll(backButton,uploadButton);
         buttonsHBox.setSpacing(10);
         buttonsHBox.setAlignment(Pos.CENTER);
@@ -117,7 +104,11 @@ public class FileInputScene extends BaseScene {
         VBox serverContainer = new VBox();
         impressionContainer.getChildren().addAll(serverLabel, serverBox);
 
+        centreBox.getStyleClass().add("upload-container");
         centreBox.getChildren().addAll(uploadLabel, impressionContainer, clickContainer, serverContainer, buttonsHBox, progressIndicator);
+        centreBox.setAlignment(Pos.CENTER);
+        centreBox.setSpacing(10);
+        root.getChildren().add(centreBox);
 
         impressionExplorer.setOnAction(event -> {
            event.consume();

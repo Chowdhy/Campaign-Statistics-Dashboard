@@ -5,6 +5,7 @@ import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -69,7 +70,7 @@ public class DashboardScene extends BaseScene {
 
             task.setOnSucceeded(event -> progressIndicator.setVisible(false));
 
-            tooltip1.setText("Page range: 0-" + controller.maxPage() + "\nTime range: 0-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce data");
+            tooltip1.setText("Page range: 1-" + controller.maxPage() + "\nTime range: 1-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce data");
 
             new Thread(task).start();
         });
@@ -108,13 +109,13 @@ public class DashboardScene extends BaseScene {
             exportMenu.setDisable(true);
         }
 
-        Circle infoIcon1 = new Circle(6, Color.BLUE);
+        Circle infoIcon1 = new Circle(8, Color.BLUE);
         infoIcon1.setStroke(Color.BLACK);
 
         tooltip1 = new Tooltip();
 
         Text iText = new Text("i");
-        iText.setFont(Font.font(6));
+        iText.setFont(Font.font(16));
         iText.setFill(Color.WHITE);
 
 
@@ -146,7 +147,7 @@ public class DashboardScene extends BaseScene {
         VBox.setVgrow(splitPane,Priority.ALWAYS);
         SplitPane leftSplitPane = new SplitPane();
 
-        splitPane.setDividerPosition(0, 0.7);
+        splitPane.setDividerPosition(0, 0.72);
         leftSplitPane.setDividerPosition(0,0.68);
 
 
@@ -158,9 +159,11 @@ public class DashboardScene extends BaseScene {
         VBox totalCostMetric = new VBox();
         VBox.setVgrow(totalCostMetric,Priority.ALWAYS);
         totalCostMetric.setMaxHeight(200);
-        totalCostMetric.setStyle("-fx-background-color: LIGHTGRAY;");
-        Label totalCostText = new Label(" Total cost (£)");
+        totalCostMetric.setStyle("-fx-background-color: #409aff;");
+        Label totalCostText = new Label("Total cost (£)");
+        totalCostText.getStyleClass().add("big-metric-title");
         Label totalCostNum = new Label("");
+        totalCostNum.getStyleClass().add("big-metric-val");
         totalCostNum.textProperty().bind(controller.totalNumProperty().asString());
         totalCostMetric.getChildren().addAll(totalCostText, totalCostNum);
         totalCostMetric.setAlignment(Pos.CENTER);
@@ -186,9 +189,11 @@ public class DashboardScene extends BaseScene {
 
         VBox impressionMetric = new VBox();
         VBox.setVgrow(impressionMetric,Priority.ALWAYS);
-        impressionMetric.setStyle("-fx-background-color: LIGHTGRAY;");
-        Label impressionsText = new Label(" Num of impressions");
+        impressionMetric.setStyle("-fx-background-color: #7ab9ff;");
+        Label impressionsText = new Label("Num of impressions");
+        impressionsText.getStyleClass().add("metric-title");
         Label impressionsNum = new Label("");
+        impressionsNum.getStyleClass().add("metric-val");
         impressionsNum.textProperty().bind(controller.impressionsNumProperty().asString());
         impressionMetric.getChildren().addAll(impressionsText, impressionsNum);
         impressionMetric.setAlignment(Pos.CENTER);
@@ -196,9 +201,11 @@ public class DashboardScene extends BaseScene {
 
         VBox uniqueMetric = new VBox();
         VBox.setVgrow(uniqueMetric,Priority.ALWAYS);
-        uniqueMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        uniqueMetric.setStyle("-fx-background-color: #7ab9ff;");
         Label uniquesText = new Label("Num of uniques");
+        uniquesText.getStyleClass().add("metric-title");
         Label uniquesNum = new Label("");
+        uniquesNum.getStyleClass().add("metric-val");
         uniquesNum.textProperty().bind(controller.uniqueNumProperty().asString());
         uniqueMetric.getChildren().addAll(uniquesText, uniquesNum);
         uniqueMetric.setAlignment(Pos.CENTER);
@@ -206,9 +213,11 @@ public class DashboardScene extends BaseScene {
 
         VBox clicksMetric = new VBox();
         VBox.setVgrow(clicksMetric,Priority.ALWAYS);
-        clicksMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        clicksMetric.setStyle("-fx-background-color: #7ab9ff;");
         Label clicksText = new Label("Num of clicks");
+        clicksText.getStyleClass().add("metric-title");
         Label clicksNum = new Label("");
+        clicksNum.getStyleClass().add("metric-val");
         clicksNum.textProperty().bind(controller.clicksNumProperty().asString());
         clicksMetric.getChildren().addAll(clicksText, clicksNum);
         clicksMetric.setAlignment(Pos.CENTER);
@@ -216,9 +225,11 @@ public class DashboardScene extends BaseScene {
 
         VBox bounceMetric = new VBox();
         VBox.setVgrow(bounceMetric,Priority.ALWAYS);
-        bounceMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        bounceMetric.setStyle("-fx-background-color: #7ab9ff;");
         Label bouncesText = new Label("Num of bounces");
+        bouncesText.getStyleClass().add("metric-title");
         Label bounceNum = new Label("");
+        bounceNum.getStyleClass().add("metric-val");
         bounceNum.textProperty().bind(controller.bounceNumProperty().asString());
         bounceMetric.getChildren().addAll(bouncesText, bounceNum);
         bounceMetric.setAlignment(Pos.CENTER);
@@ -226,9 +237,11 @@ public class DashboardScene extends BaseScene {
 
         VBox conversionMetric = new VBox();
         VBox.setVgrow(conversionMetric,Priority.ALWAYS);
-        conversionMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        conversionMetric.setStyle("-fx-background-color: #7ab9ff;");
         Label conversionsText = new Label("Num of conversions");
+        conversionsText.getStyleClass().add("metric-title");
         Label conversionsNum = new Label("");
+        conversionsNum.getStyleClass().add("metric-val");
         conversionsNum.textProperty().bind(controller.conversionsNumProperty().asString());
         conversionMetric.getChildren().addAll(conversionsText, conversionsNum);
         conversionMetric.setAlignment(Pos.CENTER);
@@ -236,9 +249,11 @@ public class DashboardScene extends BaseScene {
 
         VBox ctrMetric = new VBox();
         VBox.setVgrow(ctrMetric,Priority.ALWAYS);
-        ctrMetric.setStyle("-fx-background-color: LIGHTGRAY;");
+        ctrMetric.setStyle("-fx-background-color: #7ab9ff;");
         Label ctrText = new Label("CTR");
+        ctrText.getStyleClass().add("metric-title");
         Label ctrNum = new Label("");
+        ctrNum.getStyleClass().add("metric-val");
         ctrNum.textProperty().bind(controller.ctrNumProperty().asString());
         ctrMetric.getChildren().addAll(ctrText, ctrNum);
         ctrMetric.setAlignment(Pos.CENTER);
@@ -246,9 +261,11 @@ public class DashboardScene extends BaseScene {
 
         VBox cpaMetric = new VBox();
         VBox.setVgrow(cpaMetric,Priority.ALWAYS);
-        cpaMetric.setStyle("-fx-background-color: LIGHTGRAY;");
-        Label cpaText = new Label("CPA");
+        cpaMetric.setStyle("-fx-background-color: #7ab9ff;");
+        Label cpaText = new Label("CPA (£)");
+        cpaText.getStyleClass().add("metric-title");
         Label cpaNum = new Label();
+        cpaNum.getStyleClass().add("metric-val");
         cpaNum.textProperty().bind(controller.cpaNumProperty().asString());
         cpaMetric.getChildren().addAll(cpaText, cpaNum);
         cpaMetric.setAlignment(Pos.CENTER);
@@ -256,9 +273,11 @@ public class DashboardScene extends BaseScene {
 
         VBox cpcMetric = new VBox();
         VBox.setVgrow(cpcMetric,Priority.ALWAYS);
-        cpcMetric.setStyle("-fx-background-color: LIGHTGRAY;");
-        Label cpcText = new Label("CPC");
+        cpcMetric.setStyle("-fx-background-color: #7ab9ff;");
+        Label cpcText = new Label("CPC (£)");
+        cpcText.getStyleClass().add("metric-title");
         Label cpcNum = new Label("");
+        cpcNum.getStyleClass().add("metric-val");
         cpcNum.textProperty().bind(controller.cpcNumProperty().asString());
         cpcMetric.getChildren().addAll(cpcText, cpcNum);
         cpcMetric.setAlignment(Pos.CENTER);
@@ -266,9 +285,11 @@ public class DashboardScene extends BaseScene {
 
         VBox cpmMetric = new VBox();
         VBox.setVgrow(cpmMetric,Priority.ALWAYS);
-        cpmMetric.setStyle("-fx-background-color: LIGHTGRAY;");
-        Label cpmText = new Label(" CPM");
+        cpmMetric.setStyle("-fx-background-color: #7ab9ff;");
+        Label cpmText = new Label("CPM (£)");
+        cpmText.getStyleClass().add("metric-title");
         Label cpmNum = new Label("");
+        cpmNum.getStyleClass().add("metric-val");
         cpmNum.textProperty().bind(controller.cpmNumProperty().asString());
         cpmMetric.getChildren().addAll(cpmText, cpmNum);
         cpmMetric.setAlignment(Pos.CENTER);
@@ -276,19 +297,17 @@ public class DashboardScene extends BaseScene {
 
         VBox bounceRateMetric = new VBox();
         VBox.setVgrow(bounceRateMetric,Priority.ALWAYS);
-        bounceRateMetric.setStyle("-fx-background-color: LIGHTGRAY;");
-        Label bounceRateText = new Label(" Bounce rate");
+        bounceRateMetric.setStyle("-fx-background-color: #7ab9ff;");
+        Label bounceRateText = new Label("Bounce rate");
+        bounceRateText.getStyleClass().add("metric-title");
         Label bounceRateNum = new Label("");
+        bounceRateNum.getStyleClass().add("metric-val");
         bounceRateNum.textProperty().bind(controller.bounceRateNumProperty().asString());
         bounceRateMetric.getChildren().addAll(bounceRateText, bounceRateNum);
         bounceRateMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(bounceRateMetric);
 
-
-
-
         splitPane.getItems().addAll(leftSplitPane, metricsVBox);
-
 
         HBox filterHBox = new HBox();
         filterHBox.setSpacing(20);
@@ -299,15 +318,18 @@ public class DashboardScene extends BaseScene {
         VBox ageGroupFilters = new VBox();
 
         Label bounceLabel = new Label("Bounce");
+        bounceLabel.getStyleClass().add("filter-title");
         ToggleGroup group = new ToggleGroup();
         RadioButton timeBounceButton = new RadioButton("Time");
+        timeBounceButton.getStyleClass().add("filter-text");
         timeBounceButton.setToggleGroup(group);
         timeBounceButton.setSelected(true);
         RadioButton singlePageBounceButton = new RadioButton("Pages");
+        singlePageBounceButton.getStyleClass().add("filter-text");
         singlePageBounceButton.setToggleGroup(group);
         TextField defineBounce = new TextField();
-        defineBounce.setPrefWidth(35);
-        defineBounce.setPromptText("0-" + controller.maxTime());
+        defineBounce.setPrefWidth(45);
+        defineBounce.setPromptText("1-" + controller.maxTime());
         defineBounce.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
         defineBounce.textProperty().bindBidirectional(controller.timeValProperty());
         var inputAndTips = new HBox();
@@ -317,55 +339,75 @@ public class DashboardScene extends BaseScene {
         bounceFilter.setSpacing(5);
 
         Label genderLabel = new Label("Gender");
+        genderLabel.getStyleClass().add("filter-title");
         CheckBox maleButton = new CheckBox("Male");
+        maleButton.getStyleClass().add("filter-text");
         maleButton.setSelected(true);
         CheckBox femaleButton = new CheckBox("Female");
+        femaleButton.getStyleClass().add("filter-text");
         femaleButton.setSelected(true);
         genderFilters.getChildren().addAll(genderLabel,maleButton,femaleButton);
         genderFilters.setSpacing(5);
 
         Label incomeLabel = new Label("Income");
+        incomeLabel.getStyleClass().add("filter-title");
         CheckBox lowButton = new CheckBox("Low");
+        lowButton.getStyleClass().add("filter-text");
         lowButton.setSelected(true);
         CheckBox mediumButton = new CheckBox("Medium");
+        mediumButton.getStyleClass().add("filter-text");
         mediumButton.setSelected(true);
         CheckBox highButton = new CheckBox("High");
+        highButton.getStyleClass().add("filter-text");
         highButton.setSelected(true);
         incomeFilters.getChildren().addAll(incomeLabel,lowButton,mediumButton,highButton);
         incomeFilters.setSpacing(5);
 
         Label ageGroupLabel = new Label("Age group");
+        ageGroupLabel.getStyleClass().add("filter-title");
         CheckBox under25Button = new CheckBox("Under 25");
+        under25Button.getStyleClass().add("filter-text");
         under25Button.setSelected(true);
         CheckBox twentiesButton = new CheckBox("25-34");
+        twentiesButton.getStyleClass().add("filter-text");
         twentiesButton.setSelected(true);
         CheckBox thirtiesButton = new CheckBox("35-44");
+        thirtiesButton.getStyleClass().add("filter-text");
         thirtiesButton.setSelected(true);
         CheckBox fortiesButton = new CheckBox("45-54");
+        fortiesButton.getStyleClass().add("filter-text");
         fortiesButton.setSelected(true);
         CheckBox above54Button = new CheckBox("Above 54");
+        above54Button.getStyleClass().add("filter-text");
         above54Button.setSelected(true);
         ageGroupFilters.getChildren().addAll(ageGroupLabel,under25Button,twentiesButton,thirtiesButton,fortiesButton,above54Button);
         ageGroupFilters.setSpacing(5);
 
         Label contextLabel = new Label("Context");
+        contextLabel.getStyleClass().add("filter-title");
         CheckBox socialMediaButton = new CheckBox("Social media");
+        socialMediaButton.getStyleClass().add("filter-text");
         socialMediaButton.setSelected(true);
         CheckBox shoppingButton = new CheckBox("Shopping");
+        shoppingButton.getStyleClass().add("filter-text");
         shoppingButton.setSelected(true);
         CheckBox blogButton = new CheckBox("Blog");
+        blogButton.getStyleClass().add("filter-text");
         blogButton.setSelected(true);
         CheckBox newsButton = new CheckBox("News");
+        newsButton.getStyleClass().add("filter-text");
         newsButton.setSelected(true);
         CheckBox hobbiesButton = new CheckBox("Hobbies");
+        hobbiesButton.getStyleClass().add("filter-text");
         hobbiesButton.setSelected(true);
         CheckBox travelButton = new CheckBox("Travel");
+        travelButton.getStyleClass().add("filter-text");
         travelButton.setSelected(true);
         contextFilters.getChildren().addAll(contextLabel,socialMediaButton,shoppingButton,blogButton,newsButton,hobbiesButton,travelButton);
         contextFilters.setSpacing(5);
 
         filterHBox.getChildren().addAll(bounceFilter,genderFilters,incomeFilters,ageGroupFilters,contextFilters);
-        filterHBox.setSpacing(25);
+        filterHBox.setSpacing(50);
 
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
@@ -375,12 +417,17 @@ public class DashboardScene extends BaseScene {
 
         VBox chartVbox = new VBox();
         chartVbox.setPadding(new Insets(5, 0, 0, 0));
+        chartVbox.setSpacing(10);
+        chartVbox.setAlignment(Pos.CENTER);
 
         HBox dateSelectionBar = new HBox();
         startDate = new TextField();
+        startDate.getStyleClass().add("login-field");
         startDate.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
         endDate = new TextField();endDate.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
+        endDate.getStyleClass().add("login-field");
         submit = new Button("Submit");
+        submit.getStyleClass().add("fill-button");
 
         dateSelectionBar.getChildren().addAll(startDate, endDate, submit);
         dateSelectionBar.setAlignment(Pos.CENTER);
@@ -411,6 +458,11 @@ public class DashboardScene extends BaseScene {
         singlePageBounceButton.selectedProperty().bindBidirectional(controller.pageProperty());
         singlePageBounceButton.setOnAction(e -> changeBounce(defineBounce));
 
+        CategoryAxis xHAxis = new CategoryAxis();
+        NumberAxis yHAxis = new NumberAxis();
+        BarChart<String, Number> histogram = new BarChart<>(xHAxis, yHAxis);
+        histogram.setLegendVisible(false);
+
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
         choiceBox.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate","Cost Distribution Histogram");
         choiceBox.getSelectionModel().select(0);
@@ -428,6 +480,7 @@ public class DashboardScene extends BaseScene {
         HBox graphTime = new HBox();
 
         ToggleButton hour = new ToggleButton("Hour");
+        hour.getStyleClass().add("outline-button");
         hour.setToggleGroup(timeToggleGroup);
         hour.setOnAction(e -> {
             controller.buttonValProperty().set("hour");
@@ -438,6 +491,7 @@ public class DashboardScene extends BaseScene {
         });
 
         ToggleButton day = new ToggleButton("Day");
+        day.getStyleClass().add("outline-button");
         day.setSelected(true);
         day.setToggleGroup(timeToggleGroup);
         day.setOnAction(e -> {
@@ -449,6 +503,7 @@ public class DashboardScene extends BaseScene {
         });
 
         ToggleButton week = new ToggleButton("Week");
+        week.getStyleClass().add("outline-button");
         week.setToggleGroup(timeToggleGroup);
         week.setOnAction(e -> {
             controller.buttonValProperty().set("week");
@@ -459,7 +514,6 @@ public class DashboardScene extends BaseScene {
         });
 
         graphTime.getChildren().addAll(hour, day, week);
-
         HBox graphOptions = new HBox();
 
         CategoryAxis xAxis2 = new CategoryAxis();
@@ -469,7 +523,7 @@ public class DashboardScene extends BaseScene {
         lineChart2.setLegendVisible(false);
 
         ChoiceBox<String> choiceBox2 = new ChoiceBox<>();
-        choiceBox2.getItems().addAll("Cost Distribution Histogram","Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate","Cost Distribution Histogram");
+        choiceBox2.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate","Cost Distribution Histogram");
         choiceBox2.getSelectionModel().select(0);
         choiceBox2.setOnAction(e2 -> {
             String selectedValue = choiceBox2.getValue();
@@ -482,19 +536,19 @@ public class DashboardScene extends BaseScene {
         });
 
         Button compare = new Button("Compare");
+        compare.getStyleClass().add("fill-button");
         compare.setOnAction(e -> {
             controller.compareProperty().set(!controller.compareProperty().get());
 
             if (controller.compareProperty().get()) {
                 controller.changeChart(lineChart2, controller.graph2NumProperty().get());
-                chartVbox.getChildren().add(1, lineChart2);
+                chartVbox.getChildren().add(2, lineChart2);
                 graphOptions.getChildren().add(choiceBox2);
             } else {
                 chartVbox.getChildren().remove(lineChart2);
                 graphOptions.getChildren().remove(choiceBox2);
             }
         });
-
 
 
         graphOptions.getChildren().addAll(compare, graphTime, choiceBox);
@@ -504,8 +558,11 @@ public class DashboardScene extends BaseScene {
         chartVbox.getChildren().add(dateSelectionBar);
         chartVbox.getChildren().add(lineChart);
         chartVbox.getChildren().add(graphOptions);
+        VBox.setVgrow(chartVbox, Priority.ALWAYS);
+        chartVbox.getStyleClass().add("graphContainer");
 
         filter = new Button("Filter");
+        filter.getStyleClass().add("filter-button");
 
         var filterButtonHBox = new HBox();
 
@@ -515,10 +572,6 @@ public class DashboardScene extends BaseScene {
 
         filterButtonHBox.getChildren().addAll(filter,progressIndicator);
         filterButtonHBox.setAlignment(Pos.CENTER);
-
-
-
-
 
         VBox bottom = new VBox();
         bottom.setAlignment(Pos.CENTER);
@@ -531,6 +584,7 @@ public class DashboardScene extends BaseScene {
 
 
         leftSplitPane.setOrientation(Orientation.VERTICAL);
+        bottom.setStyle("-fx-background-color: white;");
         leftSplitPane.getItems().add(chartVbox);
         leftSplitPane.getItems().add(bottom);
 
