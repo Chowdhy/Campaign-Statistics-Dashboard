@@ -1,0 +1,86 @@
+.root {
+    -fx-background-color: #5c6370;
+    -fx-font-family: Consolas, "Times New Roman";
+    -fx-font-size: 12px;
+}
+.label {
+    -fx-text-fill:  #2bbac5;
+}
+
+.button {
+    -fx-border-radius: 5px;
+    -fx-border-color: white;
+    -fx-text-fill: #61afef;
+    -fx-alignment: center;
+    -fx-background-color: transparent;
+    -fx-background-radius: 5px;
+}
+
+.button:hover {
+    -fx-background-color: lightblue;
+    -fx-text-fill: #c678dd;
+    -fx-transition-duration: 0.3s;
+}
+
+.button:pressed {
+    -fx-background-color: cornflowerblue;
+    -fx-text-fill: black;
+    -fx-transition-duration: 0.3s;
+}
+
+.menu-button .label {
+    -fx-text-fill: #abb2bf;
+}
+
+.menu-button {
+    -fx-background-color: transparent;
+}
+
+.menu-button:hover {
+    -fx-background-color: #abb2bf;
+}
+
+.menu-button:hover .label{
+    -fx-text-fill: #c678dd;
+}
+
+.menu-bar {
+    -fx-background-color: #7f848e;
+}
+
+.text-field {
+    -fx-background-color: #7f848e;
+    -fx-border-color: #7f848e;
+    -fx-border-width: 2px;
+    -fx-text-fill: #89ca78;
+    -fx-font-size: 12px;
+    -fx-padding: 5px;
+    -fx-background-radius: 10px;
+}
+
+.text-field:hover {
+    -fx-background-color: #abb2bf;
+}
+
+.text-field:pressed {
+    -fx-background-color: #abb2bf;
+}
+
+.split-pane {
+    -fx-background-color: #5c6370;
+}
+
+.check-box {
+    -fx-text-fill:  #89ca78;
+}
+
+.radio-button {
+    -fx-text-fill:  #89ca78;
+}
+
+.axis {
+    -fx-tick-label-fill: #61afef;
+}
+.axis-label {
+    -fx-text-fill: #61afef;
+}

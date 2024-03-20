@@ -10,15 +10,15 @@
 
 .button {
     -fx-border-radius: 5px;
-    -fx-border-color: black;
+    -fx-border-color: white;
     -fx-text-fill: black;
     -fx-alignment: center;
-    -fx-background-color: transparent;
+    -fx-background-color: dodgerblue;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);
     -fx-background-radius: 5px;
 }
 
 .button:hover {
-    -fx-background-color: cornflowerblue;
     -fx-text-fill: white;
     -fx-transition-duration: 0.3s;
 }
