@@ -251,7 +251,7 @@ public class GraphData {
             impressionCost = getDoubleMetric(stmt, impressionCostSQL);
             totals = new ArrayList<>();
             for (int i = 0; i < dates.size(); i++) {
-                totals.add(clickCost.get(i) + impressionCost.get(i));
+                totals.add((clickCost.get(i) + impressionCost.get(i))/100);
             }
 
             impressionsNum.set(impressions.stream().mapToInt(a -> a).sum());
@@ -263,8 +263,8 @@ public class GraphData {
                 bounceNum.set(times.stream().mapToInt(a -> a).sum());
             }
             conversionsNum.set(conversions.stream().mapToInt(a -> a).sum());
-            double clickCostNum = clickCost.stream().mapToDouble(a -> a).sum();
-            double impressionCostNum = impressionCost.stream().mapToDouble(a -> a).sum();
+            double clickCostNum = clickCost.stream().mapToDouble(a -> a).sum()/100;
+            double impressionCostNum = impressionCost.stream().mapToDouble(a -> a).sum()/100;
             totalNum.set(Double.parseDouble(cost.format(clickCostNum + impressionCostNum)));
             ctrNum.set(Double.parseDouble(value.format((double) clicksNum.get() / impressionsNum.get())));
             cpaNum.set(Double.parseDouble(cost.format(totalNum.get() / conversionsNum.get())));
