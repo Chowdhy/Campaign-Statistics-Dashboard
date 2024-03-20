@@ -55,7 +55,7 @@ public class MainWindow extends Window {
     public void loadUserManagementScene() {
         try {
             Stage secondStage = new Stage();
-            UserWindow userWindow = new UserWindow(secondStage, 400, 400);
+            UserWindow userWindow = new UserWindow(secondStage, 600, 400);
             secondStage.show();
         } catch (Exception e) {
 

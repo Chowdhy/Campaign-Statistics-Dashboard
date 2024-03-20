@@ -91,8 +91,6 @@ public class DashboardScene extends MainScene {
         var reportMenuItem = new MenuItem("Report");
         exportMenu.getItems().addAll(graphMenuItem,reportMenuItem,logsMenuItem);
 
-
-
         MenuBar menuBar = new MenuBar(optionsMenu,exportMenu);
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
             userMenuItem.setDisable(true);
@@ -117,8 +115,6 @@ public class DashboardScene extends MainScene {
         Tooltip.install(iconWithText, tooltip1);
 
         mainVBox.getChildren().add(menuBar);
-
-
 
         logoutMenuItem.setOnAction(e -> {
             App.setUser(null);

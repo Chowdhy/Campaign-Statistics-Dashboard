@@ -200,3 +200,74 @@
 .radio-button:selected .radio {
     -fx-background-color: #7ab9ff;
 }
+
+.default-color0.chart-series-line{
+    -fx-stroke: #7ab9ff;
+}
+
+.default-color0.chart-line-symbol {
+    -fx-background-color: #0d6efd, white;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 5, 4;
+}
+
+.default-color0.chart-bar {
+    -fx-bar-fill: #409aff;
+}
+
+.white {
+    -fx-background-color: white;
+    -fx-padding: 10px;
+}
+
+padding {
+    -fx-padding: 10px;
+}
+
+.selected-user {
+    -fx-font-size: 16px;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: #ffffff;
+    -fx-background-insets: 0;
+    -fx-border-color: #0d6efd;
+    -fx-border-width: 1px;
+    -fx-border-radius: 0px 5px 5px 0px;
+    -fx-background-radius: 0px 5px 5px 0px;
+}
+
+.combo-box .arrow {
+    -fx-background-color: #0d6efd;
+}
+
+.combo-box .list-cell:selected {
+    -fx-background-color: #0d6efd;
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 14px;
+    -fx-border-radius: 5px 0px 0px 5px;
+    -fx-background-radius: 5px 0px 0px 5px;
+    -fx-padding: 6px;
+}
+
+.scroller {
+    -fx-padding: 10px;
+    -fx-background-radius: 3px;
+    -fx-border-radius: 5px;
+}
+
+.admin-button {
+    -fx-background-color: #409aff;
+    -fx-background-radius: 5px;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.admin-button:hover {
+    -fx-cursor: hand;
+    -fx-background-color: #0d6efd;
+}
+
+.admin-title {
+    -fx-font-size: 13px;
+}

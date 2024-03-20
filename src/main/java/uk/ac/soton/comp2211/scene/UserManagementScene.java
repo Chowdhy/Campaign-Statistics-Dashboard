@@ -38,30 +38,38 @@ public class UserManagementScene extends UserScene {
         controller = window.getController();
 
         root = new BorderPane();
+        root.getStyleClass().add("white");
 
         // UI left side
 
         VBox leftSide = new VBox();
+        leftSide.setSpacing(10);
         leftSide.setAlignment(Pos.CENTER);
 
         ScrollPane scroller = new ScrollPane();
+        scroller.getStyleClass().add("scroller");
 
         userListBox = new VBox();
+        userListBox.setSpacing(5);
         scroller.setContent(userListBox);
         scroller.setFitToWidth(true);
         VBox.setVgrow(scroller, Priority.ALWAYS);
 
         addUserButton = new ToggleButton("Create new user");
+        addUserButton.getStyleClass().add("fill-button");
 
         leftSide.getChildren().addAll(scroller, addUserButton);
 
         // UI right side
 
         userOptionsBox = new VBox();
+        userOptionsBox.getStyleClass().add("white");
+        userOptionsBox.setSpacing(10);
         userOptionsBox.setPrefWidth((double) window.getWidth() /2);
         userOptionsBox.setAlignment(Pos.CENTER);
 
         selectedUserLabel = new Label();
+        selectedUserLabel.getStyleClass().add("selected-user");
         selectedUserLabel.textProperty().bind(Bindings.concat("Modify user: ", controller.selectedUserProperty()));
 
         permissionsBox = new ComboBox<>();
@@ -70,7 +78,9 @@ public class UserManagementScene extends UserScene {
         permissionsBox.setPromptText("Select new permission level");
 
         Button updateUserButton = new Button("Update user");
+        updateUserButton.getStyleClass().add("outline-button");
         deleteUserButton = new Button("Delete user");
+        deleteUserButton.getStyleClass().add("outline-button");
 
         updateUserButton.setMaxWidth(125);
         deleteUserButton.setMaxWidth(125);
@@ -88,8 +98,11 @@ public class UserManagementScene extends UserScene {
         // --
 
         VBox detailsBox = new VBox();
+        detailsBox.setSpacing(10);
+        detailsBox.getStyleClass().add("white");
 
         Label title = new Label("Create new user");
+        title.getStyleClass().add("selected-user");
 
         TextField username = new TextField();
         username.setPromptText("Username");
@@ -108,6 +121,7 @@ public class UserManagementScene extends UserScene {
         detailsBox.setAlignment(Pos.CENTER);
 
         Button createButton = new Button("Create");
+        createButton.getStyleClass().add("outline-button");
 
         detailsBox.getChildren().addAll(title, username, newUserPassword, confirmNewUserPassword, choiceBox, createErrorLabel, createButton);
 
@@ -224,9 +238,12 @@ public class UserManagementScene extends UserScene {
             var permissions = entry.getValue();
 
             HBox userBox = new HBox();
+            userBox.setAlignment(Pos.CENTER);
+            userBox.setSpacing(20);
             ToggleButton button = new ToggleButton(username);
+            button.getStyleClass().add("admin-button");
             Label permissionLabel = new Label(permissions.name());
-            permissionLabel.setAlignment(Pos.CENTER);
+            permissionLabel.getStyleClass().add("admin-title");
 
             userBox.getChildren().addAll(permissionLabel, button);
             button.setMaxWidth(100000);
@@ -251,12 +268,8 @@ public class UserManagementScene extends UserScene {
                 }
             });
 
-
-            HBox.setHgrow(button, Priority.ALWAYS);
-            HBox.setHgrow(permissionLabel, Priority.ALWAYS);
-
-            button.setPrefWidth(200);
-            permissionLabel.setPrefWidth(125);
+            button.setPrefWidth(140);
+            permissionLabel.setPrefWidth(50);
             userToggleGroup.getToggles().add(button);
             userListBox.getChildren().add(userBox);
         }
