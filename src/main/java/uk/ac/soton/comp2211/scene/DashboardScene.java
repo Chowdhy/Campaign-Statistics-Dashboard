@@ -42,6 +42,7 @@ public class DashboardScene extends BaseScene {
     @Override
     public void initialise() {
         controller.setMaxValues();
+        tooltip1.setText("Page range: 1-" + controller.maxPage() + "\nTime range: 1-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce metrics");
         dates = controller.getDates("2015-01-01", controller.maxDate());
 
         controller.calculateMetrics("2015-01-01", controller.maxDate());
@@ -55,13 +56,8 @@ public class DashboardScene extends BaseScene {
 
         submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
         filter.setOnAction(e -> {
-            progressIndicator.setVisible(true);
-
+//            progressIndicator.setVisible(true);
             checkGraph(lineChart, dates, startDate.getText(), endDate.getText());
-
-            tooltip1.setText("Page range: 1-" + controller.maxPage() + "\nTime range: 1-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce data");
-
-
         });
     }
 
@@ -102,8 +98,7 @@ public class DashboardScene extends BaseScene {
             logsMenuItem.setDisable(true);
         }
 
-        Circle infoIcon1 = new Circle(8, Color.BLUE);
-        infoIcon1.setStroke(Color.BLACK);
+        Circle infoIcon1 = new Circle(10, Color.rgb(122, 185, 255));
 
         tooltip1 = new Tooltip();
 
@@ -321,7 +316,7 @@ public class DashboardScene extends BaseScene {
         singlePageBounceButton.getStyleClass().add("filter-text");
         singlePageBounceButton.setToggleGroup(group);
         TextField defineBounce = new TextField();
-        defineBounce.setPrefWidth(45);
+        defineBounce.setPrefWidth(50);
         defineBounce.setPromptText("1-" + controller.maxTime());
         defineBounce.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
         defineBounce.textProperty().bindBidirectional(controller.timeValProperty());
@@ -529,17 +524,20 @@ public class DashboardScene extends BaseScene {
         });
 
         Button compare = new Button("Compare");
-        compare.getStyleClass().add("fill-button");
+        compare.getStyleClass().add("outline-button");
         compare.setOnAction(e -> {
             controller.compareProperty().set(!controller.compareProperty().get());
-
             if (controller.compareProperty().get()) {
                 controller.changeChart(lineChart2, controller.graph2NumProperty().get());
                 chartVbox.getChildren().add(2, lineChart2);
                 graphOptions.getChildren().add(choiceBox2);
+                compare.getStyleClass().remove("outline-button");
+                compare.getStyleClass().add("fill-button");
             } else {
                 chartVbox.getChildren().remove(lineChart2);
                 graphOptions.getChildren().remove(choiceBox2);
+                compare.getStyleClass().remove("fill-button");
+                compare.getStyleClass().add("outline-button");
             }
         });
 
