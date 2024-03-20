@@ -137,33 +137,6 @@ public class GraphData {
         return newDates;
     }
 
-    public ArrayList<Double> getClickCosts() {
-        ArrayList<Double> columnValues = new ArrayList<>();
-        String getclicks = "SELECT click_cost FROM click_log";
-        try (Connection conn = this.connect();
-             Statement stmt = conn.createStatement()) {
-
-            ResultSet dateRS = stmt.executeQuery(getclicks);
-
-            while (dateRS.next()) {
-                double value = dateRS.getDouble("click_cost");
-                columnValues.add(value);
-            }
-
-            // Close the result set, statement, and connection
-            dateRS.close();
-            stmt.close();
-            conn.close();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return columnValues;
-    }
-
-
-
-
-
     public void maxValues(){
         String maxDateSQL = "SELECT MAX(DATE(date)) FROM impression_log";
         String maxPageSQL = "SELECT MAX(pages_viewed) FROM server_log";
@@ -616,4 +589,6 @@ public class GraphData {
     public Integer getMaxPage(){ return maxPage; }
 
     public Integer getMaxTime(){ return maxTime; }
+
+    public ArrayList<Double> getClickCost(){ return clickCost; }
 }

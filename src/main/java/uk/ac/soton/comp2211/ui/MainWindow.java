@@ -99,10 +99,6 @@ public class MainWindow {
     public void loadUserManagementScene() {
         loadScene(new UserManagementScene(this));
     }
-
-    public void loadHistogramScene() {
-        loadScene(new HistogramScene(this));
-    }
     public void cleanup() {
         if (currentScene != null) currentScene.cleanup();
     }

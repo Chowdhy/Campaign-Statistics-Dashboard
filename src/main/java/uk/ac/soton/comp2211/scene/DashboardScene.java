@@ -15,6 +15,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.control.DashboardController;
+import uk.ac.soton.comp2211.control.HistogramController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 import uk.ac.soton.comp2211.users.Permissions;
 
@@ -22,9 +23,12 @@ import java.util.ArrayList;
 
 public class DashboardScene extends BaseScene {
     DashboardController controller;
+    HistogramController hController;
 
     LineChart<String, Number> lineChart;
     LineChart<String, Number> lineChart2;
+    BarChart<String, Number> histogram;
+    BarChart<String, Number> histogram2;
     ArrayList<String> dates;
     TextField startDate;
     TextField endDate;
@@ -54,16 +58,17 @@ public class DashboardScene extends BaseScene {
         endDate.setText(dates.getLast());
         endDate.setPromptText(dates.getLast());
 
-        submit.setOnAction(e -> checkGraph(lineChart, dates, startDate.getText(), endDate.getText()));
+        submit.setOnAction(e -> checkGraph(dates, startDate.getText(), endDate.getText()));
         filter.setOnAction(e -> {
 //            progressIndicator.setVisible(true);
-            checkGraph(lineChart, dates, startDate.getText(), endDate.getText());
+            checkGraph(dates, startDate.getText(), endDate.getText());
         });
     }
 
     @Override
     public void build() {
         controller = new DashboardController();
+        hController = new HistogramController();
 
         root = new StackPane();
 
@@ -448,8 +453,9 @@ public class DashboardScene extends BaseScene {
 
         CategoryAxis xHAxis = new CategoryAxis();
         NumberAxis yHAxis = new NumberAxis();
-        BarChart<String, Number> histogram = new BarChart<>(xHAxis, yHAxis);
+        histogram = new BarChart<>(xHAxis, yHAxis);
         histogram.setLegendVisible(false);
+        histogram.setAnimated(false);
 
         ChoiceBox<String> choiceBox = new ChoiceBox<>();
         choiceBox.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate","Cost Distribution Histogram");
@@ -457,8 +463,14 @@ public class DashboardScene extends BaseScene {
         choiceBox.setOnAction(e2 -> {
             String selectedValue = choiceBox.getValue();
             if (selectedValue.equals("Cost Distribution Histogram")) {
-                window.loadHistogramScene();
+                chartVbox.getChildren().remove(lineChart);
+                hController.histogram(controller, histogram);
+                chartVbox.getChildren().add(1, histogram);
             } else {
+                if (chartVbox.getChildren().contains(histogram)){
+                    chartVbox.getChildren().remove(histogram);
+                    chartVbox.getChildren().add(1, lineChart);
+                }
                 controller.graphNumProperty().set(selectedValue);
                 controller.changeChart(lineChart, selectedValue);
             }
@@ -510,14 +522,26 @@ public class DashboardScene extends BaseScene {
         lineChart2.setAnimated(false);
         lineChart2.setLegendVisible(false);
 
+        CategoryAxis xH2Axis = new CategoryAxis();
+        NumberAxis yH2Axis = new NumberAxis();
+        histogram2 = new BarChart<>(xH2Axis, yH2Axis);
+        histogram2.setLegendVisible(false);
+        histogram2.setAnimated(false);
+
         ChoiceBox<String> choiceBox2 = new ChoiceBox<>();
         choiceBox2.getItems().addAll("Impressions", "Uniques", "Clicks", "Bounces", "Conversions", "Total cost", "CTR", "CPA", "CPC", "CPM", "Bounce rate","Cost Distribution Histogram");
         choiceBox2.getSelectionModel().select(0);
         choiceBox2.setOnAction(e2 -> {
             String selectedValue = choiceBox2.getValue();
             if (selectedValue.equals("Cost Distribution Histogram")) {
-                window.loadHistogramScene();
+                chartVbox.getChildren().remove(lineChart2);
+                hController.histogram(controller, histogram2);
+                chartVbox.getChildren().add(2, histogram2);
             } else {
+                if (chartVbox.getChildren().contains(histogram2)){
+                    chartVbox.getChildren().remove(histogram2);
+                    chartVbox.getChildren().add(2, lineChart2);
+                }
                 controller.graph2NumProperty().set(selectedValue);
                 controller.changeChart(lineChart2, selectedValue);
             }
@@ -586,17 +610,16 @@ public class DashboardScene extends BaseScene {
 
     }
 
-    public void checkGraph(LineChart lineChart, ArrayList<String> dates, String startDate, String endDate) {
+    public void checkGraph(ArrayList<String> dates, String startDate, String endDate) {
         try {
             if (dates.contains(startDate) && dates.contains(endDate) && controller.maxTime() >= Integer.parseInt(controller.timeValProperty().get()) && 1 <= Integer.parseInt(controller.timeValProperty().get()) && controller.maxPage() >= Integer.parseInt(controller.pageValProperty().get()) && 1 <= Integer.parseInt(controller.pageValProperty().get())) {
-
                     controller.calculateMetrics(startDate, endDate);
                     controller.changeChart(lineChart, controller.graphNumProperty().get());
+                    hController.histogram(controller, histogram);
                     if (controller.compareProperty().get()) {
                         controller.changeChart(lineChart2, controller.graph2NumProperty().get());
+                        hController.histogram(controller, histogram2);
                     }
-
-
             }
         } catch(Exception ignored) {
 

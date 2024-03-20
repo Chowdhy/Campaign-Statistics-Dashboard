@@ -7,16 +7,9 @@ import java.util.ArrayList;
 
 public class HistogramController {
 
-    GraphData graphData;
-
-    public HistogramController() {
-        this.graphData = new GraphData();
-    }
-
-
-    public void histogram(BarChart barChart) {
+    public void histogram(DashboardController controller, BarChart barChart) {
         barChart.getData().clear();
-        ArrayList<Double> data = graphData.getClickCosts();
+        ArrayList<Double> data = controller.graphData.getClickCost();
 
         double minValue = Double.MAX_VALUE;
         double maxValue = Double.MIN_VALUE;
