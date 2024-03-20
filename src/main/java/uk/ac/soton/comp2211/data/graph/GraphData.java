@@ -300,7 +300,6 @@ public class GraphData {
             bounceRateNum.set(Double.parseDouble(value.format((double) bounceNum.get() / clicksNum.get())));
         }
     }
-
     public Pair<ArrayList<Integer>, ArrayList<Double>> getData(String graphNum) {
         ArrayList<Integer> integerData = null;
         ArrayList<Double> doubleData = new ArrayList<>();

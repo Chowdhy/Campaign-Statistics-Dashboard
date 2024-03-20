@@ -1,7 +1,5 @@
 package uk.ac.soton.comp2211.scene;
 
-import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -59,20 +57,11 @@ public class DashboardScene extends BaseScene {
         filter.setOnAction(e -> {
             progressIndicator.setVisible(true);
 
-            Task<Void> task = new Task<Void>() {
-                @Override
-                protected Void call() throws Exception {
-
-                    checkGraph(lineChart, dates, startDate.getText(), endDate.getText());
-                    return null;
-                }
-            };
-
-            task.setOnSucceeded(event -> progressIndicator.setVisible(false));
+            checkGraph(lineChart, dates, startDate.getText(), endDate.getText());
 
             tooltip1.setText("Page range: 1-" + controller.maxPage() + "\nTime range: 1-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce data");
 
-            new Thread(task).start();
+
         });
     }
 
@@ -90,8 +79,9 @@ public class DashboardScene extends BaseScene {
         var optionsMenu = new Menu("Options");
         var uploadMenuItem = new MenuItem("Upload files");
         var userMenuItem = new MenuItem("User management");
+        var themeMenuItem = new MenuItem("Switch theme");
         var logoutMenuItem = new MenuItem("Logout");
-        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem,logoutMenuItem);
+        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem, themeMenuItem,logoutMenuItem);
 
 
         var exportMenu = new Menu("Export");
@@ -104,9 +94,12 @@ public class DashboardScene extends BaseScene {
 
         MenuBar menuBar = new MenuBar(optionsMenu,exportMenu);
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
+            userMenuItem.setDisable(true);
             logsMenuItem.setDisable(true);
         }else if(App.getUser().getPermissions().equals(Permissions.VIEWER)){
-            exportMenu.setDisable(true);
+            userMenuItem.setDisable(true);
+            uploadMenuItem.setDisable(true);
+            logsMenuItem.setDisable(true);
         }
 
         Circle infoIcon1 = new Circle(8, Color.BLUE);
@@ -598,13 +591,14 @@ public class DashboardScene extends BaseScene {
     public void checkGraph(LineChart lineChart, ArrayList<String> dates, String startDate, String endDate) {
         try {
             if (dates.contains(startDate) && dates.contains(endDate) && controller.maxTime() >= Integer.parseInt(controller.timeValProperty().get()) && controller.maxPage() >= Integer.parseInt(controller.pageValProperty().get())) {
-                Platform.runLater(() ->{
+
                     controller.calculateMetrics(startDate, endDate);
                     controller.changeChart(lineChart, controller.graphNumProperty().get());
                     if (controller.compareProperty().get()) {
                         controller.changeChart(lineChart2, controller.graph2NumProperty().get());
                     }
-                });
+
+
             }
         } catch(Exception ignored) {
 
