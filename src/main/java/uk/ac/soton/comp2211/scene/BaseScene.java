@@ -2,14 +2,14 @@ package uk.ac.soton.comp2211.scene;
 
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2211.ui.Window;
 
 public abstract class BaseScene {
-    protected final MainWindow window;
+    private final Window window;
     protected Pane root;
     protected Scene scene;
 
-    public BaseScene(MainWindow window) {
+    public BaseScene(Window window) {
         this.window = window;
     }
 

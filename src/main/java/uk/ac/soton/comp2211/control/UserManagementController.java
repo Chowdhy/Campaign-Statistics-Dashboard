@@ -65,7 +65,7 @@ public class UserManagementController {
 
     public void updateUserList() {
         userList = credentials.getUserList();
-        scene.populateUserList(userList.keySet());
+        scene.populateUserList(userList);
     }
 
     public void updateSelectedUser() {
