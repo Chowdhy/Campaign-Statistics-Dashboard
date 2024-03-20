@@ -30,7 +30,6 @@ public class MainWindow {
         setupDefault();
 
         loadFileInput();
-        //loadDashboard();
     }
 
     public Scene getScene() {
