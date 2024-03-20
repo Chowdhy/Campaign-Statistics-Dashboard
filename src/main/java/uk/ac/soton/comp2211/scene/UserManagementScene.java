@@ -23,6 +23,14 @@ public class UserManagementScene extends UserScene {
     ToggleButton addUserButton;
     Label selectedUserLabel;
     Button deleteUserButton;
+    Label errorLabel;
+    Label createErrorLabel;
+    PasswordField newPassword;
+    PasswordField confirmPassword;
+    TextField username;
+    PasswordField newUserPassword;
+    PasswordField confirmNewUserPassword;
+    ComboBox<String> choiceBox;
 
     public UserManagementScene(UserWindow window) {
         super(window);
@@ -85,13 +93,13 @@ public class UserManagementScene extends UserScene {
         updateUserButton.setMaxWidth(125);
         deleteUserButton.setMaxWidth(125);
 
-        PasswordField newPassword = new PasswordField();
+        newPassword = new PasswordField();
         newPassword.setPromptText("New password");
 
-        PasswordField confirmPassword = new PasswordField();
+        confirmPassword = new PasswordField();
         confirmPassword.setPromptText("Confirm new password");
 
-        Label errorLabel = new Label();
+        errorLabel = new Label();
 
         userOptionsBox.getChildren().addAll(selectedUserLabel, newPassword, confirmPassword, permissionsBox, errorLabel, updateUserButton, deleteUserButton);
 
@@ -104,20 +112,20 @@ public class UserManagementScene extends UserScene {
         Label title = new Label("Create new user");
         title.getStyleClass().add("selected-user");
 
-        TextField username = new TextField();
+        username = new TextField();
         username.setPromptText("Username");
 
-        PasswordField newUserPassword = new PasswordField();
+        newUserPassword = new PasswordField();
         newUserPassword.setPromptText("Password");
 
-        PasswordField confirmNewUserPassword = new PasswordField();
+        confirmNewUserPassword = new PasswordField();
         confirmNewUserPassword.setPromptText("Confirm password");
 
-        ComboBox<String> choiceBox = new ComboBox<>();
+        choiceBox = new ComboBox<>();
         choiceBox.getItems().addAll("Viewer", "Editor", "Admin");
         choiceBox.setPromptText("Select permission level");
 
-        Label createErrorLabel = new Label();
+        createErrorLabel = new Label();
         detailsBox.setAlignment(Pos.CENTER);
 
         Button createButton = new Button("Create");
@@ -128,22 +136,26 @@ public class UserManagementScene extends UserScene {
         detailsBox.setPrefWidth((double) window.getWidth()/2);
 
         createButton.addEventFilter(ActionEvent.ACTION, event -> {
-            if (newUserPassword.getText().isEmpty()) {
+            if (newUserPassword.getText() == null || newUserPassword.getText().isEmpty()) {
+                createErrorLabel.setStyle("-fx-text-fill: red");
                 createErrorLabel.setText("Cannot have empty password");
                 event.consume();
-            }
-            if ((!newUserPassword.getText().equals(confirmNewUserPassword.getText()))) {
+            } else if ((!newUserPassword.getText().equals(confirmNewUserPassword.getText()))) {
+                createErrorLabel.setStyle("-fx-text-fill: red");
                 createErrorLabel.setText("Passwords are not the same");
                 event.consume();
             }
             if (choiceBox.getValue() == null) {
+                createErrorLabel.setStyle("-fx-text-fill: red");
                 createErrorLabel.setText("Must select permission level");
                 event.consume();
             }
-            if (username.getText().isEmpty()) {
+            if (username.getText() == null || username.getText().isEmpty()) {
+                createErrorLabel.setStyle("-fx-text-fill: red");
                 createErrorLabel.setText("Cannot have empty username");
                 event.consume();
             } else if (controller.isAlreadyUser(username.getText())) {
+                createErrorLabel.setStyle("-fx-text-fill: red");
                 createErrorLabel.setText("Username is already taken");
                 event.consume();
             }
@@ -161,6 +173,7 @@ public class UserManagementScene extends UserScene {
         userToggleGroup = new ToggleGroup();
 
         addUserButton.setOnAction(e -> {
+            createErrorLabel.setText(null);
             if (addUserButton.isSelected()) {
                 controller.selectedUserProperty().set(null);
                 userOptionsBox.setDisable(true);
@@ -173,10 +186,12 @@ public class UserManagementScene extends UserScene {
 
         updateUserButton.addEventFilter(ActionEvent.ACTION, event -> {
             if (permissionsBox.getValue() == null && newPassword.getText().isEmpty()) {
+                errorLabel.setStyle("-fx-text-fill: red");
                 errorLabel.setText("No attributes to update");
                 event.consume();
-            } else if (!newPassword.getText().isEmpty()) {
+            } else if (!(newPassword.getText() == null || newPassword.getText().isEmpty())) {
                 if ((!newPassword.getText().equals(confirmPassword.getText()))) {
+                    errorLabel.setStyle("-fx-text-fill: red");
                     errorLabel.setText("Passwords are not the same");
                     event.consume();
                 }
@@ -184,6 +199,8 @@ public class UserManagementScene extends UserScene {
         });
 
         updateUserButton.setOnAction(e -> {
+            errorLabel.setText(null);
+
             if (permissionsBox.getValue() != null) {
                 controller.updateSelectedPermissions(Permissions.find(permissionsBox.getValue()));
             }
@@ -193,6 +210,8 @@ public class UserManagementScene extends UserScene {
         });
 
         deleteUserButton.setOnAction(e -> {
+            errorLabel.setText(null);
+
             Dialog<Boolean> dialog = new Dialog<>();
 
             VBox dialogContent = new VBox();
@@ -220,11 +239,11 @@ public class UserManagementScene extends UserScene {
 
     }
 
-    public void resetPermissionsBox() {
-        permissionsBox.getSelectionModel().clearSelection();
-        permissionsBox.setValue(null);
-        permissionsBox.setEditable(true);
-        permissionsBox.setEditable(false);
+    public void resetPermissionsBox(ComboBox<String> choiceBox) {
+        choiceBox.getSelectionModel().clearSelection();
+        choiceBox.setValue(null);
+        choiceBox.setEditable(true);
+        choiceBox.setEditable(false);
     }
 
     public void populateUserList(Map<String, Permissions> users) {
@@ -249,15 +268,16 @@ public class UserManagementScene extends UserScene {
             button.setMaxWidth(100000);
 
             button.setOnAction(e -> {
-                resetPermissionsBox();
+                resetPermissionsBox(permissionsBox);
+
+                errorLabel.setText(null);
 
                 if (button.isSelected()) {
                     ((BorderPane) root).setRight(userOptionsBox);
-                    userOptionsBox.setDisable(false);
 
                     Platform.runLater(() -> {
                         controller.selectedUserProperty().set(button.getText());
-                        controller.updateSelectedUser();
+                        updateOptionsBox();
                     });
                 } else {
                     userOptionsBox.setDisable(true);
@@ -273,14 +293,16 @@ public class UserManagementScene extends UserScene {
             userToggleGroup.getToggles().add(button);
             userListBox.getChildren().add(userBox);
         }
+        if (controller.selectedUserProperty().get() != null) {
+            updateOptionsBox();
+        }
     }
 
-    public void togglePermissions(boolean enabled) {
-        permissionsBox.setDisable(enabled);
-    }
+    public void updateOptionsBox() {
+        errorLabel.setText(null);
+        newPassword.setText(null);
+        confirmPassword.setText(null);
 
-    public void updateSelectedUser(Permissions permissions) {
-        resetPermissionsBox();
         if (controller.selectedUserProperty().get().equalsIgnoreCase(App.getUser().getUsername())) {
             togglePermissions(true);
             deleteUserButton.setDisable(true);
@@ -288,5 +310,26 @@ public class UserManagementScene extends UserScene {
             togglePermissions(false);
             deleteUserButton.setDisable(false);
         }
+        userOptionsBox.setDisable(false);
+    }
+
+    public void togglePermissions(boolean enabled) {
+        permissionsBox.setDisable(enabled);
+    }
+
+    public void updateSelectedUser(String message) {
+        resetPermissionsBox(permissionsBox);
+        updateOptionsBox();
+        errorLabel.setStyle("-fx-text-fill: black");
+        errorLabel.setText(message);
+    }
+
+    public void promptSuccessfulCreate(String message) {
+        createErrorLabel.setStyle("-fx-text-fill: black");
+        createErrorLabel.setText(message);
+        resetPermissionsBox(choiceBox);
+        username.setText(null);
+        newUserPassword.setText(null);
+        confirmNewUserPassword.setText(null);
     }
 }
