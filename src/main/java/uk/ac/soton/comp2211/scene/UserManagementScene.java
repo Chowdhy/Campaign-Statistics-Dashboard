@@ -6,29 +6,25 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Triple;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.control.UserManagementController;
-import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2211.ui.UserWindow;
 import uk.ac.soton.comp2211.users.Permissions;
 
+import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
-public class UserManagementScene extends BaseScene {
+public class UserManagementScene extends UserScene {
     UserManagementController controller;
     VBox userListBox;
     VBox userOptionsBox;
-    VBox permissionsBox;
+    ComboBox<String> permissionsBox;
     ToggleGroup userToggleGroup;
+    ToggleButton addUserButton;
     Label selectedUserLabel;
-    RadioButton viewerButton;
-    RadioButton editorButton;
-    RadioButton adminButton;
     Button deleteUserButton;
 
-    public UserManagementScene(MainWindow window) {
+    public UserManagementScene(UserWindow window) {
         super(window);
     }
 
@@ -39,50 +35,107 @@ public class UserManagementScene extends BaseScene {
 
     @Override
     public void build() {
-        controller = new UserManagementController(this);
+        controller = window.getController();
 
         root = new BorderPane();
 
         // UI left side
 
         VBox leftSide = new VBox();
+        leftSide.setAlignment(Pos.CENTER);
 
         ScrollPane scroller = new ScrollPane();
 
         userListBox = new VBox();
         scroller.setContent(userListBox);
-        VBox.setVgrow(scroller, Priority.ALWAYS);
         scroller.setFitToWidth(true);
+        VBox.setVgrow(scroller, Priority.ALWAYS);
 
-        Button addUserButton = new Button("Create new user");
-        addUserButton.setAlignment(Pos.BOTTOM_RIGHT);
-        Button backButton = new Button("Back");
-        backButton.setAlignment(Pos.BOTTOM_LEFT);
+        addUserButton = new ToggleButton("Create new user");
 
-        leftSide.getChildren().addAll(scroller, addUserButton, backButton);
-
-        backButton.setOnAction( e -> window.switchToDashboard());
+        leftSide.getChildren().addAll(scroller, addUserButton);
 
         // UI right side
 
         userOptionsBox = new VBox();
         userOptionsBox.setPrefWidth((double) window.getWidth() /2);
+        userOptionsBox.setAlignment(Pos.CENTER);
 
         selectedUserLabel = new Label();
-        selectedUserLabel.textProperty().bind(Bindings.concat("Currently selected: ", controller.selectedUserProperty()));
+        selectedUserLabel.textProperty().bind(Bindings.concat("Modify user: ", controller.selectedUserProperty()));
 
-        permissionsBox = new VBox();
+        permissionsBox = new ComboBox<>();
 
-        viewerButton = new RadioButton("Viewer");
-        editorButton = new RadioButton("Editor");
-        adminButton = new RadioButton("Admin");
+        permissionsBox.getItems().addAll("Viewer", "Editor", "Admin");
+        permissionsBox.setPromptText("Select new permission level");
 
-        permissionsBox.getChildren().addAll(viewerButton, editorButton, adminButton);
-
-        Button changePasswordButton = new Button("Change password");
+        Button updateUserButton = new Button("Update user");
         deleteUserButton = new Button("Delete user");
 
-        userOptionsBox.getChildren().addAll(selectedUserLabel, permissionsBox, changePasswordButton, deleteUserButton);
+        updateUserButton.setMaxWidth(125);
+        deleteUserButton.setMaxWidth(125);
+
+        PasswordField newPassword = new PasswordField();
+        newPassword.setPromptText("New password");
+
+        PasswordField confirmPassword = new PasswordField();
+        confirmPassword.setPromptText("Confirm new password");
+
+        Label errorLabel = new Label();
+
+        userOptionsBox.getChildren().addAll(selectedUserLabel, newPassword, confirmPassword, permissionsBox, errorLabel, updateUserButton, deleteUserButton);
+
+        // --
+
+        VBox detailsBox = new VBox();
+
+        Label title = new Label("Create new user");
+
+        TextField username = new TextField();
+        username.setPromptText("Username");
+
+        PasswordField newUserPassword = new PasswordField();
+        newUserPassword.setPromptText("Password");
+
+        PasswordField confirmNewUserPassword = new PasswordField();
+        confirmNewUserPassword.setPromptText("Confirm password");
+
+        ComboBox<String> choiceBox = new ComboBox<>();
+        choiceBox.getItems().addAll("Viewer", "Editor", "Admin");
+        choiceBox.setPromptText("Select permission level");
+
+        Label createErrorLabel = new Label();
+        detailsBox.setAlignment(Pos.CENTER);
+
+        Button createButton = new Button("Create");
+
+        detailsBox.getChildren().addAll(title, username, newUserPassword, confirmNewUserPassword, choiceBox, createErrorLabel, createButton);
+
+        detailsBox.setPrefWidth((double) window.getWidth()/2);
+
+        createButton.addEventFilter(ActionEvent.ACTION, event -> {
+            if (newUserPassword.getText().isEmpty()) {
+                createErrorLabel.setText("Cannot have empty password");
+                event.consume();
+            }
+            if ((!newUserPassword.getText().equals(confirmNewUserPassword.getText()))) {
+                createErrorLabel.setText("Passwords are not the same");
+                event.consume();
+            }
+            if (choiceBox.getValue() == null) {
+                createErrorLabel.setText("Must select permission level");
+                event.consume();
+            }
+            if (username.getText().isEmpty()) {
+                createErrorLabel.setText("Cannot have empty username");
+                event.consume();
+            } else if (controller.isAlreadyUser(username.getText())) {
+                createErrorLabel.setText("Username is already taken");
+                event.consume();
+            }
+        });
+
+        createButton.setOnAction(e -> controller.createUser(username.getText(), newUserPassword.getText(), Permissions.find(choiceBox.getValue())));
 
         // BorderPane setting
 
@@ -94,137 +147,35 @@ public class UserManagementScene extends BaseScene {
         userToggleGroup = new ToggleGroup();
 
         addUserButton.setOnAction(e -> {
-            Dialog<Triple<String, String, Permissions>> dialog = new Dialog<>();
+            if (addUserButton.isSelected()) {
+                controller.selectedUserProperty().set(null);
+                userOptionsBox.setDisable(true);
+                ((BorderPane) root).setRight(detailsBox);
+            } else {
+                ((BorderPane) root).setRight(userOptionsBox);
+            }
+        });
+        userToggleGroup.getToggles().add(addUserButton);
 
-            ButtonType createButtonType = new ButtonType("Create", ButtonBar.ButtonData.OK_DONE);
-            dialog.getDialogPane().getButtonTypes().addAll(createButtonType, ButtonType.CANCEL);
-
-            VBox detailsBox = new VBox();
-
-            TextField username = new TextField();
-            username.setPromptText("Username");
-
-            PasswordField newPassword = new PasswordField();
-            newPassword.setPromptText("Password");
-
-            PasswordField confirmPassword = new PasswordField();
-            confirmPassword.setPromptText("Confirm password");
-
-            VBox permissions = new VBox();
-
-            ToggleGroup selectedPermissionGroup = new ToggleGroup();
-            RadioButton adminPermission = new RadioButton("Admin");
-            RadioButton editorPermission = new RadioButton("Editor");
-            RadioButton viewerPermission = new RadioButton("Viewer");
-
-            permissions.getChildren().addAll(adminPermission, editorPermission, viewerPermission);
-            selectedPermissionGroup.getToggles().addAll(adminPermission, editorPermission, viewerPermission);
-
-            Label errorLabel = new Label();
-
-            detailsBox.getChildren().addAll(username, newPassword, confirmPassword, permissions, errorLabel);
-
-            dialog.getDialogPane().setContent(detailsBox);
-
-            Button changeButton = (Button) dialog.getDialogPane().lookupButton(createButtonType);
-            changeButton.addEventFilter(ActionEvent.ACTION, event -> {
-                if (newPassword.getText().isEmpty()) {
-                    errorLabel.setText("Cannot have empty password");
-                    event.consume();
-                }
+        updateUserButton.addEventFilter(ActionEvent.ACTION, event -> {
+            if (permissionsBox.getValue() == null && newPassword.getText().isEmpty()) {
+                errorLabel.setText("No attributes to update");
+                event.consume();
+            } else if (!newPassword.getText().isEmpty()) {
                 if ((!newPassword.getText().equals(confirmPassword.getText()))) {
                     errorLabel.setText("Passwords are not the same");
                     event.consume();
                 }
-                if (selectedPermissionGroup.getSelectedToggle() == null) {
-                    errorLabel.setText("Must select permission level");
-                    event.consume();
-                }
-                if (username.getText().isEmpty()) {
-                    errorLabel.setText("Cannot have empty username");
-                    event.consume();
-                } else if (controller.isAlreadyUser(username.getText())) {
-                    errorLabel.setText("Username is already taken");
-                    event.consume();
-                }
-            });
-
-            dialog.setResultConverter(dialogButton -> {
-                if (dialogButton == createButtonType) {
-                    return new ImmutableTriple<>(username.getText(), newPassword.getText(), Permissions.find(((RadioButton) selectedPermissionGroup.getSelectedToggle()).getText()));
-                }
-                return null;
-            });
-
-            Optional<Triple<String, String, Permissions>> newUserDetails = dialog.showAndWait();
-
-            if (newUserDetails.isPresent()) {
-                var userDetailsTriple = newUserDetails.get();
-
-                Platform.runLater(() -> controller.createUser(userDetailsTriple.getLeft(), userDetailsTriple.getMiddle(), userDetailsTriple.getRight()));
             }
         });
 
-        viewerButton.setOnAction(e -> {
-            togglePermissions(true);
-            Platform.runLater(() -> controller.updateSelectedPermissions(Permissions.VIEWER));
-        });
-
-        editorButton.setOnAction(e -> {
-            togglePermissions(true);
-            Platform.runLater(() -> controller.updateSelectedPermissions(Permissions.EDITOR));
-        });
-
-        adminButton.setOnAction(e -> {
-            togglePermissions(true);
-            Platform.runLater(() -> controller.updateSelectedPermissions(Permissions.ADMIN));
-        });
-
-        ToggleGroup permissionsGroup = new ToggleGroup();
-        permissionsGroup.getToggles().addAll(viewerButton, editorButton, adminButton);
-
-        changePasswordButton.setOnAction(e -> {
-            Dialog<String> dialog = new Dialog<>();
-
-            ButtonType changeButtonType = new ButtonType("Change", ButtonBar.ButtonData.OK_DONE);
-            dialog.getDialogPane().getButtonTypes().addAll(changeButtonType, ButtonType.CANCEL);
-
-            VBox passwords = new VBox();
-
-            PasswordField newPassword = new PasswordField();
-            newPassword.setPromptText("New password");
-
-            PasswordField confirmPassword = new PasswordField();
-            confirmPassword.setPromptText("Confirm new password");
-
-            Label errorLabel = new Label();
-
-            passwords.getChildren().addAll(newPassword, confirmPassword, errorLabel);
-
-            dialog.getDialogPane().setContent(passwords);
-
-            Button changeButton = (Button) dialog.getDialogPane().lookupButton(changeButtonType);
-            changeButton.addEventFilter(ActionEvent.ACTION, event -> {
-                if (newPassword.getText().isEmpty()) {
-                    errorLabel.setText("Cannot have empty password");
-                    event.consume();
-                }
-                if ((!newPassword.getText().equals(confirmPassword.getText()))) {
-                    errorLabel.setText("Passwords are not the same");
-                    event.consume();
-                }
-            });
-
-            dialog.setResultConverter(dialogButton -> {
-                if (dialogButton == changeButtonType) {
-                    return newPassword.getText();
-                }
-                return null;
-            });
-
-            Optional<String> password = dialog.showAndWait();
-
-            password.ifPresent(s -> Platform.runLater(() -> controller.updateSelectedPassword(s)));
+        updateUserButton.setOnAction(e -> {
+            if (permissionsBox.getValue() != null) {
+                controller.updateSelectedPermissions(Permissions.find(permissionsBox.getValue()));
+            }
+            if (!newPassword.getText().isEmpty()) {
+                controller.updateSelectedPassword(newPassword.getText());
+            }
         });
 
         deleteUserButton.setOnAction(e -> {
@@ -255,17 +206,36 @@ public class UserManagementScene extends BaseScene {
 
     }
 
-    public void populateUserList(Set<String> users) {
+    public void resetPermissionsBox() {
+        permissionsBox.getSelectionModel().clearSelection();
+        permissionsBox.setValue(null);
+        permissionsBox.setEditable(true);
+        permissionsBox.setEditable(false);
+    }
+
+    public void populateUserList(Map<String, Permissions> users) {
         userOptionsBox.setDisable(true);
         userToggleGroup.getToggles().clear();
+        userToggleGroup.getToggles().add(addUserButton);
         userListBox.getChildren().clear();
 
-        for (String username : users) {
+        for (Map.Entry<String, Permissions> entry : users.entrySet()) {
+            var username = entry.getKey();
+            var permissions = entry.getValue();
+
+            HBox userBox = new HBox();
             ToggleButton button = new ToggleButton(username);
+            Label permissionLabel = new Label(permissions.name());
+            permissionLabel.setAlignment(Pos.CENTER);
+
+            userBox.getChildren().addAll(permissionLabel, button);
             button.setMaxWidth(100000);
 
             button.setOnAction(e -> {
+                resetPermissionsBox();
+
                 if (button.isSelected()) {
+                    ((BorderPane) root).setRight(userOptionsBox);
                     userOptionsBox.setDisable(false);
 
                     Platform.runLater(() -> {
@@ -275,26 +245,29 @@ public class UserManagementScene extends BaseScene {
                 } else {
                     userOptionsBox.setDisable(true);
 
-                    adminButton.setSelected(false);
-                    editorButton.setSelected(false);
-                    viewerButton.setSelected(false);
+                    togglePermissions(true);
 
                     Platform.runLater(() -> controller.selectedUserProperty().set(null));
                 }
             });
 
+
+            HBox.setHgrow(button, Priority.ALWAYS);
+            HBox.setHgrow(permissionLabel, Priority.ALWAYS);
+
+            button.setPrefWidth(200);
+            permissionLabel.setPrefWidth(125);
             userToggleGroup.getToggles().add(button);
-            userListBox.getChildren().add(button);
+            userListBox.getChildren().add(userBox);
         }
     }
 
     public void togglePermissions(boolean enabled) {
-        viewerButton.setDisable(enabled);
-        editorButton.setDisable(enabled);
-        adminButton.setDisable(enabled);
+        permissionsBox.setDisable(enabled);
     }
 
     public void updateSelectedUser(Permissions permissions) {
+        resetPermissionsBox();
         if (controller.selectedUserProperty().get().equalsIgnoreCase(App.getUser().getUsername())) {
             togglePermissions(true);
             deleteUserButton.setDisable(true);
@@ -302,14 +275,5 @@ public class UserManagementScene extends BaseScene {
             togglePermissions(false);
             deleteUserButton.setDisable(false);
         }
-
-        if (permissions.equals(Permissions.ADMIN)) {
-            adminButton.setSelected(true);
-        } else if (permissions.equals(Permissions.EDITOR)) {
-            editorButton.setSelected(true);
-        } else if (permissions.equals(Permissions.VIEWER)) {
-            viewerButton.setSelected(true);
-        }
-        permissionsBox.setDisable(false);
     }
 }

@@ -21,7 +21,7 @@ import uk.ac.soton.comp2211.users.Permissions;
 
 import java.util.ArrayList;
 
-public class DashboardScene extends BaseScene {
+public class DashboardScene extends MainScene {
     DashboardController controller;
     HistogramController hController;
 
@@ -79,7 +79,7 @@ public class DashboardScene extends BaseScene {
 
         var optionsMenu = new Menu("Options");
         var uploadMenuItem = new MenuItem("Upload files");
-        var userMenuItem = new MenuItem("User management");
+        var userMenuItem = new MenuItem("Manage users");
         var themeMenuItem = new MenuItem("Switch theme");
         var logoutMenuItem = new MenuItem("Logout");
         optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem, themeMenuItem,logoutMenuItem);
