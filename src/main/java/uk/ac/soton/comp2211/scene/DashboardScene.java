@@ -112,6 +112,7 @@ public class DashboardScene extends MainScene {
         helpMenu.getItems().addAll(helpMenuItem);
 
         MenuBar menuBar = new MenuBar(optionsMenu,exportMenu,helpMenu);
+
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
             userMenuItem.setDisable(true);
             logsMenuItem.setDisable(true);
@@ -134,6 +135,16 @@ public class DashboardScene extends MainScene {
         iconWithText.getChildren().addAll(infoIcon1, iText);
         Tooltip.install(iconWithText, tooltip1);
 
+        helpMenuItem.setOnAction(e -> {
+            try {
+                File myFile = new File("src/main/resources/TESTPDF.pdf");
+                Desktop.getDesktop().open(myFile);
+            }catch(IOException e1){
+
+            }
+        });
+
+
         mainVBox.getChildren().add(menuBar);
 
         logoutMenuItem.setOnAction(e -> {
@@ -147,15 +158,6 @@ public class DashboardScene extends MainScene {
 
         userMenuItem.setOnAction(e -> {
             window.loadUserManagementScene();
-        });
-
-        helpMenuItem.setOnAction(e -> {
-            try {
-                File myFile = new File("src/main/resources/TESTPDF.pdf");
-                Desktop.getDesktop().open(myFile);
-            }catch(IOException e1){
-
-            }
         });
 
 
