@@ -18,7 +18,9 @@ import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.control.HistogramController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 import uk.ac.soton.comp2211.users.Permissions;
-
+import java.io.File;
+import java.io.IOException;
+import java.awt.Desktop;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -105,7 +107,12 @@ public class DashboardScene extends MainScene {
         var reportMenuItem = new MenuItem("Report");
         exportMenu.getItems().addAll(graphMenuItem,reportMenuItem,logsMenuItem);
 
-        MenuBar menuBar = new MenuBar(optionsMenu,exportMenu);
+        var helpMenu = new Menu("Help");
+        var helpMenuItem = new MenuItem("User guide");
+        helpMenu.getItems().addAll(helpMenuItem);
+
+        MenuBar menuBar = new MenuBar(optionsMenu,exportMenu,helpMenu);
+
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
             userMenuItem.setDisable(true);
             logsMenuItem.setDisable(true);
@@ -127,6 +134,16 @@ public class DashboardScene extends MainScene {
         StackPane iconWithText = new StackPane();
         iconWithText.getChildren().addAll(infoIcon1, iText);
         Tooltip.install(iconWithText, tooltip1);
+
+        helpMenuItem.setOnAction(e -> {
+            try {
+                File myFile = new File("src/main/resources/TESTPDF.pdf");
+                Desktop.getDesktop().open(myFile);
+            }catch(IOException e1){
+
+            }
+        });
+
 
         mainVBox.getChildren().add(menuBar);
 
@@ -603,6 +620,7 @@ public class DashboardScene extends MainScene {
         bottom.setAlignment(Pos.CENTER);
         bottom.getChildren().add(filterHBox);
         bottom.getChildren().add(filterButtonHBox);
+        bottom.setSpacing(10);
         bottom.setAlignment(Pos.CENTER);
         filterHBox.setAlignment(Pos.CENTER);
 
