@@ -6,6 +6,7 @@ import uk.ac.soton.comp2211.scene.UserManagementScene;
 import uk.ac.soton.comp2211.ui.Dialogs;
 import uk.ac.soton.comp2211.users.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class UserManagementController {
@@ -71,7 +72,28 @@ public class UserManagementController {
 
     public void updateUserList() {
         userList = credentials.getUserList();
+
         scene.populateUserList(userList);
+    }
+
+    public boolean containsSpecial(String password) {
+        return credentials.containsSpecial(password);
+    }
+
+    public boolean containsCapitals(String password) {
+        return credentials.containsCapitals(password);
+    }
+
+    public boolean containsLowers(String password) {
+        return credentials.containsLowers(password);
+    }
+
+    public boolean containsNumbers(String password) {
+        return credentials.containsNumbers(password);
+    }
+
+    public boolean correctLength(String password) {
+        return credentials.correctLength(password);
     }
 
     public void updateSelectedUser() {
