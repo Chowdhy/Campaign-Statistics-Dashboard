@@ -42,21 +42,23 @@ public class LoginScene extends MainScene {
         var loginButton = new Button("Log in");
         loginButton.getStyleClass().add("fill-button");
         root.getChildren().add(loginFields);
-        loginFields.getChildren().addAll(loginLabel,usernameInput,passwordInput,loginButton);
+        var incorrectPrompt = new Label();
+        incorrectPrompt.setStyle("-fx-text-fill: red");
+        loginFields.getChildren().addAll(loginLabel,usernameInput,passwordInput,loginButton, incorrectPrompt);
         root.setPadding(new Insets(225,500,225,500));
         loginFields.setSpacing(10);
         loginFields.setAlignment(Pos.CENTER);
         VBox.setMargin(loginLabel, new Insets(0, 0, 10, 0));
         VBox.setMargin(loginButton, new Insets(10, 0, 0, 0));
 
-        loginButton.setOnAction(e ->{
+        loginButton.setOnAction(e -> {
             try {
                 if (controller.requestLogin() != null) {
                     System.out.println("Successfully logged in!");
                     window.loadDashboard();
                     System.out.println("Done");
                 } else {
-                    Dialogs.error("Incorrect username or password");
+                    incorrectPrompt.setText("Incorrect username or password");
                     System.out.println("Unsuccessful login attempt.");
                 }
             } catch (Exception ex) {

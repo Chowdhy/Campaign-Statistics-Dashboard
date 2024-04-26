@@ -18,6 +18,9 @@ import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.control.HistogramController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 import uk.ac.soton.comp2211.users.Permissions;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,11 +37,14 @@ public class DashboardScene extends MainScene {
     BarChart<String, Number> histogram;
     BarChart<String, Number> histogram2;
     ArrayList<String> dates;
-    TextField startDate;
-    TextField endDate;
+    DatePicker startPicker;
+    DatePicker endPicker;
     Button submit;
     Button filter;
     Tooltip tooltip1;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+
     ProgressIndicator progressIndicator;
 
     public DashboardScene(MainWindow window) {
@@ -54,16 +60,27 @@ public class DashboardScene extends MainScene {
         controller.calculateMetrics("2015-01-01", controller.maxDate());
         controller.changeChart(lineChart, controller.graphNumProperty().get());
 
-        startDate.setText(dates.getFirst());
-        startDate.setPromptText(dates.getFirst());
+        startPicker.setValue(LocalDate.parse(dates.getFirst(), formatter));
+        endPicker.setValue(LocalDate.parse(dates.getLast(), formatter));
+        startPicker.setDayCellFactory(e -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || !dates.contains(date.format(formatter)));
+            }
+        });
+        endPicker.setDayCellFactory(e -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || !dates.contains(date.format(formatter)));
+            }
+        });
 
-        endDate.setText(dates.getLast());
-        endDate.setPromptText(dates.getLast());
-
-        submit.setOnAction(e -> checkGraph(dates, startDate.getText(), endDate.getText()));
+        submit.setOnAction(e -> checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter)));
         filter.setOnAction(e -> {
-//            progressIndicator.setVisible(true);
-            checkGraph(dates, startDate.getText(), endDate.getText());
+            //progressIndicator.setVisible(true);
+            checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter));
         });
     }
 
@@ -425,15 +442,16 @@ public class DashboardScene extends MainScene {
         chartVbox.setAlignment(Pos.CENTER);
 
         HBox dateSelectionBar = new HBox();
-        startDate = new TextField();
-        startDate.getStyleClass().add("login-field");
-        startDate.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
-        endDate = new TextField();endDate.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
-        endDate.getStyleClass().add("login-field");
+
+        startPicker = new DatePicker();
+        endPicker = new DatePicker();
+
+        startPicker.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
+        endPicker.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
         submit = new Button("Submit");
         submit.getStyleClass().add("fill-button");
 
-        dateSelectionBar.getChildren().addAll(startDate, endDate, submit);
+        dateSelectionBar.getChildren().addAll(startPicker, endPicker, submit);
         dateSelectionBar.setAlignment(Pos.CENTER);
         dateSelectionBar.setSpacing(10);
 

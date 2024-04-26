@@ -144,6 +144,30 @@ public class UserManagementScene extends UserScene {
                 createErrorLabel.setStyle("-fx-text-fill: red");
                 createErrorLabel.setText("Passwords are not the same");
                 event.consume();
+            } else if (!controller.correctLength(newUserPassword.getText())) {
+                createErrorLabel.setStyle("-fx-text-fill: red");
+                createErrorLabel.setText("Passwords are not the same");
+                event.consume();
+            } else if (!controller.correctLength(newUserPassword.getText())) {
+                createErrorLabel.setStyle("-fx-text-fill: red");
+                createErrorLabel.setText("Password must contain at least 8 characters");
+                event.consume();
+            } else if (!controller.containsCapitals(newUserPassword.getText())) {
+                createErrorLabel.setStyle("-fx-text-fill: red");
+                createErrorLabel.setText("Password must contain an uppercase letter");
+                event.consume();
+            } else if (!controller.containsLowers(newUserPassword.getText())) {
+                createErrorLabel.setStyle("-fx-text-fill: red");
+                createErrorLabel.setText("Password must contain a lowercase letter");
+                event.consume();
+            } else if (!controller.containsNumbers(newUserPassword.getText())) {
+                createErrorLabel.setStyle("-fx-text-fill: red");
+                createErrorLabel.setText("Password must contain a number");
+                event.consume();
+            } else if (!controller.containsSpecial(newUserPassword.getText())) {
+                createErrorLabel.setStyle("-fx-text-fill: red");
+                createErrorLabel.setText("Password must contain a special character");
+                event.consume();
             }
             if (choiceBox.getValue() == null) {
                 createErrorLabel.setStyle("-fx-text-fill: red");
@@ -193,6 +217,26 @@ public class UserManagementScene extends UserScene {
                 if ((!newPassword.getText().equals(confirmPassword.getText()))) {
                     errorLabel.setStyle("-fx-text-fill: red");
                     errorLabel.setText("Passwords are not the same");
+                    event.consume();
+                } else if (!controller.correctLength(newPassword.getText())) {
+                    errorLabel.setStyle("-fx-text-fill: red");
+                    errorLabel.setText("Password must contain at least 8 characters");
+                    event.consume();
+                } else if (!controller.containsCapitals(newPassword.getText())) {
+                    errorLabel.setStyle("-fx-text-fill: red");
+                    errorLabel.setText("Password must contain an uppercase letter");
+                    event.consume();
+                } else if (!controller.containsLowers(newPassword.getText())) {
+                    errorLabel.setStyle("-fx-text-fill: red");
+                    errorLabel.setText("Password must contain a lowercase letter");
+                    event.consume();
+                } else if (!controller.containsNumbers(newPassword.getText())) {
+                    errorLabel.setStyle("-fx-text-fill: red");
+                    errorLabel.setText("Password must contain a number");
+                    event.consume();
+                } else if (!controller.containsSpecial(newPassword.getText())) {
+                    errorLabel.setStyle("-fx-text-fill: red");
+                    errorLabel.setText("Password must contain a special character");
                     event.consume();
                 }
             }
@@ -246,6 +290,45 @@ public class UserManagementScene extends UserScene {
         choiceBox.setEditable(false);
     }
 
+    public void add (String username, Permissions permissions) {
+        HBox userBox = new HBox();
+        userBox.setAlignment(Pos.CENTER);
+        userBox.setSpacing(20);
+        ToggleButton button = new ToggleButton(username);
+        button.getStyleClass().add("admin-button");
+        Label permissionLabel = new Label(permissions.name());
+        permissionLabel.getStyleClass().add("admin-title");
+
+        userBox.getChildren().addAll(permissionLabel, button);
+        button.setMaxWidth(100000);
+
+        button.setOnAction(e -> {
+            resetPermissionsBox(permissionsBox);
+
+            errorLabel.setText(null);
+
+            if (button.isSelected()) {
+                ((BorderPane) root).setRight(userOptionsBox);
+
+                Platform.runLater(() -> {
+                    controller.selectedUserProperty().set(button.getText());
+                    updateOptionsBox();
+                });
+            } else {
+                userOptionsBox.setDisable(true);
+
+                togglePermissions(true);
+
+                Platform.runLater(() -> controller.selectedUserProperty().set(null));
+            }
+        });
+
+        button.setPrefWidth(140);
+        permissionLabel.setPrefWidth(50);
+        userToggleGroup.getToggles().add(button);
+        userListBox.getChildren().add(userBox);
+    }
+
     public void populateUserList(Map<String, Permissions> users) {
         userOptionsBox.setDisable(true);
         userToggleGroup.getToggles().clear();
@@ -256,43 +339,23 @@ public class UserManagementScene extends UserScene {
             var username = entry.getKey();
             var permissions = entry.getValue();
 
-            HBox userBox = new HBox();
-            userBox.setAlignment(Pos.CENTER);
-            userBox.setSpacing(20);
-            ToggleButton button = new ToggleButton(username);
-            button.getStyleClass().add("admin-button");
-            Label permissionLabel = new Label(permissions.name());
-            permissionLabel.getStyleClass().add("admin-title");
-
-            userBox.getChildren().addAll(permissionLabel, button);
-            button.setMaxWidth(100000);
-
-            button.setOnAction(e -> {
-                resetPermissionsBox(permissionsBox);
-
-                errorLabel.setText(null);
-
-                if (button.isSelected()) {
-                    ((BorderPane) root).setRight(userOptionsBox);
-
-                    Platform.runLater(() -> {
-                        controller.selectedUserProperty().set(button.getText());
-                        updateOptionsBox();
-                    });
-                } else {
-                    userOptionsBox.setDisable(true);
-
-                    togglePermissions(true);
-
-                    Platform.runLater(() -> controller.selectedUserProperty().set(null));
-                }
-            });
-
-            button.setPrefWidth(140);
-            permissionLabel.setPrefWidth(50);
-            userToggleGroup.getToggles().add(button);
-            userListBox.getChildren().add(userBox);
+            if (permissions.equals(Permissions.ADMIN)) add(username, permissions);
         }
+
+        for (Map.Entry<String, Permissions> entry : users.entrySet()) {
+            var username = entry.getKey();
+            var permissions = entry.getValue();
+
+            if (permissions.equals(Permissions.EDITOR)) add(username, permissions);
+        }
+
+        for (Map.Entry<String, Permissions> entry : users.entrySet()) {
+            var username = entry.getKey();
+            var permissions = entry.getValue();
+
+            if (permissions.equals(Permissions.VIEWER)) add(username, permissions);
+        }
+
         if (controller.selectedUserProperty().get() != null) {
             updateOptionsBox();
         }
@@ -320,12 +383,12 @@ public class UserManagementScene extends UserScene {
     public void updateSelectedUser(String message) {
         resetPermissionsBox(permissionsBox);
         updateOptionsBox();
-        errorLabel.setStyle("-fx-text-fill: black");
+        errorLabel.setStyle("-fx-text-fill: green");
         errorLabel.setText(message);
     }
 
     public void promptSuccessfulCreate(String message) {
-        createErrorLabel.setStyle("-fx-text-fill: black");
+        createErrorLabel.setStyle("-fx-text-fill: green");
         createErrorLabel.setText(message);
         resetPermissionsBox(choiceBox);
         username.setText(null);
