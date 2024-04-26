@@ -12,6 +12,8 @@ import java.sql.Statement;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Credentials {
     private static final String databaseName = "user_info";
@@ -242,5 +244,37 @@ public class Credentials {
         }
 
         return userList;
+    }
+
+    public boolean containsSpecial(String message) {
+        Pattern p = Pattern.compile("[^a-z0-9]", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(message);
+
+        return m.find();
+    }
+
+    public boolean containsCapitals(String message) {
+        Pattern p = Pattern.compile("[A-Z]");
+        Matcher m = p.matcher(message);
+
+        return m.find();
+    }
+
+    public boolean containsLowers(String message) {
+        Pattern p = Pattern.compile("[a-z]");
+        Matcher m = p.matcher(message);
+
+        return m.find();
+    }
+
+    public boolean containsNumbers(String message) {
+        Pattern p = Pattern.compile("[0-9]");
+        Matcher m = p.matcher(message);
+
+        return m.find();
+    }
+
+    public boolean correctLength(String message) {
+        return message.length() >= 8;
     }
 }
