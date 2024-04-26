@@ -18,15 +18,12 @@ import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.control.HistogramController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 import uk.ac.soton.comp2211.users.Permissions;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.awt.Desktop;
-
-
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class DashboardScene extends MainScene {
     DashboardController controller;
