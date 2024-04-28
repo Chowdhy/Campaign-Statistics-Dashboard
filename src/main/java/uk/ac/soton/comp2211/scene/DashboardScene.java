@@ -148,7 +148,7 @@ public class DashboardScene extends MainScene {
         mainVBox.getChildren().add(menuBar);
 
         logoutMenuItem.setOnAction(e -> {
-            App.setUser(null);
+            controller.requestLogout();
             window.loadLoginScene();
         });
 
@@ -443,7 +443,13 @@ public class DashboardScene extends MainScene {
         HBox dateSelectionBar = new HBox();
 
         startPicker = new DatePicker();
+        startPicker.getStyleClass().add("date-picker");
+        startPicker.getEditor().setDisable(true);
+        startPicker.getEditor().setOpacity(1);
         endPicker = new DatePicker();
+        startPicker.getStyleClass().add("date-picker");
+        endPicker.getEditor().setDisable(true);
+        endPicker.getEditor().setOpacity(1);
 
         startPicker.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
         endPicker.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");

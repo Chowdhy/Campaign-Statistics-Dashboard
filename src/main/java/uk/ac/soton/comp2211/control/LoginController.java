@@ -4,6 +4,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.users.Credentials;
+import uk.ac.soton.comp2211.users.OperationLogging;
 import uk.ac.soton.comp2211.users.Permissions;
 import uk.ac.soton.comp2211.users.User;
 
@@ -25,6 +26,9 @@ public class LoginController {
             Permissions permissions = credentials.getPermissions(username);
             User user = new User(username, permissions);
             App.setUser(user);
+
+            OperationLogging.logAction("Logged in");
+
             return user;
         } else {
             return null;

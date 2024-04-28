@@ -4,8 +4,10 @@ import javafx.beans.property.*;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.util.Pair;
+import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.data.graph.GraphData;
 import uk.ac.soton.comp2211.ui.Dialogs;
+import uk.ac.soton.comp2211.users.OperationLogging;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -78,6 +80,12 @@ public class DashboardController {
         }
 
         return true;
+    }
+
+    public void requestLogout() {
+        OperationLogging.logAction("Logged out");
+
+        App.setUser(null);
     }
 
     public BooleanProperty maleProperty(){
