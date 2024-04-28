@@ -137,7 +137,7 @@ public class DashboardScene extends MainScene {
 
         helpMenuItem.setOnAction(e -> {
             try {
-                File myFile = new File("src/main/resources/TESTPDF.pdf");
+                File myFile = new File("src/main/resources/guide.pdf");
                 Desktop.getDesktop().open(myFile);
             }catch(IOException e1){
 
