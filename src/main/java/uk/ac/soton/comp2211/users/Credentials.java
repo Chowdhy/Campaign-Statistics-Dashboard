@@ -82,6 +82,8 @@ public class Credentials {
             prep.setString(2, hash(password));
             prep.setString(3, permissions.name().toUpperCase());
 
+            OperationLogging.logAction("Created user '" + username + "' with " + permissions.name() + " permissions");
+
             return prep.execute();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -109,6 +111,8 @@ public class Credentials {
              PreparedStatement prep = conn.prepareStatement(deleteSql)) {
             prep.setString(1, username.toLowerCase());
 
+            OperationLogging.logAction("Deleted user '" + username + "'");
+
             return prep.execute();
         } catch (Exception e) {
             return false;
@@ -133,6 +137,9 @@ public class Credentials {
              PreparedStatement prep = conn.prepareStatement(updateSQL)) {
             prep.setString(1, hash(password));
             prep.setString(2, username.toLowerCase());
+
+            OperationLogging.logAction("Changed password of user '" + username + "'");
+
             return prep.execute();
         } catch (Exception e) {
             return false;
@@ -165,6 +172,10 @@ public class Credentials {
              PreparedStatement stat = conn.prepareStatement(updateSql)) {
             stat.setString(1, permissions.name().toUpperCase());
             stat.setString(2, username.toLowerCase());
+
+            Permissions old = getPermissions(username);
+
+            OperationLogging.logAction("Changed permissions of user '" + username + "' from " + old.name() + " to " + permissions.name());
 
             return stat.execute();
         } catch (Exception e) {

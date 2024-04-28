@@ -3,6 +3,7 @@ package uk.ac.soton.comp2211.control;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 import uk.ac.soton.comp2211.data.parsing.*;
+import uk.ac.soton.comp2211.users.OperationLogging;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -42,6 +43,8 @@ public class FileInputController {
         return new Task<>() {
             @Override
             protected Void call() throws Exception {
+                OperationLogging.logAction("Uploaded campaign files");
+
                 impressionLogParser.parse();
                 clickLogParser.parse();
                 serverLogParser.parse();

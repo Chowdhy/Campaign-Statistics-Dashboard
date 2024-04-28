@@ -6,6 +6,7 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2211.users.OperationLogging;
 import uk.ac.soton.comp2211.users.User;
 
 /**
@@ -39,6 +40,9 @@ public class App extends Application {
 
     public void shutdown() {
         logger.info("Closing instance");
+
+        if (getUser() != null) OperationLogging.logAction("Logged out");
+
         System.exit(0);
     }
 
