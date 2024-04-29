@@ -3,10 +3,7 @@ package uk.ac.soton.comp2211.users;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.data.Database;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,26 +54,37 @@ public class OperationLogging {
         return log;
     }
 
-    public static File getLogCSV(String path) {
-        List<String[]> entries = getLog();
+    public static File getLogCSV(String outputDirectory) {
+        List<String[]> entries = getLog(); // Assuming getLog() method is defined elsewhere
 
         if (entries == null) return null;
 
-        File outputFile = new File(path);
+        // Specify the filename
+        String fileName = "log.csv";
+
+        // Create the full path by concatenating the output directory and filename
+        String filePath = outputDirectory + File.separator + fileName;
+
+        File outputFile = new File(filePath);
 
         try {
-            outputFile.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            // Open the file in append mode if it exists, otherwise create a new file
+            PrintWriter writer = new PrintWriter(new FileWriter(outputFile, true));
 
-        try (PrintWriter writer = new PrintWriter(outputFile)) {
-            writer.println("Timestamp,Username,Action");
+            // Write header only if the file is newly created
+            if (outputFile.length() == 0) {
+                writer.println("Timestamp,Username,Action");
+            }
+
+            // Write log entries to file
             entries.stream()
                     .map(entry -> String.join(",", entry))
                     .forEach(writer::println);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+
+            // Close the writer
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error writing to file: " + filePath, e);
         }
 
         return outputFile;

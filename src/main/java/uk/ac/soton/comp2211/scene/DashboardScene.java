@@ -145,6 +145,10 @@ public class DashboardScene extends MainScene {
             }
         });
 
+        logsMenuItem.setOnAction(e -> {
+           window.loadExportLogsScene();
+        });
+
 
         mainVBox.getChildren().add(menuBar);
 

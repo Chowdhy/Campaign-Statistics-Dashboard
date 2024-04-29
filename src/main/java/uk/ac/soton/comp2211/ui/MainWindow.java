@@ -48,6 +48,11 @@ public class MainWindow extends Window {
         loadScene(dashboardScene);
     }
 
+    public void loadExportLogsScene(){
+        var exportLogsScene = new ExportLogsScene(this);
+        loadScene(exportLogsScene);
+    }
+
     public void loadLoginScene() {
         loadScene(new LoginScene(this));
     }
