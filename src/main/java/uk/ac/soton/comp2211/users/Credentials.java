@@ -257,35 +257,47 @@ public class Credentials {
         return userList;
     }
 
-    public boolean containsSpecial(String message) {
+    public boolean containsSpecial(String password) {
         Pattern p = Pattern.compile("[^a-z0-9]", Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(message);
+        Matcher m = p.matcher(password);
 
         return m.find();
     }
 
-    public boolean containsCapitals(String message) {
+    public boolean containsCapitals(String password) {
         Pattern p = Pattern.compile("[A-Z]");
-        Matcher m = p.matcher(message);
+        Matcher m = p.matcher(password);
 
         return m.find();
     }
 
-    public boolean containsLowers(String message) {
+    public boolean containsLowers(String password) {
         Pattern p = Pattern.compile("[a-z]");
-        Matcher m = p.matcher(message);
+        Matcher m = p.matcher(password);
 
         return m.find();
     }
 
-    public boolean containsNumbers(String message) {
+    public boolean containsNumbers(String password) {
         Pattern p = Pattern.compile("[0-9]");
-        Matcher m = p.matcher(message);
+        Matcher m = p.matcher(password);
 
         return m.find();
     }
 
-    public boolean correctLength(String message) {
-        return message.length() >= 8;
+    public boolean correctLength(String password) {
+        return password.length() >= 8;
+    }
+
+    public boolean isValidPassword(String password) throws InvalidPasswordException {
+        if (password.contains(" ")) throw new InvalidPasswordException("Password cannot include spaces");
+
+        if (!correctLength(password)) throw new InvalidPasswordException("Password must be at least 8 characters long");
+
+        if (!containsNumbers(password)) throw new InvalidPasswordException("Password must include a number");
+
+        if (!containsSpecial(password)) throw new InvalidPasswordException("Password must include a special character");
+
+        return true;
     }
 }

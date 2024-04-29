@@ -76,24 +76,8 @@ public class UserManagementController {
         scene.populateUserList(userList);
     }
 
-    public boolean containsSpecial(String password) {
-        return credentials.containsSpecial(password);
-    }
-
-    public boolean containsCapitals(String password) {
-        return credentials.containsCapitals(password);
-    }
-
-    public boolean containsLowers(String password) {
-        return credentials.containsLowers(password);
-    }
-
-    public boolean containsNumbers(String password) {
-        return credentials.containsNumbers(password);
-    }
-
-    public boolean correctLength(String password) {
-        return credentials.correctLength(password);
+    public boolean isValidPassword(String password) throws InvalidPasswordException {
+        return credentials.isValidPassword(password);
     }
 
     public void updateSelectedUser() {
