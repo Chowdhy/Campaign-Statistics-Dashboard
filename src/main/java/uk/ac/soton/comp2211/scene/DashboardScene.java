@@ -24,6 +24,7 @@ import java.awt.Desktop;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.function.UnaryOperator;
 
 public class DashboardScene extends MainScene {
     DashboardController controller;
@@ -159,7 +160,6 @@ public class DashboardScene extends MainScene {
         userMenuItem.setOnAction(e -> {
             window.loadUserManagementScene();
         });
-
 
 
         SplitPane splitPane = new SplitPane();
@@ -348,6 +348,16 @@ public class DashboardScene extends MainScene {
         singlePageBounceButton.getStyleClass().add("filter-text");
         singlePageBounceButton.setToggleGroup(group);
         TextField defineBounce = new TextField();
+        UnaryOperator<TextFormatter.Change> bounceInputController = change -> {
+            String text = change.getText();
+
+            if (text.matches("\\d?")) { // this is the important line
+                return change;
+            }
+
+            return null;
+        };
+        defineBounce.setTextFormatter(new TextFormatter<String>(bounceInputController));
         defineBounce.setPrefWidth(50);
         defineBounce.setPromptText("1-" + controller.maxTime());
         defineBounce.setStyle("-fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);");
@@ -634,7 +644,7 @@ public class DashboardScene extends MainScene {
 
 
         leftSplitPane.setOrientation(Orientation.VERTICAL);
-        bottom.setStyle("-fx-background-color: white;");
+        leftSplitPane.setStyle("-fx-background-color: white;");
         leftSplitPane.getItems().add(chartVbox);
         leftSplitPane.getItems().add(bottom);
 
