@@ -1,5 +1,7 @@
 package uk.ac.soton.comp2211.scene;
 
+import javafx.event.ActionEvent;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -17,7 +19,9 @@ import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.control.HistogramController;
 import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2211.users.InvalidPasswordException;
 import uk.ac.soton.comp2211.users.Permissions;
+
 import java.io.File;
 import java.io.IOException;
 import java.awt.Desktop;
@@ -93,14 +97,58 @@ public class DashboardScene extends MainScene {
         VBox.setVgrow(mainVBox,Priority.ALWAYS);
         root.getChildren().add(mainVBox);
 
-
         var optionsMenu = new Menu("Options");
         var uploadMenuItem = new MenuItem("Upload files");
         var userMenuItem = new MenuItem("Manage users");
         var themeMenuItem = new MenuItem("Switch theme");
+        var passwordMenuItem = new MenuItem("Change password");
         var logoutMenuItem = new MenuItem("Logout");
-        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem, themeMenuItem,logoutMenuItem);
+        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem, themeMenuItem, passwordMenuItem, logoutMenuItem);
 
+        Dialog<Void> passwordDialog = new Dialog<>();
+        passwordDialog.setTitle("Change your password");
+        passwordDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        passwordMenuItem.setOnAction(e -> passwordDialog.showAndWait());
+
+        PasswordField newPassword = new PasswordField();
+        newPassword.setPromptText("Enter new password");
+        PasswordField confirmPassword = new PasswordField();
+        confirmPassword.setPromptText("Confirm new password");
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: red");
+
+        VBox dialogContent = new VBox();
+        dialogContent.setMinWidth(275);
+        dialogContent.getChildren().addAll(newPassword, confirmPassword, errorLabel);
+
+        Button okButton = (Button) passwordDialog.getDialogPane().lookupButton(ButtonType.OK);
+
+        passwordDialog.getDialogPane().setContent(dialogContent);
+        okButton.addEventFilter(ActionEvent.ACTION, ae -> {
+            if (newPassword.getText() == null || newPassword.getText().isEmpty()) {
+                errorLabel.setText("Password cannot be empty");
+                ae.consume();
+            } else if (!newPassword.getText().equals(confirmPassword.getText())) {
+                errorLabel.setText("Passwords must be the same");
+                ae.consume();
+            } else {
+                try {
+                    controller.isValidPassword(newPassword.getText());
+                } catch (InvalidPasswordException e) {
+                    errorLabel.setText(e.getMessage());
+                    ae.consume();
+                }
+            }
+        });
+
+        passwordDialog.setResultConverter(dialogButton -> {
+            if (dialogButton.equals(ButtonType.OK)) {
+                controller.updatePassword(newPassword.getText());
+            }
+
+            return null;
+        });
 
         var exportMenu = new Menu("Export");
         var logsMenuItem = new MenuItem("Logs");

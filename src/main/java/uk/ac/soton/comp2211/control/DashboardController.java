@@ -7,7 +7,7 @@ import javafx.util.Pair;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.data.graph.GraphData;
 import uk.ac.soton.comp2211.ui.Dialogs;
-import uk.ac.soton.comp2211.users.OperationLogging;
+import uk.ac.soton.comp2211.users.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -86,6 +86,22 @@ public class DashboardController {
         OperationLogging.logAction("Logged out");
 
         App.setUser(null);
+    }
+
+    public boolean isValidPassword(String password) throws InvalidPasswordException {
+        Credentials credentials = new Credentials();
+
+        return credentials.isValidPassword(password);
+    }
+
+    public void updatePassword(String password) {
+        Credentials credentials = new Credentials();
+
+        try {
+            credentials.resetPassword(App.getUser().getUsername(), password);
+        } catch (UserDoesntExistException | IncorrectPermissionsException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public BooleanProperty maleProperty(){
