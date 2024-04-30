@@ -58,6 +58,7 @@ public class DashboardScene extends MainScene {
         controller.calculateMetrics("2015-01-01", controller.maxDate());
         controller.changeChart(lineChart, controller.graphNumProperty().get());
 
+
         startPicker.setValue(LocalDate.parse(dates.getFirst(), formatter));
         endPicker.setValue(LocalDate.parse(dates.getLast(), formatter));
         startPicker.setDayCellFactory(e -> new DateCell() {
@@ -147,6 +148,10 @@ public class DashboardScene extends MainScene {
 
         logsMenuItem.setOnAction(e -> {
            window.loadExportLogsScene();
+        });
+
+        reportMenuItem.setOnAction(e -> {
+            window.loadExportValuesScene(controller.collateNumericalReport());
         });
 
 

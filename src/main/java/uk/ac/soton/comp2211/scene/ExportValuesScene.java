@@ -1,5 +1,7 @@
 package uk.ac.soton.comp2211.scene;
+
 import java.io.File;
+import java.util.List;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -10,15 +12,17 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import uk.ac.soton.comp2211.control.FileInputController;
+import uk.ac.soton.comp2211.data.Export.ReportExporter;
 import uk.ac.soton.comp2211.ui.MainWindow;
 import uk.ac.soton.comp2211.users.OperationLogging;
 
 
-public class ExportLogsScene extends MainScene{
+public class ExportValuesScene extends MainScene{
+    private List<Number> dataArray;
 
-
-    public ExportLogsScene(MainWindow window) {
+    public ExportValuesScene(MainWindow window, List<Number> arr) {
         super(window);
+        this.dataArray = arr;
     }
 
     @Override
@@ -35,10 +39,10 @@ public class ExportLogsScene extends MainScene{
 
         var centreBox = new VBox();
 
-        var exportLabel = new Label("Export Logs");
+        var exportLabel = new Label("Export Reports");
         exportLabel.getStyleClass().add("form-title");
 
-        var folderLabel = new Label("Export to Path");
+        var folderLabel = new Label("Export to File Path");
 
         var folderField = new TextField();
         folderField.getStyleClass().add("login-field");
@@ -61,7 +65,7 @@ public class ExportLogsScene extends MainScene{
 
         folderPathBox.getChildren().addAll(folderField, folderExplorer);
 
-        var exportButton = new Button("Export");
+        var exportButton = new Button("Export Report");
         exportButton.getStyleClass().add("fill-button");
 
         ProgressIndicator progressIndicator = new ProgressIndicator();
@@ -99,7 +103,7 @@ public class ExportLogsScene extends MainScene{
 
         exportButton.setOnAction(event -> {
             String folderPath = folderField.getText();
-            OperationLogging.getLogCSV(folderPath);
+            ReportExporter.getReportCSV(folderPath, dataArray);
         });
 
         backButton.setOnAction( e -> {
@@ -107,6 +111,7 @@ public class ExportLogsScene extends MainScene{
         });
 
     }
+
 
     @Override
     public void cleanup() {

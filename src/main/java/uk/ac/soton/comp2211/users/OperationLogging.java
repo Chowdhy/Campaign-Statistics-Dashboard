@@ -7,6 +7,7 @@ import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class OperationLogging {
     private static final String databaseName = "user_info";
@@ -55,33 +56,38 @@ public class OperationLogging {
     }
 
     public static File getLogCSV(String outputDirectory) {
-        List<String[]> entries = getLog(); // Assuming getLog() method is defined elsewhere
+        List<String[]> entries = getLog();
 
         if (entries == null) return null;
 
-        // Specify the filename
+
+
         String fileName = "log.csv";
 
-        // Create the full path by concatenating the output directory and filename
+
+
         String filePath = outputDirectory + File.separator + fileName;
 
         File outputFile = new File(filePath);
 
         try {
-            // Open the file in append mode if it exists, otherwise create a new file
+
+
             PrintWriter writer = new PrintWriter(new FileWriter(outputFile, true));
 
-            // Write header only if the file is newly created
+
+
             if (outputFile.length() == 0) {
                 writer.println("Timestamp,Username,Action");
             }
 
-            // Write log entries to file
+
+
             entries.stream()
                     .map(entry -> String.join(",", entry))
                     .forEach(writer::println);
 
-            // Close the writer
+            writer.flush();
             writer.close();
         } catch (IOException e) {
             throw new RuntimeException("Error writing to file: " + filePath, e);

@@ -6,6 +6,8 @@ import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.scene.*;
 
+import java.util.List;
+
 public class MainWindow extends Window {
     private static final Logger logger = LogManager.getLogger(MainWindow.class);
     private BaseScene dashboardScene;
@@ -51,6 +53,11 @@ public class MainWindow extends Window {
     public void loadExportLogsScene(){
         var exportLogsScene = new ExportLogsScene(this);
         loadScene(exportLogsScene);
+    }
+
+    public void loadExportValuesScene(List<Number> arr){
+        var exportValuesScene = new ExportValuesScene(this, arr);
+        loadScene(exportValuesScene);
     }
 
     public void loadLoginScene() {
