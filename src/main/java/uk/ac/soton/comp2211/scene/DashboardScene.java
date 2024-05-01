@@ -45,7 +45,9 @@ public class DashboardScene extends MainScene {
     Button filter;
     Tooltip tooltip1;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
+    HBox filterHBox;
+    VBox chartVbox;
+    VBox metricsVBox;
 
     ProgressIndicator progressIndicator;
 
@@ -55,35 +57,44 @@ public class DashboardScene extends MainScene {
 
     @Override
     public void initialise() {
-        controller.setMaxValues();
-        tooltip1.setText("Page range: 1-" + controller.maxPage() + "\nTime range: 1-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce metrics");
-        dates = controller.getDates("2015-01-01", controller.maxDate());
+        try {
+            controller.setMaxValues();
+            tooltip1.setText("Page range: 1-" + controller.maxPage() + "\nTime range: 1-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce metrics");
+            dates = controller.getDates("2015-01-01", controller.maxDate());
 
-        controller.calculateMetrics("2015-01-01", controller.maxDate());
-        controller.changeChart(lineChart, controller.graphNumProperty().get());
+            controller.calculateMetrics("2015-01-01", controller.maxDate());
+            controller.changeChart(lineChart, controller.graphNumProperty().get());
 
-        startPicker.setValue(LocalDate.parse(dates.getFirst(), formatter));
-        endPicker.setValue(LocalDate.parse(dates.getLast(), formatter));
-        startPicker.setDayCellFactory(e -> new DateCell() {
-            @Override
-            public void updateItem(LocalDate date, boolean empty) {
-                super.updateItem(date, empty);
-                setDisable(empty || !dates.contains(date.format(formatter)));
-            }
-        });
-        endPicker.setDayCellFactory(e -> new DateCell() {
-            @Override
-            public void updateItem(LocalDate date, boolean empty) {
-                super.updateItem(date, empty);
-                setDisable(empty || !dates.contains(date.format(formatter)));
-            }
-        });
+            startPicker.setValue(LocalDate.parse(dates.getFirst(), formatter));
+            endPicker.setValue(LocalDate.parse(dates.getLast(), formatter));
 
-        submit.setOnAction(e -> checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter)));
-        filter.setOnAction(e -> {
-            //progressIndicator.setVisible(true);
-            checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter));
-        });
+            startPicker.setDayCellFactory(e -> new DateCell() {
+                @Override
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || !dates.contains(date.format(formatter)));
+                }
+            });
+            endPicker.setDayCellFactory(e -> new DateCell() {
+                @Override
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || !dates.contains(date.format(formatter)));
+                }
+            });
+
+            submit.setOnAction(e -> checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter)));
+            filter.setOnAction(e -> {
+                //progressIndicator.setVisible(true);
+                checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter));
+            });
+        } catch (Exception e) {
+
+        }
+
+        lineChart.setMinWidth(lineChart.getWidth()-150);
+        chartVbox.setMinHeight(chartVbox.getHeight()-100);
+        metricsVBox.setMinWidth(metricsVBox.getWidth()-75);
     }
 
     @Override
@@ -252,7 +263,7 @@ public class DashboardScene extends MainScene {
         leftSplitPane.setDividerPosition(0,0.68);
 
 
-        VBox metricsVBox = new VBox();
+        metricsVBox = new VBox();
         VBox.setVgrow(metricsVBox, Priority.ALWAYS);
 
         metricsVBox.setSpacing(1);
@@ -412,7 +423,7 @@ public class DashboardScene extends MainScene {
 
 
 
-        HBox filterHBox = new HBox();
+        filterHBox = new HBox();
         filterHBox.setSpacing(20);
         VBox bounceFilter = new VBox();
         VBox genderFilters = new VBox();
@@ -526,7 +537,7 @@ public class DashboardScene extends MainScene {
         lineChart.setAnimated(false);
         lineChart.setLegendVisible(false);
 
-        VBox chartVbox = new VBox();
+        chartVbox = new VBox();
         chartVbox.setPadding(new Insets(5, 0, 0, 0));
         chartVbox.setSpacing(10);
         chartVbox.setAlignment(Pos.CENTER);
@@ -728,9 +739,6 @@ public class DashboardScene extends MainScene {
         leftSplitPane.setStyle("-fx-background-color: white;");
         leftSplitPane.getItems().add(chartVbox);
         leftSplitPane.getItems().add(bottom);
-
-        //leftSplitPane.setMinWidth(leftSplitPane.getWidth());
-        //leftSplitPane.setMaxWidth(leftSplitPane.getWidth());
     }
 
     @Override
