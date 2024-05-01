@@ -23,7 +23,7 @@ public class ExportChartScene extends MainScene {
 
     @Override
     public void build() {
-        File file = new File("Hello.pdf");
+        File file = new File("Hello.png");
 
         try {
             ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
