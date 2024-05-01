@@ -9,5 +9,6 @@ module uk.ac.soton.comp2211 {
     requires org.apache.logging.log4j;
     requires org.apache.commons.lang3;
     requires javafx.swing;
+    requires org.apache.pdfbox;
     exports uk.ac.soton.comp2211;
 }

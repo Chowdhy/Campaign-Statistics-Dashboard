@@ -190,7 +190,7 @@ public class DashboardScene extends MainScene {
 
         var graphMenuItem = new MenuItem("Graph");
         graphMenuItem.setOnAction(e -> {
-            window.loadExportChartScene(lineChart.snapshot(new SnapshotParameters(), new WritableImage((int) lineChart.getWidth(), (int) lineChart.getHeight())));
+            window.loadExportChartScene(chartVbox.snapshot(new SnapshotParameters(), new WritableImage((int) chartVbox.getWidth(), (int) chartVbox.getHeight())));
         });
 
         var reportMenuItem = new MenuItem("Report");

@@ -101,7 +101,7 @@ public class DashboardController {
         App.setUser(null);
     }
 
-    public List<Number> collateNumericalReport(){
+    public List<Number> collateNumericalReport() {
         List<Number> typeList = new ArrayList<>();
 
         typeList.add(impressionsNumProperty().getValue());
@@ -116,6 +116,8 @@ public class DashboardController {
         typeList.add(bounceRateNumProperty().getValue());
         typeList.add(totalNumProperty().getValue());
         return typeList;
+
+    }
 
     public boolean isValidPassword(String password) throws InvalidPasswordException {
         Credentials credentials = new Credentials();
