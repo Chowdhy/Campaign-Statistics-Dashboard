@@ -104,10 +104,10 @@ public class DashboardScene extends MainScene {
 
 
         var exportMenu = new Menu("Export");
-        var logsMenuItem = new MenuItem("Logs");
+
         var graphMenuItem = new MenuItem("Graph");
         var reportMenuItem = new MenuItem("Report");
-        exportMenu.getItems().addAll(graphMenuItem,reportMenuItem,logsMenuItem);
+        exportMenu.getItems().addAll(graphMenuItem,reportMenuItem);
 
         var helpMenu = new Menu("Help");
         var helpMenuItem = new MenuItem("User guide");
@@ -117,11 +117,11 @@ public class DashboardScene extends MainScene {
 
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
             userMenuItem.setDisable(true);
-            logsMenuItem.setDisable(true);
+
         }else if(App.getUser().getPermissions().equals(Permissions.VIEWER)){
             userMenuItem.setDisable(true);
             uploadMenuItem.setDisable(true);
-            logsMenuItem.setDisable(true);
+
         }
 
         Circle infoIcon1 = new Circle(10, Color.rgb(122, 185, 255));
@@ -146,9 +146,6 @@ public class DashboardScene extends MainScene {
             }
         });
 
-        logsMenuItem.setOnAction(e -> {
-           window.loadExportLogsScene();
-        });
 
         reportMenuItem.setOnAction(e -> {
             window.loadExportValuesScene(controller.collateNumericalReport());

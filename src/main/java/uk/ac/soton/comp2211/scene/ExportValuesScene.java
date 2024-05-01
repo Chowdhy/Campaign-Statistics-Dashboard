@@ -39,9 +39,10 @@ public class ExportValuesScene extends MainScene{
 
         var centreBox = new VBox();
 
-        var exportLabel = new Label("Export Reports");
+        var exportLabel = new Label("Export Reports (report.csv)");
         exportLabel.getStyleClass().add("form-title");
-
+        var incorrectPrompt = new Label();
+        incorrectPrompt.setStyle("-fx-text-fill: red");
         var folderLabel = new Label("Export to File Path");
 
         var folderField = new TextField();
@@ -75,7 +76,7 @@ public class ExportValuesScene extends MainScene{
         var buttonsHBox = new HBox();
         var backButton = new Button("Back");
         backButton.getStyleClass().add("outline-button");
-        buttonsHBox.getChildren().addAll(backButton,exportButton);
+        buttonsHBox.getChildren().addAll(backButton,exportButton, incorrectPrompt);
         buttonsHBox.setSpacing(10);
         buttonsHBox.setAlignment(Pos.CENTER);
 
@@ -102,8 +103,13 @@ public class ExportValuesScene extends MainScene{
 
 
         exportButton.setOnAction(event -> {
-            String folderPath = folderField.getText();
-            ReportExporter.getReportCSV(folderPath, dataArray);
+            try {
+                String folderPath = folderField.getText();
+                ReportExporter.getReportCSV(folderPath, dataArray);
+                window.switchToDashboard();
+            }catch (Exception e){
+                incorrectPrompt.setText("Exporting failed, make sure report.csv is not open");
+            }
         });
 
         backButton.setOnAction( e -> {

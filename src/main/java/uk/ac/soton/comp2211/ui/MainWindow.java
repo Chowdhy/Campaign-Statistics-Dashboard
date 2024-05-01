@@ -50,11 +50,6 @@ public class MainWindow extends Window {
         loadScene(dashboardScene);
     }
 
-    public void loadExportLogsScene(){
-        var exportLogsScene = new ExportLogsScene(this);
-        loadScene(exportLogsScene);
-    }
-
     public void loadExportValuesScene(List<Number> arr){
         var exportValuesScene = new ExportValuesScene(this, arr);
         loadScene(exportValuesScene);

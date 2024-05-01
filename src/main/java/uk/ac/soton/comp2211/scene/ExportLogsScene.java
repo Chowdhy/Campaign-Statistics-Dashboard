@@ -11,13 +11,14 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import uk.ac.soton.comp2211.control.FileInputController;
 import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2211.ui.UserWindow;
 import uk.ac.soton.comp2211.users.OperationLogging;
 
 
-public class ExportLogsScene extends MainScene{
+public class ExportLogsScene extends UserScene{
 
 
-    public ExportLogsScene(MainWindow window) {
+    public ExportLogsScene(UserWindow window) {
         super(window);
     }
 
@@ -35,7 +36,7 @@ public class ExportLogsScene extends MainScene{
 
         var centreBox = new VBox();
 
-        var exportLabel = new Label("Export Logs");
+        var exportLabel = new Label("Export Logs (log.csv)");
         exportLabel.getStyleClass().add("form-title");
 
         var folderLabel = new Label("Export to Path");
@@ -70,8 +71,10 @@ public class ExportLogsScene extends MainScene{
 
         var buttonsHBox = new HBox();
         var backButton = new Button("Back");
+        var incorrectPrompt = new Label();
+        incorrectPrompt.setStyle("-fx-text-fill: red");
         backButton.getStyleClass().add("outline-button");
-        buttonsHBox.getChildren().addAll(backButton,exportButton);
+        buttonsHBox.getChildren().addAll(backButton,exportButton, incorrectPrompt);
         buttonsHBox.setSpacing(10);
         buttonsHBox.setAlignment(Pos.CENTER);
 
@@ -96,14 +99,19 @@ public class ExportLogsScene extends MainScene{
         });
 
 
-
         exportButton.setOnAction(event -> {
-            String folderPath = folderField.getText();
-            OperationLogging.getLogCSV(folderPath);
+           try {
+               String folderPath = folderField.getText();
+               OperationLogging.getLogCSV(folderPath);
+               window.loadUserManagementScene();
+           }catch (Exception e){
+               incorrectPrompt.setText("Export Failed, make sure log.csv is not open.");
+
+            }
         });
 
         backButton.setOnAction( e -> {
-            window.switchToDashboard();
+            window.loadUserManagementScene();
         });
 
     }
