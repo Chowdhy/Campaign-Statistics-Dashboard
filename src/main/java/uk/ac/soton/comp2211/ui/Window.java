@@ -44,11 +44,6 @@ public abstract class Window {
     abstract void loadDefaultScene();
 
     public void loadScene(BaseScene nextScene) {
-        scene.getStylesheets().add(theme);
-        if (currentScene != null) {
-            scene.getStylesheets().removeLast();
-            theme = scene.getStylesheets().getFirst();
-        }
         cleanup();
 
         nextScene.build();

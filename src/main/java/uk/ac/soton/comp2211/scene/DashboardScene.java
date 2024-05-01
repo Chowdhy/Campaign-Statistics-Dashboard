@@ -101,10 +101,9 @@ public class DashboardScene extends MainScene {
         var optionsMenu = new Menu("Options");
         var uploadMenuItem = new MenuItem("Upload files");
         var userMenuItem = new MenuItem("Manage users");
-        var themeMenuItem = new MenuItem("Switch theme");
         var passwordMenuItem = new MenuItem("Change password");
         var logoutMenuItem = new MenuItem("Logout");
-        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem, themeMenuItem, passwordMenuItem, logoutMenuItem);
+        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem, passwordMenuItem, logoutMenuItem);
 
         Dialog<Void> passwordDialog = new Dialog<>();
         passwordDialog.setTitle("Change your password");
@@ -118,7 +117,6 @@ public class DashboardScene extends MainScene {
         confirmPassword.setPromptText("Confirm new password");
         Label errorLabel = new Label();
         errorLabel.setStyle("-fx-text-fill: red");
-        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem,logoutMenuItem);
 
         VBox dialogContent = new VBox();
         dialogContent.setMinWidth(275);
