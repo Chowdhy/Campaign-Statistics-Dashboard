@@ -1,5 +1,6 @@
 package uk.ac.soton.comp2211.ui;
 
+import javafx.scene.image.WritableImage;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,5 +68,9 @@ public class MainWindow extends Window {
         } catch (Exception e) {
 
         }
+    }
+
+    public void loadExportChartScene(WritableImage image) {
+        loadScene(new ExportChartScene(this, image));
     }
 }

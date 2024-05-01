@@ -3,11 +3,13 @@ package uk.ac.soton.comp2211.scene;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -106,6 +108,10 @@ public class DashboardScene extends MainScene {
         var exportMenu = new Menu("Export");
 
         var graphMenuItem = new MenuItem("Graph");
+        graphMenuItem.setOnAction(e -> {
+            window.loadExportChartScene(lineChart.snapshot(new SnapshotParameters(), new WritableImage((int) lineChart.getWidth(), (int) lineChart.getHeight())));
+        });
+
         var reportMenuItem = new MenuItem("Report");
         exportMenu.getItems().addAll(graphMenuItem,reportMenuItem);
 
