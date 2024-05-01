@@ -44,6 +44,12 @@ public class DashboardScene extends MainScene {
     Button submit;
     Button filter;
     Tooltip tooltip1;
+    Tooltip totalTip;
+    Tooltip ctrTip;
+    Tooltip cpaTip;
+    Tooltip cpcTip;
+    Tooltip cpmTip;
+    Tooltip brTip;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     HBox filterHBox;
     VBox chartVbox;
@@ -60,6 +66,12 @@ public class DashboardScene extends MainScene {
         try {
             controller.setMaxValues();
             tooltip1.setText("Page range: 1-" + controller.maxPage() + "\nTime range: 1-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce metrics");
+            totalTip.setText("Impression cost + click cost");
+            ctrTip.setText("Clicks / impressions");
+            cpaTip.setText("Total cost / conversions");
+            cpcTip.setText("Click cost / clicks");
+            cpmTip.setText("Impressions cost / (impressions/1000)");
+            brTip.setText("Bounce / clicks");
             dates = controller.getDates("2015-01-01", controller.maxDate());
 
             controller.calculateMetrics("2015-01-01", controller.maxDate());
@@ -268,6 +280,7 @@ public class DashboardScene extends MainScene {
 
         metricsVBox.setSpacing(1);
 
+        totalTip = new Tooltip();
         VBox totalCostMetric = new VBox();
         VBox.setVgrow(totalCostMetric,Priority.ALWAYS);
         totalCostMetric.setMaxHeight(200);
@@ -280,6 +293,7 @@ public class DashboardScene extends MainScene {
         totalCostMetric.getChildren().addAll(totalCostText, totalCostNum);
         totalCostMetric.setAlignment(Pos.CENTER);
         metricsVBox.getChildren().add(totalCostMetric);
+        Tooltip.install(totalCostMetric, totalTip);
 
         var splitHBox = new HBox();
         VBox.setVgrow(splitHBox,Priority.ALWAYS);
@@ -359,6 +373,7 @@ public class DashboardScene extends MainScene {
         conversionMetric.setAlignment(Pos.CENTER);
         leftMetrics.getChildren().add(conversionMetric);
 
+        ctrTip = new Tooltip();
         VBox ctrMetric = new VBox();
         VBox.setVgrow(ctrMetric,Priority.ALWAYS);
         ctrMetric.getStyleClass().add("metricBox");
@@ -370,7 +385,9 @@ public class DashboardScene extends MainScene {
         ctrMetric.getChildren().addAll(ctrText, ctrNum);
         ctrMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(ctrMetric);
+        Tooltip.install(ctrMetric, ctrTip);
 
+        cpaTip = new Tooltip();
         VBox cpaMetric = new VBox();
         VBox.setVgrow(cpaMetric,Priority.ALWAYS);
         cpaMetric.getStyleClass().add("metricBox");
@@ -382,7 +399,9 @@ public class DashboardScene extends MainScene {
         cpaMetric.getChildren().addAll(cpaText, cpaNum);
         cpaMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(cpaMetric);
+        Tooltip.install(cpaMetric, cpaTip);
 
+        cpcTip = new Tooltip();
         VBox cpcMetric = new VBox();
         VBox.setVgrow(cpcMetric,Priority.ALWAYS);
         cpcMetric.getStyleClass().add("metricBox");
@@ -394,7 +413,9 @@ public class DashboardScene extends MainScene {
         cpcMetric.getChildren().addAll(cpcText, cpcNum);
         cpcMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(cpcMetric);
+        Tooltip.install(cpcMetric, cpcTip);
 
+        cpmTip = new Tooltip();
         VBox cpmMetric = new VBox();
         VBox.setVgrow(cpmMetric,Priority.ALWAYS);
         cpmMetric.getStyleClass().add("metricBox");
@@ -406,7 +427,9 @@ public class DashboardScene extends MainScene {
         cpmMetric.getChildren().addAll(cpmText, cpmNum);
         cpmMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(cpmMetric);
+        Tooltip.install(cpmMetric, cpmTip);
 
+        brTip = new Tooltip();
         VBox bounceRateMetric = new VBox();
         VBox.setVgrow(bounceRateMetric,Priority.ALWAYS);
         bounceRateMetric.getStyleClass().add("metricBox");
@@ -418,6 +441,7 @@ public class DashboardScene extends MainScene {
         bounceRateMetric.getChildren().addAll(bounceRateText, bounceRateNum);
         bounceRateMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(bounceRateMetric);
+        Tooltip.install(bounceRateMetric, brTip);
 
         splitPane.getItems().addAll(leftSplitPane, metricsVBox);
 
