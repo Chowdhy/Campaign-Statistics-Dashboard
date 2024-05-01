@@ -13,6 +13,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import uk.ac.soton.comp2211.control.FileInputController;
+import uk.ac.soton.comp2211.ui.Dialogs;
 import uk.ac.soton.comp2211.ui.MainWindow;
 
 public class FileInputScene extends MainScene {
@@ -175,7 +176,9 @@ public class FileInputScene extends MainScene {
 
             task.setOnFailed(workerStateEvent -> {
                 progressIndicator.setVisible(false);
-                throw new RuntimeException(task.getException());
+
+                Dialogs.error((Exception) task.getException());
+                //throw new RuntimeException(task.getException());
             });
 
             Thread thread = new Thread(task);

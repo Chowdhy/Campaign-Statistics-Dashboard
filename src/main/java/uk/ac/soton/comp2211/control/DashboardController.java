@@ -66,15 +66,19 @@ public class DashboardController {
     }
 
     private boolean checkSanity() {
-        if (false) {
-            return true;
-        } else if (graphData.isTableEmpty("impression_log")) {
+        boolean emptyImpressionLog = graphData.isTableEmpty("impression_log");
+        boolean emptyServerLog = graphData.isTableEmpty("server_log");
+        boolean emptyClickLog = graphData.isTableEmpty("click_log");
+
+        if (emptyImpressionLog && emptyClickLog && emptyServerLog) {
+            return false;
+        } else if (emptyImpressionLog) {
             Dialogs.error("No impression log data");
             return false;
-        } else if (graphData.isTableEmpty("click_log")) {
+        } else if (emptyClickLog) {
             Dialogs.error("No click log data");
             return false;
-        } else if (graphData.isTableEmpty("server_log")) {
+        } else if (emptyServerLog) {
             Dialogs.error("No server log data");
             return false;
         }
