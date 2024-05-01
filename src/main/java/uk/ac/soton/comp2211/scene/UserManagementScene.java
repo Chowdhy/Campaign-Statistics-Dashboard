@@ -9,6 +9,7 @@ import javafx.scene.layout.*;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.control.UserManagementController;
 import uk.ac.soton.comp2211.ui.UserWindow;
+import uk.ac.soton.comp2211.users.InvalidPasswordException;
 import uk.ac.soton.comp2211.users.Permissions;
 
 import java.util.Map;
@@ -151,30 +152,14 @@ public class UserManagementScene extends UserScene {
                 createErrorLabel.setStyle("-fx-text-fill: red");
                 createErrorLabel.setText("Passwords are not the same");
                 event.consume();
-            } else if (!controller.correctLength(newUserPassword.getText())) {
-                createErrorLabel.setStyle("-fx-text-fill: red");
-                createErrorLabel.setText("Passwords are not the same");
-                event.consume();
-            } else if (!controller.correctLength(newUserPassword.getText())) {
-                createErrorLabel.setStyle("-fx-text-fill: red");
-                createErrorLabel.setText("Password must contain at least 8 characters");
-                event.consume();
-            } else if (!controller.containsCapitals(newUserPassword.getText())) {
-                createErrorLabel.setStyle("-fx-text-fill: red");
-                createErrorLabel.setText("Password must contain an uppercase letter");
-                event.consume();
-            } else if (!controller.containsLowers(newUserPassword.getText())) {
-                createErrorLabel.setStyle("-fx-text-fill: red");
-                createErrorLabel.setText("Password must contain a lowercase letter");
-                event.consume();
-            } else if (!controller.containsNumbers(newUserPassword.getText())) {
-                createErrorLabel.setStyle("-fx-text-fill: red");
-                createErrorLabel.setText("Password must contain a number");
-                event.consume();
-            } else if (!controller.containsSpecial(newUserPassword.getText())) {
-                createErrorLabel.setStyle("-fx-text-fill: red");
-                createErrorLabel.setText("Password must contain a special character");
-                event.consume();
+            } else {
+                try {
+                    controller.isValidPassword(newUserPassword.getText());
+                } catch (InvalidPasswordException e) {
+                    createErrorLabel.setStyle("-fx-text-fill: red");
+                    createErrorLabel.setText(e.getMessage());
+                    event.consume();
+                }
             }
             if (choiceBox.getValue() == null) {
                 createErrorLabel.setStyle("-fx-text-fill: red");
@@ -216,7 +201,7 @@ public class UserManagementScene extends UserScene {
         userToggleGroup.getToggles().add(addUserButton);
 
         updateUserButton.addEventFilter(ActionEvent.ACTION, event -> {
-            if (permissionsBox.getValue() == null && newPassword.getText().isEmpty()) {
+            if (permissionsBox.getValue() == null && (newPassword.getText() == null || newPassword.getText().isEmpty())) {
                 errorLabel.setStyle("-fx-text-fill: red");
                 errorLabel.setText("No attributes to update");
                 event.consume();
@@ -225,26 +210,14 @@ public class UserManagementScene extends UserScene {
                     errorLabel.setStyle("-fx-text-fill: red");
                     errorLabel.setText("Passwords are not the same");
                     event.consume();
-                } else if (!controller.correctLength(newPassword.getText())) {
-                    errorLabel.setStyle("-fx-text-fill: red");
-                    errorLabel.setText("Password must contain at least 8 characters");
-                    event.consume();
-                } else if (!controller.containsCapitals(newPassword.getText())) {
-                    errorLabel.setStyle("-fx-text-fill: red");
-                    errorLabel.setText("Password must contain an uppercase letter");
-                    event.consume();
-                } else if (!controller.containsLowers(newPassword.getText())) {
-                    errorLabel.setStyle("-fx-text-fill: red");
-                    errorLabel.setText("Password must contain a lowercase letter");
-                    event.consume();
-                } else if (!controller.containsNumbers(newPassword.getText())) {
-                    errorLabel.setStyle("-fx-text-fill: red");
-                    errorLabel.setText("Password must contain a number");
-                    event.consume();
-                } else if (!controller.containsSpecial(newPassword.getText())) {
-                    errorLabel.setStyle("-fx-text-fill: red");
-                    errorLabel.setText("Password must contain a special character");
-                    event.consume();
+                } else {
+                    try {
+                        controller.isValidPassword(newPassword.getText());
+                    } catch (InvalidPasswordException e) {
+                        errorLabel.setStyle("-fx-text-fill: red");
+                        errorLabel.setText(e.getMessage());
+                        event.consume();
+                    }
                 }
             }
         });

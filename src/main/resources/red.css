@@ -1,0 +1,326 @@
+* {
+    -fx-primary-colour: #cb2424;
+    -fx-secondary-colour: #fe5757;
+    -fx-tertiary-colour: #fe2e2e;
+}
+
+.form-container {
+    -fx-background-color: white;
+    -fx-min-width: 700px;
+    -fx-padding: 0px 160px;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);
+}
+
+.upload-container {
+    -fx-background-color: white;
+    -fx-min-width: 700px;
+    -fx-background-radius: 12px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 10, 0, 0, 0);
+    -fx-padding: 60px 160px 10px 160px;
+}
+
+.form-title {
+    -fx-font-size: 24px;
+    -fx-padding: 0px 0px 10px 0px;
+}
+
+.text-field {
+    -fx-padding: 6px 12px;
+    -fx-font-size: 16px;
+    -fx-font-weight: 400;
+    -fx-line-height: 1.5;
+    -fx-text-fill: #212529;
+    -fx-background-color: #ffffff;
+    -fx-background-insets: 0;
+    -fx-border-color: #ced4da;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-transition: -fx-border-color 0.15s ease-in-out, -fx-box-shadow 0.15s ease-in-out;
+}
+
+.text-field:focused {
+    -fx-text-fill: #212529;
+    -fx-background-color: #ffffff;
+    -fx-border-color: -fx-secondary-colour;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-outline: 0;
+}
+
+.fill-button {
+    -fx-cursor: hand;
+    -fx-outline: 0;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: -fx-primary-colour;
+    -fx-border-color: -fx-primary-colour;
+    -fx-display: inline-block;
+    -fx-font-weight: 400;
+    -fx-line-height: 1.5;
+    -fx-alignment: center;
+    -fx-border-width: 1px;
+    -fx-padding: 5px 10px;
+    -fx-font-size: 15px;
+    -fx-border-radius: 3px;
+    -fx-transition: -fx-text-fill 0.15s ease-in-out, -fx-background-color 0.15s ease-in-out, -fx-border-color 0.15s ease-in-out, -fx-box-shadow 0.15s ease-in-out;
+}
+
+.fill-button:hover {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: -fx-primary-colour;
+    -fx-border-color: -fx-primary-colour;
+    -fx-opacity: 0.8;
+}
+
+.outline-button {
+    -fx-cursor: hand;
+    -fx-outline: 0;
+    -fx-display: inline-block;
+    -fx-font-weight: 400;
+    -fx-line-height: 1.5;
+    -fx-text-align: center;
+    -fx-background-color: transparent;
+    -fx-border-width: 1px;
+    -fx-padding: 6px 10px;
+    -fx-font-size: 15px;
+    -fx-border-radius: 3px;
+    -fx-transition-property: -fx-text-fill, -fx-background-color, -fx-border-color, -fx-box-shadow;
+    -fx-transition-duration: 0.15s;
+    -fx-text-fill: -fx-primary-colour;
+    -fx-border-color: -fx-primary-colour;
+}
+
+.outline-button:hover {
+    -fx-text-fill: -fx-primary-colour;
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: -fx-primary-colour;
+}
+
+.outline-button:selected {
+    -fx-text-fill: #fff;
+    -fx-background-color: -fx-primary-colour;
+    -fx-border-color: transparent;
+}
+
+.filter-button {
+    -fx-cursor: hand;
+    -fx-outline: 0;
+    -fx-text-fill: #ffffff;
+    -fx-background-color: -fx-primary-colour;
+    -fx-border-color: -fx-primary-colour;
+    -fx-display: inline-block;
+    -fx-font-weight: 400;
+    -fx-line-height: 1.5;
+    -fx-alignment: center;
+    -fx-border-width: 1px;
+    -fx-padding: 6px 14px;
+    -fx-font-size: 20px;
+    -fx-border-radius: 3px;
+    -fx-transition: -fx-text-fill 0.15s ease-in-out, -fx-background-color 0.15s ease-in-out, -fx-border-color 0.15s ease-in-out, -fx-box-shadow 0.15s ease-in-out;
+}
+
+.filter-button:hover {
+    -fx-text-fill: #ffffff;
+    -fx-background-color: -fx-primary-colour;
+    -fx-border-color: -fx-primary-colour;
+    -fx-opacity: 0.8;
+}
+
+.choice-box {
+    -fx-cursor: hand;
+    -fx-padding: 1px 0px;
+    -fx-text-fill: -fx-primary-colour;
+    -fx-border-color: -fx-primary-colour;
+    -fx-background-color: transparent;
+    -fx-mark-color: -fx-primary-colour;
+    -fx-font-size: 15px;
+    -fx-border-radius: 3px;
+    -fx-max-width: 150px;
+}
+
+.choice-box:hover {
+    -fx-background-color: #f5f5f5;
+}
+
+.choice-box > .label {
+    -fx-text-fill: -fx-primary-colour;
+}
+
+.check-box {
+    -fx-color: white;
+    -fx-border-radius: 3px;
+}
+
+.box {
+    -fx-border-color: grey;
+    -fx-border-radius: 3px;
+    -fx-background-color: white;
+}
+
+.box:hover {
+    -fx-background-color: #f5f5f5;
+}
+
+.check-box .text {
+    -fx-fill: black;
+}
+
+.check-box:selected .box {
+    -fx-background-color: -fx-secondary-colour;
+    -fx-border-color: transparent;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+.check-box:selected .box:hover {
+    -fx-background-color: -fx-tertiary-colour;
+    -fx-cursor: hand;
+}
+
+.graphContainer {
+    -fx-background-color: white;
+    -fx-padding: 10px 0px;
+}
+
+.big-metric-title {
+    -fx-text-fill: white;
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+}
+
+.big-metric-val {
+    -fx-text-fill: white;
+    -fx-font-size: 18px;
+}
+
+.metric-title {
+    -fx-text-fill: white;
+    -fx-font-size: 19px;
+    -fx-font-weight: 700;
+}
+
+.metric-val {
+    -fx-text-fill: white;
+    -fx-font-size: 15px;
+}
+
+.filter-title {
+    -fx-font-size: 22px;
+}
+
+.filter-text {
+    -fx-font-size: 16px;
+}
+
+.radio:hover {
+    -fx-cursor: hand;
+}
+
+.radio-button:selected .radio > .dot {
+    -fx-background-color: white;
+}
+
+.radio-button:selected .radio {
+    -fx-background-color: -fx-secondary-colour;
+}
+
+.default-color0.chart-series-line{
+    -fx-stroke: -fx-secondary-colour;
+}
+
+.default-color0.chart-line-symbol {
+    -fx-background-color: -fx-primary-colour, white;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 5, 4;
+}
+
+.default-color0.chart-bar {
+    -fx-bar-fill: -fx-tertiary-color;
+}
+
+.white {
+    -fx-background-color: white;
+    -fx-padding: 10px;
+}
+
+padding {
+    -fx-padding: 10px;
+}
+
+.selected-user {
+    -fx-font-size: 16px;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: #ffffff;
+    -fx-background-insets: 0;
+    -fx-border-color: -fx-primary-colour;
+    -fx-border-width: 1px;
+    -fx-border-radius: 0px 5px 5px 0px;
+    -fx-background-radius: 0px 5px 5px 0px;
+}
+
+.arrow-button:hover {
+    -fx-cursor: hand;
+    -fx-background-color: #f5f5f5;
+}
+
+.combo-box .arrow {
+    -fx-background-color: -fx-primary-colour;
+}
+
+.combo-box .list-cell:selected {
+    -fx-background-color: -fx-primary-colour;
+    -fx-text-fill: white;
+}
+
+.scroller {
+    -fx-padding: 10px;
+    -fx-background-radius: 3px;
+    -fx-border-radius: 5px;
+}
+
+.admin-button {
+    -fx-background-color: -fx-tertiary-colour;
+    -fx-background-radius: 5px;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+}
+
+.admin-button:hover {
+    -fx-cursor: hand;
+    -fx-background-color: -fx-secondary-colour;
+}
+
+.admin-title {
+    -fx-font-size: 13px;
+}
+
+.date-picker .arrow-button {
+    -fx-background-color: -fx-secondary-colour;
+    -fx-background-radius: 0;
+}
+
+.date-picker .arrow {
+    -fx-background-color: white;
+}
+
+.date-picker .arrow-button:hover {
+    -fx-background-color: -fx-tertiary-colour;
+}
+
+.circle {
+    -fx-fill: -fx-secondary-colour;
+}
+
+.metricBox {
+    -fx-background-color: -fx-secondary-colour;
+}
+
+.totalBox {
+    -fx-background-color: -fx-tertiary-colour;
+}

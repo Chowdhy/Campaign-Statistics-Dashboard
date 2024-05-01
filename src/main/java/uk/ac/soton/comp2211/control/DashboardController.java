@@ -7,7 +7,7 @@ import javafx.util.Pair;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.data.graph.GraphData;
 import uk.ac.soton.comp2211.ui.Dialogs;
-import uk.ac.soton.comp2211.users.OperationLogging;
+import uk.ac.soton.comp2211.users.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,11 +31,19 @@ public class DashboardController {
         XYChart.Series series = new XYChart.Series();
         if (doubleData.size() > 0) {
             for (int i = 0; i < dates.size(); i++) {
-                series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], doubleData.get(i)));
+                if (buttonValProperty().get().equals("hour")) {
+                    series.getData().add(new XYChart.Data((dates.get(i).split("2015-")[1] + ":00"), doubleData.get(i)));
+                } else {
+                    series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], doubleData.get(i)));
+                }
             }
         } else {
             for (int i = 0; i < dates.size(); i++) {
-                series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], integerData.get(i)));
+                if (buttonValProperty().get().equals("hour")) {
+                    series.getData().add(new XYChart.Data((dates.get(i).split("2015-")[1] + ":00"), integerData.get(i)));
+                } else {
+                    series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], integerData.get(i)));
+                }
             }
         }
 
@@ -67,15 +75,19 @@ public class DashboardController {
     }
 
     private boolean checkSanity() {
-        if (false) {
-            return true;
-        } else if (graphData.isTableEmpty("impression_log")) {
+        boolean emptyImpressionLog = graphData.isTableEmpty("impression_log");
+        boolean emptyServerLog = graphData.isTableEmpty("server_log");
+        boolean emptyClickLog = graphData.isTableEmpty("click_log");
+
+        if (emptyImpressionLog && emptyClickLog && emptyServerLog) {
+            return false;
+        } else if (emptyImpressionLog) {
             Dialogs.error("No impression log data");
             return false;
-        } else if (graphData.isTableEmpty("click_log")) {
+        } else if (emptyClickLog) {
             Dialogs.error("No click log data");
             return false;
-        } else if (graphData.isTableEmpty("server_log")) {
+        } else if (emptyServerLog) {
             Dialogs.error("No server log data");
             return false;
         }
@@ -105,6 +117,20 @@ public class DashboardController {
         typeList.add(totalNumProperty().getValue());
         return typeList;
 
+    public boolean isValidPassword(String password) throws InvalidPasswordException {
+        Credentials credentials = new Credentials();
+
+        return credentials.isValidPassword(password);
+    }
+
+    public void updatePassword(String password) {
+        Credentials credentials = new Credentials();
+
+        try {
+            credentials.resetPassword(App.getUser().getUsername(), password);
+        } catch (UserDoesntExistException | IncorrectPermissionsException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public BooleanProperty maleProperty(){

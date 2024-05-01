@@ -1,5 +1,6 @@
 package uk.ac.soton.comp2211.scene;
 
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -19,7 +20,10 @@ import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.control.HistogramController;
 import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2211.ui.Window;
+import uk.ac.soton.comp2211.users.InvalidPasswordException;
 import uk.ac.soton.comp2211.users.Permissions;
+
 import java.io.File;
 import java.io.IOException;
 import java.awt.Desktop;
@@ -42,8 +46,16 @@ public class DashboardScene extends MainScene {
     Button submit;
     Button filter;
     Tooltip tooltip1;
+    Tooltip totalTip;
+    Tooltip ctrTip;
+    Tooltip cpaTip;
+    Tooltip cpcTip;
+    Tooltip cpmTip;
+    Tooltip brTip;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
+    HBox filterHBox;
+    VBox chartVbox;
+    VBox metricsVBox;
 
     ProgressIndicator progressIndicator;
 
@@ -53,12 +65,19 @@ public class DashboardScene extends MainScene {
 
     @Override
     public void initialise() {
-        controller.setMaxValues();
-        tooltip1.setText("Page range: 1-" + controller.maxPage() + "\nTime range: 1-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce metrics");
-        dates = controller.getDates("2015-01-01", controller.maxDate());
+        try {
+            controller.setMaxValues();
+            tooltip1.setText("Page range: 1-" + controller.maxPage() + "\nTime range: 1-" + controller.maxTime() + "\nMaximum value from inputted data" + "\nUsed to change bounce metrics");
+            totalTip.setText("Impression cost + click cost");
+            ctrTip.setText("Clicks / impressions");
+            cpaTip.setText("Total cost / conversions");
+            cpcTip.setText("Click cost / clicks");
+            cpmTip.setText("Impressions cost / (impressions/1000)");
+            brTip.setText("Bounce / clicks");
+            dates = controller.getDates("2015-01-01", controller.maxDate());
 
-        controller.calculateMetrics("2015-01-01", controller.maxDate());
-        controller.changeChart(lineChart, controller.graphNumProperty().get());
+            controller.calculateMetrics("2015-01-01", controller.maxDate());
+            controller.changeChart(lineChart, controller.graphNumProperty().get());
 
 
         startPicker.setValue(LocalDate.parse(dates.getFirst(), formatter));
@@ -78,11 +97,30 @@ public class DashboardScene extends MainScene {
             }
         });
 
-        submit.setOnAction(e -> checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter)));
-        filter.setOnAction(e -> {
-            //progressIndicator.setVisible(true);
-            checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter));
-        });
+            startPicker.setDayCellFactory(e -> new DateCell() {
+                @Override
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || !dates.contains(date.format(formatter)));
+                }
+            });
+            endPicker.setDayCellFactory(e -> new DateCell() {
+                @Override
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+                    setDisable(empty || !dates.contains(date.format(formatter)));
+                }
+            });
+
+            submit.setOnAction(e -> checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter)));
+            filter.setOnAction(e -> checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter)));
+        } catch (Exception e) {
+
+        }
+
+        lineChart.setMinWidth(lineChart.getWidth()-150);
+        chartVbox.setMinHeight(chartVbox.getHeight()-100);
+        metricsVBox.setMinWidth(metricsVBox.getWidth()-75);
     }
 
     @Override
@@ -96,14 +134,57 @@ public class DashboardScene extends MainScene {
         VBox.setVgrow(mainVBox,Priority.ALWAYS);
         root.getChildren().add(mainVBox);
 
-
         var optionsMenu = new Menu("Options");
         var uploadMenuItem = new MenuItem("Upload files");
         var userMenuItem = new MenuItem("Manage users");
-        var themeMenuItem = new MenuItem("Switch theme");
+        var passwordMenuItem = new MenuItem("Change password");
         var logoutMenuItem = new MenuItem("Logout");
-        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem, themeMenuItem,logoutMenuItem);
+        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem, passwordMenuItem, logoutMenuItem);
 
+        Dialog<Void> passwordDialog = new Dialog<>();
+        passwordDialog.setTitle("Change your password");
+        passwordDialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        passwordMenuItem.setOnAction(e -> passwordDialog.showAndWait());
+
+        PasswordField newPassword = new PasswordField();
+        newPassword.setPromptText("Enter new password");
+        PasswordField confirmPassword = new PasswordField();
+        confirmPassword.setPromptText("Confirm new password");
+        Label errorLabel = new Label();
+        errorLabel.setStyle("-fx-text-fill: red");
+
+        VBox dialogContent = new VBox();
+        dialogContent.setMinWidth(275);
+        dialogContent.getChildren().addAll(newPassword, confirmPassword, errorLabel);
+
+        Button okButton = (Button) passwordDialog.getDialogPane().lookupButton(ButtonType.OK);
+
+        passwordDialog.getDialogPane().setContent(dialogContent);
+        okButton.addEventFilter(ActionEvent.ACTION, ae -> {
+            if (newPassword.getText() == null || newPassword.getText().isEmpty()) {
+                errorLabel.setText("Password cannot be empty");
+                ae.consume();
+            } else if (!newPassword.getText().equals(confirmPassword.getText())) {
+                errorLabel.setText("Passwords must be the same");
+                ae.consume();
+            } else {
+                try {
+                    controller.isValidPassword(newPassword.getText());
+                } catch (InvalidPasswordException e) {
+                    errorLabel.setText(e.getMessage());
+                    ae.consume();
+                }
+            }
+        });
+
+        passwordDialog.setResultConverter(dialogButton -> {
+            if (dialogButton.equals(ButtonType.OK)) {
+                controller.updatePassword(newPassword.getText());
+            }
+
+            return null;
+        });
 
         var exportMenu = new Menu("Export");
 
@@ -115,11 +196,44 @@ public class DashboardScene extends MainScene {
         var reportMenuItem = new MenuItem("Report");
         exportMenu.getItems().addAll(graphMenuItem,reportMenuItem);
 
+        var themeMenu = new Menu("Themes");
+        var blueTheme = new MenuItem("Blue");
+        blueTheme.setOnAction(e -> {
+            getScene().getStylesheets().removeFirst();
+            getScene().getStylesheets().add("blue.css");
+            Window.theme = "blue.css";
+        });
+        var orangeTheme = new MenuItem("Orange");
+        orangeTheme.setOnAction(e -> {
+            getScene().getStylesheets().removeFirst();
+            getScene().getStylesheets().add("orange.css");
+            Window.theme = "orange.css";
+        });
+        var purpleTheme = new MenuItem("Purple");
+        purpleTheme.setOnAction(e -> {
+            getScene().getStylesheets().removeFirst();
+            getScene().getStylesheets().add("purple.css");
+            Window.theme = "purple.css";
+        });
+        var greenTheme = new MenuItem("Green");
+        greenTheme.setOnAction(e -> {
+            getScene().getStylesheets().removeFirst();
+            getScene().getStylesheets().add("green.css");
+            Window.theme = "green.css";
+        });
+        var redTheme = new MenuItem("Red");
+        redTheme.setOnAction(e -> {
+            getScene().getStylesheets().removeFirst();
+            getScene().getStylesheets().add("red.css");
+            Window.theme = "red.css";
+        });
+        themeMenu.getItems().addAll(blueTheme, redTheme, greenTheme, purpleTheme, orangeTheme);
+
         var helpMenu = new Menu("Help");
         var helpMenuItem = new MenuItem("User guide");
         helpMenu.getItems().addAll(helpMenuItem);
 
-        MenuBar menuBar = new MenuBar(optionsMenu,exportMenu,helpMenu);
+        MenuBar menuBar = new MenuBar(optionsMenu,exportMenu,themeMenu,helpMenu);
 
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
             userMenuItem.setDisable(true);
@@ -130,7 +244,8 @@ public class DashboardScene extends MainScene {
 
         }
 
-        Circle infoIcon1 = new Circle(10, Color.rgb(122, 185, 255));
+        Circle infoIcon1 = new Circle(10);
+        infoIcon1.getStyleClass().add("circle");
 
         tooltip1 = new Tooltip();
 
@@ -183,15 +298,16 @@ public class DashboardScene extends MainScene {
         leftSplitPane.setDividerPosition(0,0.68);
 
 
-        VBox metricsVBox = new VBox();
+        metricsVBox = new VBox();
         VBox.setVgrow(metricsVBox, Priority.ALWAYS);
 
         metricsVBox.setSpacing(1);
 
+        totalTip = new Tooltip();
         VBox totalCostMetric = new VBox();
         VBox.setVgrow(totalCostMetric,Priority.ALWAYS);
         totalCostMetric.setMaxHeight(200);
-        totalCostMetric.setStyle("-fx-background-color: #409aff;");
+        totalCostMetric.getStyleClass().add("totalBox");
         Label totalCostText = new Label("Total cost (£)");
         totalCostText.getStyleClass().add("big-metric-title");
         Label totalCostNum = new Label("");
@@ -200,6 +316,7 @@ public class DashboardScene extends MainScene {
         totalCostMetric.getChildren().addAll(totalCostText, totalCostNum);
         totalCostMetric.setAlignment(Pos.CENTER);
         metricsVBox.getChildren().add(totalCostMetric);
+        Tooltip.install(totalCostMetric, totalTip);
 
         var splitHBox = new HBox();
         VBox.setVgrow(splitHBox,Priority.ALWAYS);
@@ -221,7 +338,7 @@ public class DashboardScene extends MainScene {
 
         VBox impressionMetric = new VBox();
         VBox.setVgrow(impressionMetric,Priority.ALWAYS);
-        impressionMetric.setStyle("-fx-background-color: #7ab9ff;");
+        impressionMetric.getStyleClass().add("metricBox");
         Label impressionsText = new Label("Num of impressions");
         impressionsText.getStyleClass().add("metric-title");
         Label impressionsNum = new Label("");
@@ -233,7 +350,7 @@ public class DashboardScene extends MainScene {
 
         VBox uniqueMetric = new VBox();
         VBox.setVgrow(uniqueMetric,Priority.ALWAYS);
-        uniqueMetric.setStyle("-fx-background-color: #7ab9ff;");
+        uniqueMetric.getStyleClass().add("metricBox");
         Label uniquesText = new Label("Num of uniques");
         uniquesText.getStyleClass().add("metric-title");
         Label uniquesNum = new Label("");
@@ -245,7 +362,7 @@ public class DashboardScene extends MainScene {
 
         VBox clicksMetric = new VBox();
         VBox.setVgrow(clicksMetric,Priority.ALWAYS);
-        clicksMetric.setStyle("-fx-background-color: #7ab9ff;");
+        clicksMetric.getStyleClass().add("metricBox");
         Label clicksText = new Label("Num of clicks");
         clicksText.getStyleClass().add("metric-title");
         Label clicksNum = new Label("");
@@ -257,7 +374,7 @@ public class DashboardScene extends MainScene {
 
         VBox bounceMetric = new VBox();
         VBox.setVgrow(bounceMetric,Priority.ALWAYS);
-        bounceMetric.setStyle("-fx-background-color: #7ab9ff;");
+        bounceMetric.getStyleClass().add("metricBox");
         Label bouncesText = new Label("Num of bounces");
         bouncesText.getStyleClass().add("metric-title");
         Label bounceNum = new Label("");
@@ -269,7 +386,7 @@ public class DashboardScene extends MainScene {
 
         VBox conversionMetric = new VBox();
         VBox.setVgrow(conversionMetric,Priority.ALWAYS);
-        conversionMetric.setStyle("-fx-background-color: #7ab9ff;");
+        conversionMetric.getStyleClass().add("metricBox");
         Label conversionsText = new Label("Num of conversions");
         conversionsText.getStyleClass().add("metric-title");
         Label conversionsNum = new Label("");
@@ -279,9 +396,10 @@ public class DashboardScene extends MainScene {
         conversionMetric.setAlignment(Pos.CENTER);
         leftMetrics.getChildren().add(conversionMetric);
 
+        ctrTip = new Tooltip();
         VBox ctrMetric = new VBox();
         VBox.setVgrow(ctrMetric,Priority.ALWAYS);
-        ctrMetric.setStyle("-fx-background-color: #7ab9ff;");
+        ctrMetric.getStyleClass().add("metricBox");
         Label ctrText = new Label("CTR");
         ctrText.getStyleClass().add("metric-title");
         Label ctrNum = new Label("");
@@ -290,10 +408,12 @@ public class DashboardScene extends MainScene {
         ctrMetric.getChildren().addAll(ctrText, ctrNum);
         ctrMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(ctrMetric);
+        Tooltip.install(ctrMetric, ctrTip);
 
+        cpaTip = new Tooltip();
         VBox cpaMetric = new VBox();
         VBox.setVgrow(cpaMetric,Priority.ALWAYS);
-        cpaMetric.setStyle("-fx-background-color: #7ab9ff;");
+        cpaMetric.getStyleClass().add("metricBox");
         Label cpaText = new Label("CPA (£)");
         cpaText.getStyleClass().add("metric-title");
         Label cpaNum = new Label();
@@ -302,10 +422,12 @@ public class DashboardScene extends MainScene {
         cpaMetric.getChildren().addAll(cpaText, cpaNum);
         cpaMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(cpaMetric);
+        Tooltip.install(cpaMetric, cpaTip);
 
+        cpcTip = new Tooltip();
         VBox cpcMetric = new VBox();
         VBox.setVgrow(cpcMetric,Priority.ALWAYS);
-        cpcMetric.setStyle("-fx-background-color: #7ab9ff;");
+        cpcMetric.getStyleClass().add("metricBox");
         Label cpcText = new Label("CPC (£)");
         cpcText.getStyleClass().add("metric-title");
         Label cpcNum = new Label("");
@@ -314,10 +436,12 @@ public class DashboardScene extends MainScene {
         cpcMetric.getChildren().addAll(cpcText, cpcNum);
         cpcMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(cpcMetric);
+        Tooltip.install(cpcMetric, cpcTip);
 
+        cpmTip = new Tooltip();
         VBox cpmMetric = new VBox();
         VBox.setVgrow(cpmMetric,Priority.ALWAYS);
-        cpmMetric.setStyle("-fx-background-color: #7ab9ff;");
+        cpmMetric.getStyleClass().add("metricBox");
         Label cpmText = new Label("CPM (£)");
         cpmText.getStyleClass().add("metric-title");
         Label cpmNum = new Label("");
@@ -326,10 +450,12 @@ public class DashboardScene extends MainScene {
         cpmMetric.getChildren().addAll(cpmText, cpmNum);
         cpmMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(cpmMetric);
+        Tooltip.install(cpmMetric, cpmTip);
 
+        brTip = new Tooltip();
         VBox bounceRateMetric = new VBox();
         VBox.setVgrow(bounceRateMetric,Priority.ALWAYS);
-        bounceRateMetric.setStyle("-fx-background-color: #7ab9ff;");
+        bounceRateMetric.getStyleClass().add("metricBox");
         Label bounceRateText = new Label("Bounce rate");
         bounceRateText.getStyleClass().add("metric-title");
         Label bounceRateNum = new Label("");
@@ -338,10 +464,13 @@ public class DashboardScene extends MainScene {
         bounceRateMetric.getChildren().addAll(bounceRateText, bounceRateNum);
         bounceRateMetric.setAlignment(Pos.CENTER);
         rightMetrics.getChildren().add(bounceRateMetric);
+        Tooltip.install(bounceRateMetric, brTip);
 
         splitPane.getItems().addAll(leftSplitPane, metricsVBox);
 
-        HBox filterHBox = new HBox();
+
+
+        filterHBox = new HBox();
         filterHBox.setSpacing(20);
         VBox bounceFilter = new VBox();
         VBox genderFilters = new VBox();
@@ -362,11 +491,9 @@ public class DashboardScene extends MainScene {
         TextField defineBounce = new TextField();
         UnaryOperator<TextFormatter.Change> bounceInputController = change -> {
             String text = change.getText();
-
-            if (text.matches("\\d?")) { // this is the important line
+            if (text.matches("\\d?")) {
                 return change;
             }
-
             return null;
         };
         defineBounce.setTextFormatter(new TextFormatter<String>(bounceInputController));
@@ -457,7 +584,7 @@ public class DashboardScene extends MainScene {
         lineChart.setAnimated(false);
         lineChart.setLegendVisible(false);
 
-        VBox chartVbox = new VBox();
+        chartVbox = new VBox();
         chartVbox.setPadding(new Insets(5, 0, 0, 0));
         chartVbox.setSpacing(10);
         chartVbox.setAlignment(Pos.CENTER);
@@ -659,7 +786,6 @@ public class DashboardScene extends MainScene {
         leftSplitPane.setStyle("-fx-background-color: white;");
         leftSplitPane.getItems().add(chartVbox);
         leftSplitPane.getItems().add(bottom);
-
     }
 
     @Override
