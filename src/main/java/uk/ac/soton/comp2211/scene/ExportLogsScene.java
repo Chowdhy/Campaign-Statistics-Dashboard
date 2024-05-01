@@ -100,13 +100,14 @@ public class ExportLogsScene extends UserScene{
 
 
         exportButton.setOnAction(event -> {
-           try {
-               String folderPath = folderField.getText();
-               OperationLogging.getLogCSV(folderPath);
-               window.loadUserManagementScene();
-           }catch (Exception e){
-               incorrectPrompt.setText("Export Failed, make sure log.csv is not open.");
+            OperationLogging.logAction("Exported user operations log");
 
+            try {
+                String folderPath = folderField.getText();
+                OperationLogging.getLogCSV(folderPath);
+                window.loadUserManagementScene();
+            } catch (Exception e) {
+                incorrectPrompt.setText("Export Failed, make sure log.csv is not open.");
             }
         });
 
