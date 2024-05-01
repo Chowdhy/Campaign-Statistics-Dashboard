@@ -149,8 +149,8 @@ public class UserManagementScene extends UserScene {
                 try {
                     controller.isValidPassword(newUserPassword.getText());
                 } catch (InvalidPasswordException e) {
-                    errorLabel.setStyle("-fx-text-fill: red");
-                    errorLabel.setText(e.getMessage());
+                    createErrorLabel.setStyle("-fx-text-fill: red");
+                    createErrorLabel.setText(e.getMessage());
                     event.consume();
                 }
             }

@@ -1,7 +1,6 @@
 package uk.ac.soton.comp2211.scene;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -411,6 +410,8 @@ public class DashboardScene extends MainScene {
 
         splitPane.getItems().addAll(leftSplitPane, metricsVBox);
 
+
+
         HBox filterHBox = new HBox();
         filterHBox.setSpacing(20);
         VBox bounceFilter = new VBox();
@@ -728,6 +729,8 @@ public class DashboardScene extends MainScene {
         leftSplitPane.getItems().add(chartVbox);
         leftSplitPane.getItems().add(bottom);
 
+        //leftSplitPane.setMinWidth(leftSplitPane.getWidth());
+        //leftSplitPane.setMaxWidth(leftSplitPane.getWidth());
     }
 
     @Override
