@@ -2,6 +2,7 @@ package uk.ac.soton.comp2211.ui;
 
 import javafx.stage.Stage;
 import uk.ac.soton.comp2211.control.UserManagementController;
+import uk.ac.soton.comp2211.scene.ExportLogsScene;
 import uk.ac.soton.comp2211.scene.UserManagementScene;
 
 public class UserWindow extends Window {
@@ -24,6 +25,11 @@ public class UserWindow extends Window {
         userManagementScene = new UserManagementScene(this);
         controller = new UserManagementController(userManagementScene);
         loadScene(userManagementScene);
+    }
+
+    public void loadExportLogsScene(){
+        var exportLogsScene = new ExportLogsScene(this);
+        loadScene(exportLogsScene);
     }
 
     public void loadUserManagementScene() {

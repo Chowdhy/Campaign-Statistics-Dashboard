@@ -11,6 +11,7 @@ import uk.ac.soton.comp2211.users.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DashboardController {
     GraphData graphData;
@@ -99,6 +100,22 @@ public class DashboardController {
 
         App.setUser(null);
     }
+
+    public List<Number> collateNumericalReport(){
+        List<Number> typeList = new ArrayList<>();
+
+        typeList.add(impressionsNumProperty().getValue());
+        typeList.add(uniqueNumProperty().getValue());
+        typeList.add(clicksNumProperty().getValue());
+        typeList.add(bounceNumProperty().getValue());
+        typeList.add(conversionsNumProperty().getValue());
+        typeList.add(ctrNumProperty().getValue());
+        typeList.add(cpaNumProperty().getValue());
+        typeList.add(cpcNumProperty().getValue());
+        typeList.add(cpmNumProperty().getValue());
+        typeList.add(bounceRateNumProperty().getValue());
+        typeList.add(totalNumProperty().getValue());
+        return typeList;
 
     public boolean isValidPassword(String password) throws InvalidPasswordException {
         Credentials credentials = new Credentials();
