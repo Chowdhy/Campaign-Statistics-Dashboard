@@ -3,13 +3,11 @@ package uk.ac.soton.comp2211.users;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.data.Database;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class OperationLogging {
     private static final String databaseName = "user_info";
@@ -57,26 +55,42 @@ public class OperationLogging {
         return log;
     }
 
-    public static File getLogCSV(String path) {
+    public static File getLogCSV(String outputDirectory) {
         List<String[]> entries = getLog();
 
         if (entries == null) return null;
 
-        File outputFile = new File(path);
+
+
+        String fileName = "log.csv";
+
+
+
+        String filePath = outputDirectory + File.separator + fileName;
+
+        File outputFile = new File(filePath);
 
         try {
-            outputFile.createNewFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
-        try (PrintWriter writer = new PrintWriter(outputFile)) {
-            writer.println("Timestamp,Username,Action");
+
+            PrintWriter writer = new PrintWriter(new FileWriter(outputFile, true));
+
+
+
+            if (outputFile.length() == 0) {
+                writer.println("Timestamp,Username,Action");
+            }
+
+
+
             entries.stream()
                     .map(entry -> String.join(",", entry))
                     .forEach(writer::println);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error writing to file: " + filePath, e);
         }
 
         return outputFile;

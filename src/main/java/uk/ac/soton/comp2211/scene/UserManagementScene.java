@@ -67,7 +67,14 @@ public class UserManagementScene extends UserScene {
         addUserButton = new ToggleButton("Create new user");
         addUserButton.getStyleClass().add("fill-button");
 
-        leftSide.getChildren().addAll(scroller, addUserButton);
+        var exportButton = new ToggleButton("Export Logs");
+        exportButton.getStyleClass().add("fill-button");
+
+        leftSide.getChildren().addAll(scroller, addUserButton, exportButton);
+
+        exportButton.setOnAction(e -> {
+            window.loadExportLogsScene();
+        });
 
         // UI right side
 

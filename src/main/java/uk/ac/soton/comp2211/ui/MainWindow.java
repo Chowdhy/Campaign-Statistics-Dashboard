@@ -1,10 +1,13 @@
 package uk.ac.soton.comp2211.ui;
 
+import javafx.scene.image.WritableImage;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.scene.*;
+
+import java.util.List;
 
 public class MainWindow extends Window {
     private static final Logger logger = LogManager.getLogger(MainWindow.class);
@@ -47,6 +50,11 @@ public class MainWindow extends Window {
         loadScene(dashboardScene);
     }
 
+    public void loadExportValuesScene(List<Number> arr){
+        var exportValuesScene = new ExportValuesScene(this, arr);
+        loadScene(exportValuesScene);
+    }
+
     public void loadLoginScene() {
         loadScene(new LoginScene(this));
     }
@@ -59,5 +67,9 @@ public class MainWindow extends Window {
         } catch (Exception e) {
 
         }
+    }
+
+    public void loadExportChartScene(WritableImage image) {
+        loadScene(new ExportChartScene(this, image));
     }
 }

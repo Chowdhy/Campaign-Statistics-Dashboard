@@ -4,11 +4,13 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -77,8 +79,23 @@ public class DashboardScene extends MainScene {
             controller.calculateMetrics("2015-01-01", controller.maxDate());
             controller.changeChart(lineChart, controller.graphNumProperty().get());
 
-            startPicker.setValue(LocalDate.parse(dates.getFirst(), formatter));
-            endPicker.setValue(LocalDate.parse(dates.getLast(), formatter));
+
+        startPicker.setValue(LocalDate.parse(dates.getFirst(), formatter));
+        endPicker.setValue(LocalDate.parse(dates.getLast(), formatter));
+        startPicker.setDayCellFactory(e -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || !dates.contains(date.format(formatter)));
+            }
+        });
+        endPicker.setDayCellFactory(e -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                setDisable(empty || !dates.contains(date.format(formatter)));
+            }
+        });
 
             startPicker.setDayCellFactory(e -> new DateCell() {
                 @Override
@@ -170,10 +187,14 @@ public class DashboardScene extends MainScene {
         });
 
         var exportMenu = new Menu("Export");
-        var logsMenuItem = new MenuItem("Logs");
+
         var graphMenuItem = new MenuItem("Graph");
+        graphMenuItem.setOnAction(e -> {
+            window.loadExportChartScene(chartVbox.snapshot(new SnapshotParameters(), new WritableImage((int) chartVbox.getWidth(), (int) chartVbox.getHeight())));
+        });
+
         var reportMenuItem = new MenuItem("Report");
-        exportMenu.getItems().addAll(graphMenuItem,reportMenuItem,logsMenuItem);
+        exportMenu.getItems().addAll(graphMenuItem,reportMenuItem);
 
         var themeMenu = new Menu("Themes");
         var blueTheme = new MenuItem("Blue");
@@ -216,11 +237,11 @@ public class DashboardScene extends MainScene {
 
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
             userMenuItem.setDisable(true);
-            logsMenuItem.setDisable(true);
+
         }else if(App.getUser().getPermissions().equals(Permissions.VIEWER)){
             userMenuItem.setDisable(true);
             uploadMenuItem.setDisable(true);
-            logsMenuItem.setDisable(true);
+
         }
 
         Circle infoIcon1 = new Circle(10);
@@ -244,6 +265,11 @@ public class DashboardScene extends MainScene {
             }catch(IOException e1){
 
             }
+        });
+
+
+        reportMenuItem.setOnAction(e -> {
+            window.loadExportValuesScene(controller.collateNumericalReport());
         });
 
 
