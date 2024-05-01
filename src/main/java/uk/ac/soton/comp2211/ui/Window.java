@@ -15,6 +15,7 @@ public abstract class Window {
     protected final Stage stage;
     protected BaseScene currentScene;
     protected Scene scene;
+    public static String theme = "blue.css";
 
     public Window(Stage stage, int width, int height) {
         this.stage = stage;
@@ -43,12 +44,17 @@ public abstract class Window {
     abstract void loadDefaultScene();
 
     public void loadScene(BaseScene nextScene) {
+        scene.getStylesheets().add(theme);
+        if (currentScene != null) {
+            scene.getStylesheets().removeLast();
+            theme = scene.getStylesheets().getFirst();
+        }
         cleanup();
 
         nextScene.build();
         currentScene = nextScene;
         scene = currentScene.setScene();
-        scene.getStylesheets().add("style.css");
+        scene.getStylesheets().add(theme);
         stage.setScene(scene);
 
         Platform.runLater(() -> currentScene.initialise());
@@ -69,4 +75,6 @@ public abstract class Window {
     public Stage getStage() {
         return stage;
     }
+
+
 }

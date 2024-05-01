@@ -34,7 +34,6 @@ public class UserWindow extends Window {
             cleanup();
 
             scene = userManagementScene.getScene();
-            scene.getStylesheets().add("style.css");
             stage.setScene(scene);
         }
     }

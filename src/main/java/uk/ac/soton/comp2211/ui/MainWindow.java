@@ -35,7 +35,6 @@ public class MainWindow extends Window {
             cleanup();
 
             scene = dashboardScene.getScene();
-            scene.getStylesheets().add("style.css");
             stage.setScene(scene);
         }
     }

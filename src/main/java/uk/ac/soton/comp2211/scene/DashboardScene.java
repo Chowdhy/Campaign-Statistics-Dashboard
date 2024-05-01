@@ -19,6 +19,7 @@ import uk.ac.soton.comp2211.App;
 import uk.ac.soton.comp2211.control.DashboardController;
 import uk.ac.soton.comp2211.control.HistogramController;
 import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2211.ui.Window;
 import uk.ac.soton.comp2211.users.InvalidPasswordException;
 import uk.ac.soton.comp2211.users.Permissions;
 
@@ -117,6 +118,7 @@ public class DashboardScene extends MainScene {
         confirmPassword.setPromptText("Confirm new password");
         Label errorLabel = new Label();
         errorLabel.setStyle("-fx-text-fill: red");
+        optionsMenu.getItems().addAll(uploadMenuItem,userMenuItem,logoutMenuItem);
 
         VBox dialogContent = new VBox();
         dialogContent.setMinWidth(275);
@@ -156,11 +158,44 @@ public class DashboardScene extends MainScene {
         var reportMenuItem = new MenuItem("Report");
         exportMenu.getItems().addAll(graphMenuItem,reportMenuItem,logsMenuItem);
 
+        var themeMenu = new Menu("Themes");
+        var blueTheme = new MenuItem("Blue");
+        blueTheme.setOnAction(e -> {
+            getScene().getStylesheets().removeFirst();
+            getScene().getStylesheets().add("blue.css");
+            Window.theme = "blue.css";
+        });
+        var orangeTheme = new MenuItem("Orange");
+        orangeTheme.setOnAction(e -> {
+            getScene().getStylesheets().removeFirst();
+            getScene().getStylesheets().add("orange.css");
+            Window.theme = "orange.css";
+        });
+        var purpleTheme = new MenuItem("Purple");
+        purpleTheme.setOnAction(e -> {
+            getScene().getStylesheets().removeFirst();
+            getScene().getStylesheets().add("purple.css");
+            Window.theme = "purple.css";
+        });
+        var greenTheme = new MenuItem("Green");
+        greenTheme.setOnAction(e -> {
+            getScene().getStylesheets().removeFirst();
+            getScene().getStylesheets().add("green.css");
+            Window.theme = "green.css";
+        });
+        var redTheme = new MenuItem("Red");
+        redTheme.setOnAction(e -> {
+            getScene().getStylesheets().removeFirst();
+            getScene().getStylesheets().add("red.css");
+            Window.theme = "red.css";
+        });
+        themeMenu.getItems().addAll(blueTheme, redTheme, greenTheme, purpleTheme, orangeTheme);
+
         var helpMenu = new Menu("Help");
         var helpMenuItem = new MenuItem("User guide");
         helpMenu.getItems().addAll(helpMenuItem);
 
-        MenuBar menuBar = new MenuBar(optionsMenu,exportMenu,helpMenu);
+        MenuBar menuBar = new MenuBar(optionsMenu,exportMenu,themeMenu,helpMenu);
 
         if(App.getUser().getPermissions().equals(Permissions.EDITOR)){
             userMenuItem.setDisable(true);
@@ -171,7 +206,8 @@ public class DashboardScene extends MainScene {
             logsMenuItem.setDisable(true);
         }
 
-        Circle infoIcon1 = new Circle(10, Color.rgb(122, 185, 255));
+        Circle infoIcon1 = new Circle(10);
+        infoIcon1.getStyleClass().add("circle");
 
         tooltip1 = new Tooltip();
 
@@ -227,7 +263,7 @@ public class DashboardScene extends MainScene {
         VBox totalCostMetric = new VBox();
         VBox.setVgrow(totalCostMetric,Priority.ALWAYS);
         totalCostMetric.setMaxHeight(200);
-        totalCostMetric.setStyle("-fx-background-color: #409aff;");
+        totalCostMetric.getStyleClass().add("totalBox");
         Label totalCostText = new Label("Total cost (£)");
         totalCostText.getStyleClass().add("big-metric-title");
         Label totalCostNum = new Label("");
@@ -257,7 +293,7 @@ public class DashboardScene extends MainScene {
 
         VBox impressionMetric = new VBox();
         VBox.setVgrow(impressionMetric,Priority.ALWAYS);
-        impressionMetric.setStyle("-fx-background-color: #7ab9ff;");
+        impressionMetric.getStyleClass().add("metricBox");
         Label impressionsText = new Label("Num of impressions");
         impressionsText.getStyleClass().add("metric-title");
         Label impressionsNum = new Label("");
@@ -269,7 +305,7 @@ public class DashboardScene extends MainScene {
 
         VBox uniqueMetric = new VBox();
         VBox.setVgrow(uniqueMetric,Priority.ALWAYS);
-        uniqueMetric.setStyle("-fx-background-color: #7ab9ff;");
+        uniqueMetric.getStyleClass().add("metricBox");
         Label uniquesText = new Label("Num of uniques");
         uniquesText.getStyleClass().add("metric-title");
         Label uniquesNum = new Label("");
@@ -281,7 +317,7 @@ public class DashboardScene extends MainScene {
 
         VBox clicksMetric = new VBox();
         VBox.setVgrow(clicksMetric,Priority.ALWAYS);
-        clicksMetric.setStyle("-fx-background-color: #7ab9ff;");
+        clicksMetric.getStyleClass().add("metricBox");
         Label clicksText = new Label("Num of clicks");
         clicksText.getStyleClass().add("metric-title");
         Label clicksNum = new Label("");
@@ -293,7 +329,7 @@ public class DashboardScene extends MainScene {
 
         VBox bounceMetric = new VBox();
         VBox.setVgrow(bounceMetric,Priority.ALWAYS);
-        bounceMetric.setStyle("-fx-background-color: #7ab9ff;");
+        bounceMetric.getStyleClass().add("metricBox");
         Label bouncesText = new Label("Num of bounces");
         bouncesText.getStyleClass().add("metric-title");
         Label bounceNum = new Label("");
@@ -305,7 +341,7 @@ public class DashboardScene extends MainScene {
 
         VBox conversionMetric = new VBox();
         VBox.setVgrow(conversionMetric,Priority.ALWAYS);
-        conversionMetric.setStyle("-fx-background-color: #7ab9ff;");
+        conversionMetric.getStyleClass().add("metricBox");
         Label conversionsText = new Label("Num of conversions");
         conversionsText.getStyleClass().add("metric-title");
         Label conversionsNum = new Label("");
@@ -317,7 +353,7 @@ public class DashboardScene extends MainScene {
 
         VBox ctrMetric = new VBox();
         VBox.setVgrow(ctrMetric,Priority.ALWAYS);
-        ctrMetric.setStyle("-fx-background-color: #7ab9ff;");
+        ctrMetric.getStyleClass().add("metricBox");
         Label ctrText = new Label("CTR");
         ctrText.getStyleClass().add("metric-title");
         Label ctrNum = new Label("");
@@ -329,7 +365,7 @@ public class DashboardScene extends MainScene {
 
         VBox cpaMetric = new VBox();
         VBox.setVgrow(cpaMetric,Priority.ALWAYS);
-        cpaMetric.setStyle("-fx-background-color: #7ab9ff;");
+        cpaMetric.getStyleClass().add("metricBox");
         Label cpaText = new Label("CPA (£)");
         cpaText.getStyleClass().add("metric-title");
         Label cpaNum = new Label();
@@ -341,7 +377,7 @@ public class DashboardScene extends MainScene {
 
         VBox cpcMetric = new VBox();
         VBox.setVgrow(cpcMetric,Priority.ALWAYS);
-        cpcMetric.setStyle("-fx-background-color: #7ab9ff;");
+        cpcMetric.getStyleClass().add("metricBox");
         Label cpcText = new Label("CPC (£)");
         cpcText.getStyleClass().add("metric-title");
         Label cpcNum = new Label("");
@@ -353,7 +389,7 @@ public class DashboardScene extends MainScene {
 
         VBox cpmMetric = new VBox();
         VBox.setVgrow(cpmMetric,Priority.ALWAYS);
-        cpmMetric.setStyle("-fx-background-color: #7ab9ff;");
+        cpmMetric.getStyleClass().add("metricBox");
         Label cpmText = new Label("CPM (£)");
         cpmText.getStyleClass().add("metric-title");
         Label cpmNum = new Label("");
@@ -365,7 +401,7 @@ public class DashboardScene extends MainScene {
 
         VBox bounceRateMetric = new VBox();
         VBox.setVgrow(bounceRateMetric,Priority.ALWAYS);
-        bounceRateMetric.setStyle("-fx-background-color: #7ab9ff;");
+        bounceRateMetric.getStyleClass().add("metricBox");
         Label bounceRateText = new Label("Bounce rate");
         bounceRateText.getStyleClass().add("metric-title");
         Label bounceRateNum = new Label("");
@@ -398,11 +434,9 @@ public class DashboardScene extends MainScene {
         TextField defineBounce = new TextField();
         UnaryOperator<TextFormatter.Change> bounceInputController = change -> {
             String text = change.getText();
-
-            if (text.matches("\\d?")) { // this is the important line
+            if (text.matches("\\d?")) {
                 return change;
             }
-
             return null;
         };
         defineBounce.setTextFormatter(new TextFormatter<String>(bounceInputController));
