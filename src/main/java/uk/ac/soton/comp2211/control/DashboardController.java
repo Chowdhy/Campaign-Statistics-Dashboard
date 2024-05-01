@@ -30,11 +30,19 @@ public class DashboardController {
         XYChart.Series series = new XYChart.Series();
         if (doubleData.size() > 0) {
             for (int i = 0; i < dates.size(); i++) {
-                series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], doubleData.get(i)));
+                if (buttonValProperty().get().equals("hour")) {
+                    series.getData().add(new XYChart.Data((dates.get(i).split("2015-")[1] + ":00"), doubleData.get(i)));
+                } else {
+                    series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], doubleData.get(i)));
+                }
             }
         } else {
             for (int i = 0; i < dates.size(); i++) {
-                series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], integerData.get(i)));
+                if (buttonValProperty().get().equals("hour")) {
+                    series.getData().add(new XYChart.Data((dates.get(i).split("2015-")[1] + ":00"), integerData.get(i)));
+                } else {
+                    series.getData().add(new XYChart.Data(dates.get(i).split("2015-")[1], integerData.get(i)));
+                }
             }
         }
 

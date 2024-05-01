@@ -71,6 +71,7 @@
     -fx-text-fill: #ffffff;
     -fx-background-color: -fx-primary-colour;
     -fx-border-color: -fx-primary-colour;
+    -fx-opacity: 0.8;
 }
 
 .outline-button {
@@ -124,6 +125,7 @@
     -fx-text-fill: #ffffff;
     -fx-background-color: -fx-primary-colour;
     -fx-border-color: -fx-primary-colour;
+    -fx-opacity: 0.8;
 }
 
 .choice-box {
@@ -147,12 +149,18 @@
 }
 
 .check-box {
-    -fx-color: white;
     -fx-border-radius: 3px;
+    -fx-cursor: hand;
 }
 
 .box {
     -fx-border-color: grey;
+    -fx-border-radius: 3px;
+    -fx-background-color: white;
+}
+
+.box:hover {
+    -fx-background-color: #f5f5f5;
 }
 
 .check-box .text {

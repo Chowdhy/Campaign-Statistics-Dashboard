@@ -96,10 +96,7 @@ public class DashboardScene extends MainScene {
             });
 
             submit.setOnAction(e -> checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter)));
-            filter.setOnAction(e -> {
-                //progressIndicator.setVisible(true);
-                checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter));
-            });
+            filter.setOnAction(e -> checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter)));
         } catch (Exception e) {
 
         }
