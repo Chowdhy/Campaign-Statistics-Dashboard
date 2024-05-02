@@ -239,7 +239,7 @@
 }
 
 .default-color0.chart-bar {
-    -fx-bar-fill: -fx-tertiary-color;
+    -fx-bar-fill: #409aff;
 }
 
 .white {
