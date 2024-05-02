@@ -74,7 +74,7 @@ public class ExportLogsScene extends UserScene{
         var incorrectPrompt = new Label();
         incorrectPrompt.setStyle("-fx-text-fill: red");
         backButton.getStyleClass().add("outline-button");
-        buttonsHBox.getChildren().addAll(backButton,exportButton, incorrectPrompt);
+        buttonsHBox.getChildren().addAll(backButton,exportButton);
         buttonsHBox.setSpacing(10);
         buttonsHBox.setAlignment(Pos.CENTER);
 
@@ -82,7 +82,7 @@ public class ExportLogsScene extends UserScene{
         folderPathContainer.getChildren().addAll(folderLabel, folderPathBox);
 
         centreBox.getStyleClass().add("upload-container");
-        centreBox.getChildren().addAll(exportLabel, folderPathContainer, buttonsHBox, progressIndicator);
+        centreBox.getChildren().addAll(exportLabel, folderPathContainer, buttonsHBox, incorrectPrompt, progressIndicator);
         centreBox.setAlignment(Pos.CENTER);
         centreBox.setSpacing(10);
         root.getChildren().add(centreBox);
@@ -101,11 +101,13 @@ public class ExportLogsScene extends UserScene{
 
         exportButton.setOnAction(event -> {
            try {
-               OperationLogging.logAction("Exported user operations log.");
+               OperationLogging.logAction("Exported user operations log");
                String folderPath = folderField.getText();
                OperationLogging.getLogCSV(folderPath);
-               window.loadUserManagementScene();
+               incorrectPrompt.setStyle("-fx-text-fill: green");
+               incorrectPrompt.setText("Successfully exported user operations log");
            }catch (Exception e){
+               incorrectPrompt.setStyle("-fx-text-fill: red");
                incorrectPrompt.setText("Export Failed, make sure log.csv is not open.");
 
             }

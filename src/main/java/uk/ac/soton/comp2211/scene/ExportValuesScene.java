@@ -66,7 +66,7 @@ public class ExportValuesScene extends MainScene{
 
         folderPathBox.getChildren().addAll(folderField, folderExplorer);
 
-        var exportButton = new Button("Export Report");
+        var exportButton = new Button("Export");
         exportButton.getStyleClass().add("fill-button");
 
         ProgressIndicator progressIndicator = new ProgressIndicator();
@@ -76,7 +76,7 @@ public class ExportValuesScene extends MainScene{
         var buttonsHBox = new HBox();
         var backButton = new Button("Back");
         backButton.getStyleClass().add("outline-button");
-        buttonsHBox.getChildren().addAll(backButton,exportButton, incorrectPrompt);
+        buttonsHBox.getChildren().addAll(backButton,exportButton);
         buttonsHBox.setSpacing(10);
         buttonsHBox.setAlignment(Pos.CENTER);
 
@@ -84,9 +84,10 @@ public class ExportValuesScene extends MainScene{
         folderPathContainer.getChildren().addAll(folderLabel, folderPathBox);
 
         centreBox.getStyleClass().add("upload-container");
-        centreBox.getChildren().addAll(exportLabel, folderPathContainer, buttonsHBox, progressIndicator);
+        centreBox.getChildren().addAll(exportLabel, folderPathContainer, buttonsHBox, incorrectPrompt, progressIndicator);
         centreBox.setAlignment(Pos.CENTER);
         centreBox.setSpacing(10);
+
         root.getChildren().add(centreBox);
 
         folderExplorer.setOnAction(event -> {
@@ -103,12 +104,14 @@ public class ExportValuesScene extends MainScene{
 
 
         exportButton.setOnAction(event -> {
-            OperationLogging.logAction("Exported metrics.");
+            OperationLogging.logAction("Exported metrics");
             try {
                 String folderPath = folderField.getText();
                 ReportExporter.getReportCSV(folderPath, dataArray);
-                window.switchToDashboard();
+                incorrectPrompt.setStyle("-fx-text-fill: green");
+                incorrectPrompt.setText("Successfully exported metrics");
             }catch (Exception e){
+                incorrectPrompt.setStyle("-fx-text-fill: red");
                 incorrectPrompt.setText("Exporting failed, make sure report.csv is not open");
             }
         });

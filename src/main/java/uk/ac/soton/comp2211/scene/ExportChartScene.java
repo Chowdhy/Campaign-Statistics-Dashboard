@@ -21,7 +21,6 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.util.Matrix;
 import uk.ac.soton.comp2211.control.FileInputController;
 import uk.ac.soton.comp2211.ui.MainWindow;
-import uk.ac.soton.comp2211.ui.UserWindow;
 import uk.ac.soton.comp2211.users.OperationLogging;
 
 import javax.imageio.ImageIO;
@@ -93,7 +92,7 @@ public class ExportChartScene extends MainScene {
             var incorrectPrompt = new Label();
             incorrectPrompt.setStyle("-fx-text-fill: red");
             backButton.getStyleClass().add("outline-button");
-            buttonsHBox.getChildren().addAll(backButton,exportButton, incorrectPrompt);
+            buttonsHBox.getChildren().addAll(backButton,exportButton);
             buttonsHBox.setSpacing(10);
             buttonsHBox.setAlignment(Pos.CENTER);
 
@@ -101,7 +100,7 @@ public class ExportChartScene extends MainScene {
             folderPathContainer.getChildren().addAll(folderLabel, folderPathBox);
 
             centreBox.getStyleClass().add("upload-container");
-            centreBox.getChildren().addAll(exportLabel, folderPathContainer, buttonsHBox, progressIndicator);
+            centreBox.getChildren().addAll(exportLabel, folderPathContainer, buttonsHBox, incorrectPrompt, progressIndicator);
             centreBox.setAlignment(Pos.CENTER);
             centreBox.setSpacing(10);
             root.getChildren().add(centreBox);
@@ -120,7 +119,9 @@ public class ExportChartScene extends MainScene {
             exportButton.setOnAction(event -> {
 
                 try {
-                    java.awt.image.BufferedImage bufferedImage = SwingFXUtils.fromFXImage(this.image, null);
+                    OperationLogging.logAction("Exported summary chart");
+
+                    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(this.image, null);
 
                     // Create a new PDF document
                     PDDocument document = new PDDocument();
@@ -162,8 +163,10 @@ public class ExportChartScene extends MainScene {
 
                     document.close();
 
-                    window.switchToDashboard();
+                    incorrectPrompt.setStyle("-fx-text-fill: green");
+                    incorrectPrompt.setText("Successfully exported metrics");
                 } catch (IOException e) {
+                    incorrectPrompt.setStyle("-fx-text-fill: red");
                     incorrectPrompt.setText("Error exporting, make sure chart.pdf is closed");
                 }
             });
