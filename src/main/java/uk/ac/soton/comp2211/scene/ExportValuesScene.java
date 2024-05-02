@@ -103,6 +103,7 @@ public class ExportValuesScene extends MainScene{
 
 
         exportButton.setOnAction(event -> {
+            OperationLogging.logAction("Exported metrics.");
             try {
                 String folderPath = folderField.getText();
                 ReportExporter.getReportCSV(folderPath, dataArray);

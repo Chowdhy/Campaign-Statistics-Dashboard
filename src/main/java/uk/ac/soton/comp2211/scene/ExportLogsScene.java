@@ -101,6 +101,7 @@ public class ExportLogsScene extends UserScene{
 
         exportButton.setOnAction(event -> {
            try {
+               OperationLogging.logAction("Exported user operations log.");
                String folderPath = folderField.getText();
                OperationLogging.getLogCSV(folderPath);
                window.loadUserManagementScene();
