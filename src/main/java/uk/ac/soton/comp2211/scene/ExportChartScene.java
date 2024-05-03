@@ -160,10 +160,10 @@ public class ExportChartScene extends MainScene {
                     document.close();
 
                     incorrectPrompt.setStyle("-fx-text-fill: green");
-                    incorrectPrompt.setText("Successfully exported metrics");
+                    incorrectPrompt.setText("Sent job to print");
                 } catch (Exception e) {
                     incorrectPrompt.setStyle("-fx-text-fill: red");
-                    incorrectPrompt.setText("Error printing");
+                    incorrectPrompt.setText("Printer not found");
                 }
             });
 
