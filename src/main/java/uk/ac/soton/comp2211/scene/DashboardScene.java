@@ -52,10 +52,12 @@ public class DashboardScene extends MainScene {
     Tooltip cpcTip;
     Tooltip cpmTip;
     Tooltip brTip;
+    TextField defineBounce;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     HBox filterHBox;
     VBox chartVbox;
     VBox metricsVBox;
+    Label bounceErrorLabel;
 
     ProgressIndicator progressIndicator;
 
@@ -114,6 +116,8 @@ public class DashboardScene extends MainScene {
 
             submit.setOnAction(e -> checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter)));
             filter.setOnAction(e -> checkGraph(dates, startPicker.getValue().format(formatter), endPicker.getValue().format(formatter)));
+
+            changeBounce();
         } catch (Exception e) {
 
         }
@@ -488,7 +492,7 @@ public class DashboardScene extends MainScene {
         RadioButton singlePageBounceButton = new RadioButton("Pages");
         singlePageBounceButton.getStyleClass().add("filter-text");
         singlePageBounceButton.setToggleGroup(group);
-        TextField defineBounce = new TextField();
+        defineBounce = new TextField();
         UnaryOperator<TextFormatter.Change> bounceInputController = change -> {
             String text = change.getText();
             if (text.matches("\\d?")) {
@@ -504,7 +508,11 @@ public class DashboardScene extends MainScene {
         var inputAndTips = new HBox();
         inputAndTips.getChildren().addAll(defineBounce,iconWithText);
         inputAndTips.setSpacing(2);
-        bounceFilter.getChildren().addAll(bounceLabel,timeBounceButton,singlePageBounceButton, inputAndTips);
+
+        bounceErrorLabel = new Label();
+        bounceErrorLabel.setStyle("-fx-text-fill: red");
+
+        bounceFilter.getChildren().addAll(bounceLabel,timeBounceButton,singlePageBounceButton, inputAndTips, bounceErrorLabel);
         bounceFilter.setSpacing(5);
 
         Label genderLabel = new Label("Gender");
@@ -630,9 +638,9 @@ public class DashboardScene extends MainScene {
         hobbiesButton.selectedProperty().bindBidirectional(controller.hobbiesProperty());
 
         timeBounceButton.selectedProperty().bindBidirectional(controller.timeProperty());
-        timeBounceButton.setOnAction(e -> changeBounce(defineBounce));
+        timeBounceButton.setOnAction(e -> changeBounce());
         singlePageBounceButton.selectedProperty().bindBidirectional(controller.pageProperty());
-        singlePageBounceButton.setOnAction(e -> changeBounce(defineBounce));
+        singlePageBounceButton.setOnAction(e -> changeBounce());
 
         CategoryAxis xHAxis = new CategoryAxis();
         NumberAxis yHAxis = new NumberAxis();
@@ -795,7 +803,10 @@ public class DashboardScene extends MainScene {
 
     public void checkGraph(ArrayList<String> dates, String startDate, String endDate) {
         try {
-            if (dates.contains(startDate) && dates.contains(endDate) && controller.maxTime() >= Integer.parseInt(controller.timeValProperty().get()) && 1 <= Integer.parseInt(controller.timeValProperty().get()) && controller.maxPage() >= Integer.parseInt(controller.pageValProperty().get()) && 1 <= Integer.parseInt(controller.pageValProperty().get())) {
+            if (dates.contains(startDate) && dates.contains(endDate)) {
+                if (controller.maxTime() >= Integer.parseInt(controller.timeValProperty().get()) && 1 <= Integer.parseInt(controller.timeValProperty().get()) && controller.maxPage() >= Integer.parseInt(controller.pageValProperty().get()) && 1 <= Integer.parseInt(controller.pageValProperty().get())) {
+                    bounceErrorLabel.setText("");
+
                     controller.calculateMetrics(startDate, endDate);
                     controller.changeChart(lineChart, controller.graphNumProperty().get());
                     hController.histogram(controller, histogram);
@@ -803,13 +814,16 @@ public class DashboardScene extends MainScene {
                         controller.changeChart(lineChart2, controller.graph2NumProperty().get());
                         hController.histogram(controller, histogram2);
                     }
+                } else {
+                    bounceErrorLabel.setText("Out of range");
+                }
             }
         } catch(Exception ignored) {
 
         }
     }
 
-    public void changeBounce(TextField defineBounce){
+    public void changeBounce(){
         if (controller.timeProperty().get()) {
             defineBounce.setPromptText("0-" + controller.maxTime());
             defineBounce.textProperty().unbindBidirectional(controller.pageValProperty());
