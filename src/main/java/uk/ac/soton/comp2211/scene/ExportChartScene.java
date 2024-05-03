@@ -18,13 +18,17 @@ import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.printing.PDFPageable;
 import org.apache.pdfbox.util.Matrix;
 import uk.ac.soton.comp2211.control.FileInputController;
 import uk.ac.soton.comp2211.ui.MainWindow;
 import uk.ac.soton.comp2211.users.OperationLogging;
 
 import javax.imageio.ImageIO;
+import javax.print.PrintService;
 import java.awt.image.BufferedImage;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -89,10 +93,14 @@ public class ExportChartScene extends MainScene {
 
             var buttonsHBox = new HBox();
             var backButton = new Button("Back");
+            var printButton = new Button("Print");
+            printButton.getStyleClass().add("fill-button");
+
+
             var incorrectPrompt = new Label();
             incorrectPrompt.setStyle("-fx-text-fill: red");
             backButton.getStyleClass().add("outline-button");
-            buttonsHBox.getChildren().addAll(backButton,exportButton);
+            buttonsHBox.getChildren().addAll(backButton,exportButton, printButton);
             buttonsHBox.setSpacing(10);
             buttonsHBox.setAlignment(Pos.CENTER);
 
@@ -117,49 +125,16 @@ public class ExportChartScene extends MainScene {
             });
 
             exportButton.setOnAction(event -> {
-
                 try {
                     OperationLogging.logAction("Exported summary chart");
 
-                    BufferedImage bufferedImage = SwingFXUtils.fromFXImage(this.image, null);
-
-                    // Create a new PDF document
-                    PDDocument document = new PDDocument();
-
-                    File outputFile = new File("image.png");
-                    ImageIO.write(bufferedImage, "png", outputFile);
-                    // Add a blank page to the document
-                    PDPage page = new PDPage();
-                    document.addPage(page);
-
-                    PDPageContentStream contentStream = new PDPageContentStream(document, page);
-                    PDImageXObject image = PDImageXObject.createFromFile("image.png", document);
-                    PDRectangle pageSize = page.getMediaBox();
-                    float pageWidth = pageSize.getWidth();
-                    float pageHeight = pageSize.getHeight();
-
-                    float imageWidth = image.getWidth();
-                    float imageHeight = image.getHeight();
-
-                    float scale = Math.min(pageWidth / imageHeight, pageHeight / imageWidth);
-                    float scaledWidth = imageHeight * scale;
-                    float scaledHeight = imageWidth * scale;
-
-
-
-                    contentStream.transform(Matrix.getRotateInstance(Math.toRadians(90), 0, 0));
-
-
-                    contentStream.drawImage(image,0, -scaledWidth, scaledHeight, scaledWidth);
-                    contentStream.close();
+                    PDDocument document = generatePDF();
 
                     String fileName = "chart.pdf";
                     String outputDirectory = folderField.getText();
 
-
                     String filePath = outputDirectory + File.separator + fileName;
                     document.save(filePath);
-
 
                     document.close();
 
@@ -171,12 +146,65 @@ public class ExportChartScene extends MainScene {
                 }
             });
 
+            printButton.setOnAction(event -> {
+                try {
+                    OperationLogging.logAction("Exported summary chart");
+
+                    PDDocument document = generatePDF();
+
+                    PrinterJob job = PrinterJob.getPrinterJob();
+
+                    job.setPageable(new PDFPageable(document));
+                    job.print();
+
+                    document.close();
+
+                    incorrectPrompt.setStyle("-fx-text-fill: green");
+                    incorrectPrompt.setText("Successfully exported metrics");
+                } catch (Exception e) {
+                    incorrectPrompt.setStyle("-fx-text-fill: red");
+                    incorrectPrompt.setText("Error printing");
+                }
+            });
+
             backButton.setOnAction( e -> {
                 window.switchToDashboard();
             });
 
         }
 
+        private PDDocument generatePDF() throws IOException {
+            BufferedImage bufferedImage = SwingFXUtils.fromFXImage(this.image, null);
+
+            // Create a new PDF document
+            PDDocument document = new PDDocument();
+
+            File outputFile = new File("image.png");
+            ImageIO.write(bufferedImage, "png", outputFile);
+            // Add a blank page to the document
+            PDPage page = new PDPage();
+            document.addPage(page);
+
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
+            PDImageXObject image = PDImageXObject.createFromFile("image.png", document);
+            PDRectangle pageSize = page.getMediaBox();
+            float pageWidth = pageSize.getWidth();
+            float pageHeight = pageSize.getHeight();
+
+            float imageWidth = image.getWidth();
+            float imageHeight = image.getHeight();
+
+            float scale = Math.min(pageWidth / imageHeight, pageHeight / imageWidth);
+            float scaledWidth = imageHeight * scale;
+            float scaledHeight = imageWidth * scale;
+
+            contentStream.transform(Matrix.getRotateInstance(Math.toRadians(90), 0, 0));
+
+            contentStream.drawImage(image,0, -scaledWidth, scaledHeight, scaledWidth);
+            contentStream.close();
+
+            return document;
+        }
 
     @Override
     public void cleanup() {
