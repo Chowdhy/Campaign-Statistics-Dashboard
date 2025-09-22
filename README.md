@@ -8,4 +8,4 @@ This project involved parsing CSV files to generate accessible databases, creati
 
 <img width="877" height="579" alt="Screenshot 2025-09-22 223026" src="https://github.com/user-attachments/assets/7a96a64e-e80e-444f-bf6f-c1d2d7aafec3" />
 
-Scored 80$
+Scored 80%
